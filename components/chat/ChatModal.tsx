@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { ChatMessage } from '@/lib/chat';
+import { useScrollLock } from '@/lib/useScrollLock';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
@@ -15,6 +16,8 @@ export default function ChatModal({ personName, onClose }: ChatModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useScrollLock(true);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

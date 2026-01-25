@@ -11,7 +11,7 @@ export default function Nav({ name }: NavProps) {
   const { data: session } = useSession();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-100">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-100" data-scroll-lock-compensate>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="font-semibold text-gray-900 hover:text-gray-600 transition-colors">
           {name}
