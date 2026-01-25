@@ -6,6 +6,7 @@ import Skills from '@/components/sections/Skills';
 import Projects from '@/components/sections/Projects';
 import Contact from '@/components/sections/Contact';
 import Nav from '@/components/Nav';
+import ChatButton from '@/components/chat/ChatButton';
 
 export default async function Home() {
   const content = await getContent();
@@ -22,6 +23,7 @@ export default async function Home() {
       <footer className="text-center py-8 text-gray-500 text-sm">
         <p>&copy; {new Date().getFullYear()} {content.header.name}. All rights reserved.</p>
       </footer>
+      <ChatButton personName={content.header.name} />
     </main>
   );
 }
