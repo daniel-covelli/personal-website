@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useLayoutEffect, useRef } from 'react';
+import { useState, useCallback, useLayoutEffect, useRef, useEffect } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ChatMessage } from '@/lib/chat';
 import MessageList from './MessageList';
@@ -12,18 +12,46 @@ interface ChatModalProps {
   buttonElement: HTMLButtonElement;
 }
 
-export default function ChatModal({
-  personName,
-  onClose,
-  buttonElement,
-}: ChatModalProps) {
+export default function ChatModal({ personName, onClose, buttonElement }: ChatModalProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [streamingId, setStreamingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Load existing conversation on mount
+  useEffect(() => {
+    async function loadConversation() {
+      try {
+        const response = await fetch('/api/conversations');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.conversation) {
+            setConversationId(data.conversation.id);
+            setMessages(
+              data.conversation.messages.map(
+                (m: { id: string; role: string; content: string }) => ({
+                  id: m.id,
+                  role: m.role as 'user' | 'assistant',
+                  content: m.content,
+                })
+              )
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load conversation:', err);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    }
+
+    loadConversation();
+  }, []);
 
   useLayoutEffect(() => {
     if (!buttonElement) return;
@@ -93,6 +121,7 @@ export default function ChatModal({
               role,
               content,
             })),
+            conversationId,
           }),
         });
 
@@ -119,6 +148,10 @@ export default function ChatModal({
 
               try {
                 const parsed = JSON.parse(data);
+                // Handle conversation ID from server
+                if (parsed.conversationId && !conversationId) {
+                  setConversationId(parsed.conversationId);
+                }
                 if (parsed.text) {
                   setMessages((prev) =>
                     prev.map((msg) =>
@@ -142,16 +175,11 @@ export default function ChatModal({
         setStreamingId(null);
       }
     },
-    [messages]
+    [messages, conversationId]
   );
 
   return (
-    <DialogPrimitive.Root
-      open={true}
-      modal={false}
-      onOpenChange={(open) => !open && onClose()}
-      // modal={false}
-    >
+    <DialogPrimitive.Root open={true} modal={false} onOpenChange={(open) => !open && onClose()}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className={`fixed inset-0 z-50 bg-black/20 transition-opacity duration-300 ${
@@ -171,9 +199,7 @@ export default function ChatModal({
             left: 'auto',
             top: 'auto',
             transformOrigin: 'bottom right',
-            transform: isAnimating
-              ? 'scale(0.9) translateY(10px)'
-              : 'scale(1) translateY(0)',
+            transform: isAnimating ? 'scale(0.9) translateY(10px)' : 'scale(1) translateY(0)',
             opacity: isAnimating ? 0 : 1,
           }}
           onInteractOutside={(e) => {
@@ -203,11 +229,7 @@ export default function ChatModal({
                 stroke="currentColor"
                 className="h-6 w-6"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
             </DialogPrimitive.Close>
           </div>
@@ -222,6 +244,7 @@ export default function ChatModal({
             messages={messages}
             streamingId={streamingId}
             personName={personName}
+            isLoadingHistory={isLoadingHistory}
           />
           <MessageInput onSend={sendMessage} isLoading={isLoading} />
         </DialogPrimitive.Content>
