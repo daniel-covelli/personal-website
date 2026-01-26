@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useLayoutEffect, useRef } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ChatMessage } from '@/lib/chat';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -8,140 +9,223 @@ import MessageInput from './MessageInput';
 interface ChatModalProps {
   personName: string;
   onClose: () => void;
+  buttonElement: HTMLButtonElement;
 }
 
-export default function ChatModal({ personName, onClose }: ChatModalProps) {
+export default function ChatModal({
+  personName,
+  onClose,
+  buttonElement,
+}: ChatModalProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [position, setPosition] = useState({ bottom: 0, right: 0 });
+  const [isAnimating, setIsAnimating] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
+  useLayoutEffect(() => {
+    if (!buttonElement) return;
 
-  const sendMessage = useCallback(async (content: string) => {
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content,
-    };
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const spacing = 16; // space between button and modal
+    const isMobile = window.innerWidth < 640;
 
-    const assistantId = `assistant-${Date.now()}`;
-    const assistantMessage: ChatMessage = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-    };
+    // Calculate final position: above the button
+    let finalBottom: number;
+    let finalRight: number;
 
-    setMessages((prev) => [...prev, userMessage, assistantMessage]);
-    setIsLoading(true);
-    setStreamingId(assistantId);
-    setError(null);
+    if (isMobile) {
+      // On mobile, position above button, centered horizontally with padding
+      finalBottom = window.innerHeight - buttonRect.top + spacing;
+      finalRight = 16; // p-4 = 16px padding
+    } else {
+      // On desktop, position above button aligned to right
+      finalBottom = window.innerHeight - buttonRect.top + spacing;
+      finalRight = window.innerWidth - buttonRect.right;
+    }
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(({ role, content }) => ({ role, content })),
-        }),
+    // Set initial position (at button location, centered on button)
+    const initialBottom = window.innerHeight - buttonRect.bottom;
+    const initialRight = window.innerWidth - buttonRect.right;
+
+    setPosition({
+      bottom: initialBottom,
+      right: initialRight,
+    });
+
+    // Animate to final position after a brief delay to allow initial render
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setPosition({ bottom: finalBottom, right: finalRight });
+        setIsAnimating(false);
       });
+    });
+  }, [buttonElement]);
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
+  const sendMessage = useCallback(
+    async (content: string) => {
+      const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content,
+      };
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error('No response stream');
+      const assistantId = `assistant-${Date.now()}`;
+      const assistantMessage: ChatMessage = {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+      };
 
-      const decoder = new TextDecoder();
+      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      setIsLoading(true);
+      setStreamingId(assistantId);
+      setError(null);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [...messages, userMessage].map(({ role, content }) => ({
+              role,
+              content,
+            })),
+          }),
+        });
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        if (!response.ok) {
+          throw new Error('Failed to send message');
+        }
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') break;
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error('No response stream');
 
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.text) {
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantId
-                      ? { ...msg, content: msg.content + parsed.text }
-                      : msg
-                  )
-                );
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') break;
+
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.text) {
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantId
+                        ? { ...msg, content: msg.content + parsed.text }
+                        : msg
+                    )
+                  );
+                }
+              } catch {
+                // Skip invalid JSON
               }
-            } catch {
-              // Skip invalid JSON
             }
           }
         }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Something went wrong');
+        setMessages((prev) => prev.filter((msg) => msg.id !== assistantId));
+      } finally {
+        setIsLoading(false);
+        setStreamingId(null);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-      setMessages((prev) => prev.filter((msg) => msg.id !== assistantId));
-    } finally {
-      setIsLoading(false);
-      setStreamingId(null);
-    }
-  }, [messages]);
+    },
+    [messages]
+  );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/20"
-        onClick={onClose}
-      />
+    <DialogPrimitive.Root
+      open={true}
+      modal={false}
+      onOpenChange={(open) => !open && onClose()}
+      // modal={false}
+    >
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          className={`fixed inset-0 z-50 bg-black/20 transition-opacity duration-300 ${
+            isAnimating ? 'opacity-0' : 'opacity-100'
+          }`}
+          onWheel={(e) => e.preventDefault()}
+          onTouchMove={(e) => e.preventDefault()}
+        />
 
-      {/* Chat window */}
-      <div className="relative w-full max-w-md h-[600px] max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
-          <div>
-            <h2 className="font-semibold text-gray-900">Chat with {personName}</h2>
-            <p className="text-xs text-gray-500">Ask about experience, skills, projects</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-            aria-label="Close chat"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
+        {/* Chat window */}
+        <DialogPrimitive.Content
+          ref={contentRef}
+          className="fixed z-50 flex h-[600px] max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-2xl outline-none transition-all duration-300 ease-out"
+          style={{
+            bottom: `${position.bottom}px`,
+            right: `${position.right}px`,
+            left: 'auto',
+            top: 'auto',
+            transformOrigin: 'bottom right',
+            transform: isAnimating
+              ? 'scale(0.9) translateY(10px)'
+              : 'scale(1) translateY(0)',
+            opacity: isAnimating ? 0 : 1,
+          }}
+          onInteractOutside={(e) => {
+            e.preventDefault();
+            onClose();
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3">
+            <div>
+              <DialogPrimitive.Title className="font-semibold text-gray-900">
+                Chat with {personName}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-xs text-gray-500">
+                Ask about experience, skills, projects
+              </DialogPrimitive.Description>
+            </div>
+            <DialogPrimitive.Close
+              className="p-1 text-gray-400 transition-colors hover:text-gray-600"
+              aria-label="Close chat"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {error && (
-          <div className="mx-4 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            {error}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            </DialogPrimitive.Close>
           </div>
-        )}
 
-        <MessageList messages={messages} streamingId={streamingId} personName={personName} />
-        <MessageInput onSend={sendMessage} isLoading={isLoading} />
-      </div>
-    </div>
+          {error && (
+            <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <MessageList
+            messages={messages}
+            streamingId={streamingId}
+            personName={personName}
+          />
+          <MessageInput onSend={sendMessage} isLoading={isLoading} />
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }

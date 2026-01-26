@@ -43,7 +43,7 @@ export default function MessageInput({ onSend, isLoading }: MessageInputProps) {
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           rows={1}
-          className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 resize-none overflow-hidden rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           disabled={isLoading}
         />
         <button
