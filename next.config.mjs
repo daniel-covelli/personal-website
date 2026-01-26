@@ -8,6 +8,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['puppeteer-core', '@sparticuz/chromium'],
+  },
   webpack: (config, { dev, isServer }) => {
     if (dev && isServer) {
       config.devtool = 'source-map';

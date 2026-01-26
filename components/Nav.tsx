@@ -6,7 +6,7 @@ interface NavProps {
 
 export default function Nav({ name }: NavProps) {
   return (
-    <nav className="sticky top-0 z-50 border-b border-stone-200 bg-stone-50/80 backdrop-blur-md px-4">
+    <nav className="sticky top-0 z-50 border-b border-stone-200 bg-stone-50/80 px-4 backdrop-blur-md">
       <div className="mx-auto flex max-w-3xl items-center justify-between py-2">
         <Link
           href="/"
@@ -15,8 +15,8 @@ export default function Nav({ name }: NavProps) {
           {name}
         </Link>
         <a
-          href="/resume.pdf"
-          download
+          href="/api/pdf"
+          download="resume.pdf"
           className="flex items-center gap-1 text-xs font-medium text-sky-600 transition-colors hover:text-sky-700"
         >
           <svg
