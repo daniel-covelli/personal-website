@@ -8,9 +8,10 @@ const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
   try {
-    const { messages } = (await request.json()) as {
+    const { messages, isGreeting } = (await request.json()) as {
       messages: ChatMessage[];
       conversationId?: string;
+      isGreeting?: boolean;
     };
 
     // Get or create session
@@ -22,21 +23,34 @@ export async function POST(request: Request) {
     const content = await getContent();
     const systemPrompt = buildSystemPrompt(content);
 
-    // Get the latest user message
-    const latestUserMessage = messages[messages.length - 1];
-    if (latestUserMessage?.role === 'user') {
-      // Save user message to database
-      await addMessage(conversation.id, 'user', latestUserMessage.content);
-    }
+    let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
 
-    const anthropicMessages = messages.map((msg) => ({
-      role: msg.role as 'user' | 'assistant',
-      content: msg.content,
-    }));
+    if (isGreeting) {
+      // For greeting, ask the assistant to introduce itself casually
+      anthropicMessages = [
+        {
+          role: 'user',
+          content:
+            'Introduce yourself in a casual, friendly way (1-2 sentences max). Keep it short and conversational - mention whose resume this is and that you can chat about their background. No formal language.',
+        },
+      ];
+    } else {
+      // Get the latest user message
+      const latestUserMessage = messages[messages.length - 1];
+      if (latestUserMessage?.role === 'user') {
+        // Save user message to database
+        await addMessage(conversation.id, 'user', latestUserMessage.content);
+      }
+
+      anthropicMessages = messages.map((msg) => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      }));
+    }
 
     const stream = anthropic.messages.stream({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
+      max_tokens: isGreeting ? 150 : 1024,
       system: systemPrompt,
       messages: anthropicMessages,
     });

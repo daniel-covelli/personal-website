@@ -28,7 +28,7 @@ export default function Contact({ data }: ContactProps) {
               href={link.href}
               target={link.label !== 'Email' ? '_blank' : undefined}
               rel={link.label !== 'Email' ? 'noopener noreferrer' : undefined}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-stone-200 rounded-lg hover:bg-stone-300 transition-colors"
             >
               <span className="font-medium text-gray-700">{link.label}</span>
             </a>

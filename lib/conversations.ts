@@ -96,6 +96,16 @@ export async function addMessage(
   };
 }
 
+export async function deleteConversationBySessionId(
+  sessionId: string
+): Promise<boolean> {
+  const result = await prisma.conversation.deleteMany({
+    where: { sessionId },
+  });
+
+  return result.count > 0;
+}
+
 export async function deleteOldConversations(daysOld: number = 30): Promise<number> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysOld);

@@ -23,7 +23,7 @@ export default function Skills({ data }: SkillsProps) {
                 {category.items.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                    className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-sm"
                   >
                     {skill}
                   </span>

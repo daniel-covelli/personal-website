@@ -11,7 +11,8 @@ export interface Experience {
   company: string;
   startDate: string;
   endDate: string;
-  description: string;
+  description?: string;
+  bullets: string[];
 }
 
 export interface Education {
@@ -20,7 +21,8 @@ export interface Education {
   institution: string;
   startDate: string;
   endDate: string;
-  details: string;
+  description?: string;
+  bullets: string[];
 }
 
 export interface SkillCategory {
@@ -41,7 +43,8 @@ export interface ProjectLinks {
 export interface Project {
   id: string;
   name: string;
-  description: string;
+  description?: string;
+  bullets: string[];
   techStack: string[];
   links: ProjectLinks;
 }

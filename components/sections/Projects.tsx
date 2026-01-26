@@ -8,7 +8,7 @@ export default function Projects({ data }: ProjectsProps) {
   if (data.length === 0) return null;
 
   return (
-    <section className="py-12 px-4 bg-gray-50">
+    <section className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold text-gray-900 mb-8 border-b pb-2">
           Projects
@@ -17,17 +17,30 @@ export default function Projects({ data }: ProjectsProps) {
           {data.map((project) => (
             <div
               key={project.id}
-              className="bg-white p-6 rounded-lg shadow-sm border border-gray-100"
+              className="bg-stone-100 p-6 rounded-lg shadow-sm border border-stone-200"
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {project.name}
               </h3>
-              <p className="text-gray-600 text-sm mb-4">{project.description}</p>
+              {(project.description || project.bullets?.length > 0) && (
+                <div className="mb-4">
+                  {project.description && (
+                    <p className="text-gray-600 text-sm mb-2">{project.description}</p>
+                  )}
+                  {project.bullets?.length > 0 && (
+                    <ul className="list-disc list-inside text-gray-600 text-sm space-y-1">
+                      {project.bullets.map((bullet, i) => (
+                        <li key={i}>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
               <div className="flex flex-wrap gap-2 mb-4">
                 {project.techStack.map((tech, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
+                    className="px-2 py-1 bg-stone-200 text-stone-700 rounded text-xs"
                   >
                     {tech}
                   </span>
@@ -39,7 +52,7 @@ export default function Projects({ data }: ProjectsProps) {
                     href={project.links.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
                   >
                     GitHub
                   </a>
@@ -49,7 +62,7 @@ export default function Projects({ data }: ProjectsProps) {
                     href={project.links.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
                   >
                     Live Demo
                   </a>

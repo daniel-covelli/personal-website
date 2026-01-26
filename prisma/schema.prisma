@@ -37,3 +37,86 @@ model ResumeContent {
 
   @@map("resume_content")
 }
+
+// ============================================
+// Structured Resume Tables
+// ============================================
+
+model Header {
+  id        String   @id @default("singleton")
+  name      String
+  title     String
+  bio       String   @db.Text
+  imageUrl  String   @default("") @map("image_url")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("header")
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  jobTitle    String   @map("job_title")
+  company     String
+  startDate   String   @map("start_date")
+  endDate     String   @map("end_date")
+  description String?  @db.Text
+  bullets     String[]
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("experiences")
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  degree      String
+  institution String
+  startDate   String   @map("start_date")
+  endDate     String   @map("end_date")
+  description String?  @db.Text
+  bullets     String[]
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("education")
+}
+
+model SkillCategory {
+  id        String   @id @default(cuid())
+  name      String
+  items     String[]
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("skill_categories")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  bullets     String[]
+  techStack   String[] @map("tech_stack")
+  githubUrl   String?  @map("github_url")
+  liveUrl     String?  @map("live_url")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("projects")
+}
+
+model Contact {
+  id        String   @id @default("singleton")
+  email     String   @default("")
+  linkedin  String   @default("")
+  github    String   @default("")
+  twitter   String   @default("")
+  website   String   @default("")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("contact")
+}

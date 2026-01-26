@@ -7,8 +7,8 @@ interface HeaderProps {
 
 export default function Header({ data }: HeaderProps) {
   return (
-    <header className="px-6 pt-24 pb-16">
-      <div className="max-w-4xl mx-auto">
+    <header className="px-4 pt-24 pb-16">
+      <div className="max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-8">
           {data.imageUrl && (
             <Image

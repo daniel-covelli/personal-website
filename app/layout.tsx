@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full overflow-hidden`}>
+      <body className={`${inter.className} h-full overflow-hidden bg-stone-50`}>
         <SessionProvider>
           <ScrollArea className="h-full">
             {children}
