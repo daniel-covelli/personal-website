@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import { getContent, saveContent } from '@/lib/content';
 import { ResumeContent } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const content = await getContent();
