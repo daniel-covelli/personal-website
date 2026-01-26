@@ -124,13 +124,15 @@ body {
 /* Bullet list styles */
 .print-bullets {
   margin: 0;
-  padding-left: 1rem;
+  padding-left: 1.25rem;
   font-size: 9pt;
   color: #4b5563;
+  list-style-type: disc;
 }
 
 .print-bullets li {
   margin-bottom: 0.125rem;
+  display: list-item;
 }
 
 .print-bullets li:last-child {
