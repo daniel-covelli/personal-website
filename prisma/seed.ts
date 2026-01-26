@@ -61,7 +61,9 @@ async function main() {
 
   // Read content.json
   const contentPath = path.join(process.cwd(), 'data', 'content.json');
-  const contentJson: ContentJson = JSON.parse(fs.readFileSync(contentPath, 'utf-8'));
+  const contentJson: ContentJson = JSON.parse(
+    fs.readFileSync(contentPath, 'utf-8')
+  );
 
   // Seed Header
   console.log('Seeding header...');

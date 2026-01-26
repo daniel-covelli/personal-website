@@ -52,6 +52,9 @@ export async function DELETE() {
     return Response.json({ success: deleted });
   } catch (error) {
     console.error('Failed to delete conversation:', error);
-    return Response.json({ error: 'Failed to delete conversation' }, { status: 500 });
+    return Response.json(
+      { error: 'Failed to delete conversation' },
+      { status: 500 }
+    );
   }
 }

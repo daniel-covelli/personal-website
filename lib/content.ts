@@ -1,4 +1,3 @@
-import path from 'path';
 import { ResumeContent } from './types';
 import { prisma } from './db';
 

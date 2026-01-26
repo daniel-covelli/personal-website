@@ -19,9 +19,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Cleanup cron error:', error);
-    return Response.json(
-      { error: 'Failed to run cleanup' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to run cleanup' }, { status: 500 });
   }
 }

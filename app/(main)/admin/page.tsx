@@ -16,8 +16,8 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="border-b border-gray-200 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-sm text-gray-500">Manage your resume content</p>
@@ -26,7 +26,7 @@ export default async function AdminPage() {
             <a
               href="/"
               target="_blank"
-              className="text-blue-600 hover:underline text-sm"
+              className="text-sm text-blue-600 hover:underline"
             >
               View Resume
             </a>
@@ -35,7 +35,7 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-8">
         <ContentEditor initialContent={content} />
       </main>
     </div>

@@ -106,7 +106,9 @@ export async function deleteConversationBySessionId(
   return result.count > 0;
 }
 
-export async function deleteOldConversations(daysOld: number = 30): Promise<number> {
+export async function deleteOldConversations(
+  daysOld: number = 30
+): Promise<number> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 

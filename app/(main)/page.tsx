@@ -26,20 +26,22 @@ export default async function Home() {
       <Skills data={content.skills} />
       <Projects data={content.projects} />
       <Contact data={content.contact} />
-      <footer className="py-8 px-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between text-stone-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} {content.header.name}</p>
+      <footer className="px-4 py-8">
+        <div className="mx-auto flex max-w-3xl items-center justify-between text-sm text-stone-500">
+          <p>
+            &copy; {new Date().getFullYear()} {content.header.name}
+          </p>
           {isAdmin ? (
             <a
               href="/admin"
-              className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+              className="text-xs text-stone-400 transition-colors hover:text-stone-600"
             >
               Admin
             </a>
           ) : (
             <a
               href="/login"
-              className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+              className="text-xs text-stone-400 transition-colors hover:text-stone-600"
             >
               Login
             </a>
