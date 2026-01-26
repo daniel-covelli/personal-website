@@ -1,13 +1,25 @@
 'use client';
 
 import { ChatMessage } from '@/lib/chat';
+import { useTypewriter } from '@/lib/useTypewriter';
 
 interface MessageProps {
   message: ChatMessage;
   isStreaming?: boolean;
 }
 
-export default function Message({ message, isStreaming }: MessageProps) {
+function AssistantMessage({ content }: { content: string }) {
+  const displayedText = useTypewriter(content);
+
+  return (
+    <p className="whitespace-pre-wrap">
+      {displayedText}
+    </p>
+  );
+}
+
+export default function Message({ message }: MessageProps) {
+  console.log(message);
   const isUser = message.role === 'user';
 
   return (
@@ -19,12 +31,11 @@ export default function Message({ message, isStreaming }: MessageProps) {
             : 'bg-gray-100 text-gray-900'
         }`}
       >
-        <p className="whitespace-pre-wrap">
-          {message.content}
-          {isStreaming && (
-            <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
-          )}
-        </p>
+        {isUser ? (
+          <p className="whitespace-pre-wrap">{message.content}</p>
+        ) : (
+          <AssistantMessage content={message.content} />
+        )}
       </div>
     </div>
   );
