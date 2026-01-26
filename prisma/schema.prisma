@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  sessionId String    @map("session_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  messages  Message[]
+
+  @@index([sessionId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String       @map("conversation_id")
+  role           String
+  content        String       @db.Text
+  createdAt      DateTime     @default(now()) @map("created_at")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model ResumeContent {
+  id        String   @id @default("singleton")
+  content   Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("resume_content")
+}
+
+// ============================================
+// Structured Resume Tables
+// ============================================
+
+model Header {
+  id        String   @id @default("singleton")
+  name      String
+  title     String
+  bio       String   @db.Text
+  imageUrl  String   @default("") @map("image_url")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("header")
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  jobTitle    String   @map("job_title")
+  company     String
+  startDate   String   @map("start_date")
+  endDate     String   @map("end_date")
+  description String?  @db.Text
+  bullets     String[]
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("experiences")
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  degree      String
+  institution String
+  startDate   String   @map("start_date")
+  endDate     String   @map("end_date")
+  description String?  @db.Text
+  bullets     String[]
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("education")
+}
+
+model SkillCategory {
+  id        String   @id @default(cuid())
+  name      String
+  items     String[]
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("skill_categories")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  bullets     String[]
+  techStack   String[] @map("tech_stack")
+  githubUrl   String?  @map("github_url")
+  liveUrl     String?  @map("live_url")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("projects")
+}
+
+model Contact {
+  id        String   @id @default("singleton")
+  email     String   @default("")
+  linkedin  String   @default("")
+  github    String   @default("")
+  twitter   String   @default("")
+  website   String   @default("")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("contact")
+}

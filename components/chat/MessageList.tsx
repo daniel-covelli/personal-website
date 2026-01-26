@@ -9,12 +9,14 @@ interface MessageListProps {
   messages: ChatMessage[];
   streamingId: string | null;
   personName: string;
+  isLoadingHistory?: boolean;
 }
 
 export default function MessageList({
   messages,
   streamingId,
   personName,
+  isLoadingHistory = false,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -22,15 +24,23 @@ export default function MessageList({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  if (isLoadingHistory) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="text-center text-gray-500">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+          <p>Loading conversation...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (messages.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="text-center text-gray-500">
           <p className="mb-2 text-lg">Welcome!</p>
-          <p>
-            Ask me anything about {personName}&apos;s experience, skills, or
-            projects.
-          </p>
+          <p>Ask me anything about {personName}&apos;s experience, skills, or projects.</p>
         </div>
       </div>
     );
@@ -40,11 +50,7 @@ export default function MessageList({
     <ScrollArea className="flex-1">
       <div className="space-y-4 p-4">
         {messages.map((message) => (
-          <Message
-            key={message.id}
-            message={message}
-            isStreaming={message.id === streamingId}
-          />
+          <Message key={message.id} message={message} isStreaming={message.id === streamingId} />
         ))}
         <div ref={bottomRef} />
       </div>
