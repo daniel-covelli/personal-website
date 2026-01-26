@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import puppeteerCore, { Browser } from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
+export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 async function getBrowser(): Promise<Browser> {
