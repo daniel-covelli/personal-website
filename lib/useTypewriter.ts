@@ -5,38 +5,49 @@ export function useTypewriter(text: string) {
   const indexRef = useRef(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const previousTextRef = useRef('');
+  const textRef = useRef(text);
 
   useEffect(() => {
+    // Store previous text before updating
+    const prevText = previousTextRef.current;
+    const wasAppended = text.startsWith(prevText);
+    
     // If text was completely replaced (not just appended), reset
-    if (!text.startsWith(previousTextRef.current)) {
+    if (!wasAppended && prevText !== '') {
       setDisplayedText('');
       indexRef.current = 0;
     }
-    // Otherwise, text was appended - continue from current position
-    // indexRef already points to where we are, so we just continue
+    
+    // Update refs
+    textRef.current = text;
+    previousTextRef.current = text;
 
     // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
 
     const typeNextChar = () => {
-      if (indexRef.current < text.length) {
-        setDisplayedText(text.slice(0, indexRef.current + 1));
+      const currentText = textRef.current;
+      if (indexRef.current < currentText.length) {
+        setDisplayedText(currentText.slice(0, indexRef.current + 1));
         indexRef.current += 1;
         timeoutRef.current = setTimeout(typeNextChar, 5);
+      } else {
+        timeoutRef.current = null;
       }
     };
 
     // Continue typing from where we left off (or start if reset)
-    timeoutRef.current = setTimeout(typeNextChar, 5);
-    
-    // Update previous text reference
-    previousTextRef.current = text;
+    if (indexRef.current < text.length) {
+      timeoutRef.current = setTimeout(typeNextChar, 5);
+    }
     
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
   }, [text]);
