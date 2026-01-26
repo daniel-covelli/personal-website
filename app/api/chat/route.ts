@@ -66,7 +66,10 @@ export async function POST(request: Request) {
           controller.enqueue(encoder.encode(`data: ${initData}\n\n`));
 
           for await (const event of stream) {
-            if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+            if (
+              event.type === 'content_block_delta' &&
+              event.delta.type === 'text_delta'
+            ) {
               fullResponse += event.delta.text;
               const data = JSON.stringify({ text: event.delta.text });
               controller.enqueue(encoder.encode(`data: ${data}\n\n`));
@@ -95,9 +98,12 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Chat API error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to process chat request' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: 'Failed to process chat request' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 }

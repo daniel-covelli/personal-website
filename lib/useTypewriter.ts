@@ -11,13 +11,13 @@ export function useTypewriter(text: string) {
     // Store previous text before updating
     const prevText = previousTextRef.current;
     const wasAppended = text.startsWith(prevText);
-    
+
     // If text was completely replaced (not just appended), reset
     if (!wasAppended && prevText !== '') {
       setDisplayedText('');
       indexRef.current = 0;
     }
-    
+
     // Update refs
     textRef.current = text;
     previousTextRef.current = text;
@@ -43,7 +43,7 @@ export function useTypewriter(text: string) {
     if (indexRef.current < text.length) {
       timeoutRef.current = setTimeout(typeNextChar, 5);
     }
-    
+
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);

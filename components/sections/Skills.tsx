@@ -8,22 +8,22 @@ export default function Skills({ data }: SkillsProps) {
   if (data.categories.length === 0) return null;
 
   return (
-    <section className="py-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8 border-b pb-2">
+    <section className="px-4 py-12">
+      <div className="mx-auto max-w-3xl">
+        <h2 className="mb-8 border-b pb-2 text-2xl font-bold text-gray-900">
           Skills
         </h2>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-3">
           {data.categories.map((category) => (
             <div key={category.id}>
-              <h3 className="font-semibold text-gray-900 mb-3">
+              <h3 className="mb-3 font-semibold text-gray-900">
                 {category.name}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {category.items.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-sm"
+                    className="rounded-full bg-sky-50 px-3 py-1 text-sm text-sky-700"
                   >
                     {skill}
                   </span>

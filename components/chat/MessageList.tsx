@@ -40,7 +40,10 @@ export default function MessageList({
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="text-center text-gray-500">
           <p className="mb-2 text-lg">Welcome!</p>
-          <p>Ask me anything about {personName}&apos;s experience, skills, or projects.</p>
+          <p>
+            Ask me anything about {personName}&apos;s experience, skills, or
+            projects.
+          </p>
         </div>
       </div>
     );
@@ -50,7 +53,11 @@ export default function MessageList({
     <ScrollArea className="flex-1">
       <div className="space-y-4 p-4">
         {messages.map((message) => (
-          <Message key={message.id} message={message} isStreaming={message.id === streamingId} />
+          <Message
+            key={message.id}
+            message={message}
+            isStreaming={message.id === streamingId}
+          />
         ))}
         <div ref={bottomRef} />
       </div>

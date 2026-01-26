@@ -1,6 +1,12 @@
 'use client';
 
-import { useState, useCallback, useLayoutEffect, useRef, useEffect } from 'react';
+import {
+  useState,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useEffect,
+} from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ChatMessage } from '@/lib/chat';
 import MessageList from './MessageList';
@@ -13,7 +19,12 @@ interface ChatModalProps {
   isAdmin?: boolean;
 }
 
-export default function ChatModal({ personName, onClose, buttonElement, isAdmin }: ChatModalProps) {
+export default function ChatModal({
+  personName,
+  onClose,
+  buttonElement,
+  isAdmin,
+}: ChatModalProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
@@ -278,7 +289,11 @@ export default function ChatModal({ personName, onClose, buttonElement, isAdmin 
   );
 
   return (
-    <DialogPrimitive.Root open={true} modal={false} onOpenChange={(open) => !open && onClose()}>
+    <DialogPrimitive.Root
+      open={true}
+      modal={false}
+      onOpenChange={(open) => !open && onClose()}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className={`fixed inset-0 z-50 bg-black/20 transition-opacity duration-300 ${
@@ -298,7 +313,9 @@ export default function ChatModal({ personName, onClose, buttonElement, isAdmin 
             left: 'auto',
             top: 'auto',
             transformOrigin: 'bottom right',
-            transform: isAnimating ? 'scale(0.9) translateY(10px)' : 'scale(1) translateY(0)',
+            transform: isAnimating
+              ? 'scale(0.9) translateY(10px)'
+              : 'scale(1) translateY(0)',
             opacity: isAnimating ? 0 : 1,
           }}
           onInteractOutside={(e) => {
@@ -350,7 +367,11 @@ export default function ChatModal({ personName, onClose, buttonElement, isAdmin 
                   stroke="currentColor"
                   className="h-6 w-6"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
                 </svg>
               </DialogPrimitive.Close>
             </div>

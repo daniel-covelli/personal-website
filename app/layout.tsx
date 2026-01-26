@@ -20,9 +20,7 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${inter.className} h-full overflow-hidden bg-stone-50`}>
         <SessionProvider>
-          <ScrollArea className="h-full">
-            {children}
-          </ScrollArea>
+          <ScrollArea className="h-full">{children}</ScrollArea>
         </SessionProvider>
       </body>
     </html>
