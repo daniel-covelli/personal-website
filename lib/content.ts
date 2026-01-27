@@ -63,6 +63,8 @@ async function getContentFromStructuredTables(): Promise<ResumeContent | null> {
     contact: contact
       ? {
           email: contact.email,
+          phone: contact.phone,
+          location: contact.location,
           linkedin: contact.linkedin,
           github: contact.github,
           twitter: contact.twitter,
@@ -70,6 +72,8 @@ async function getContentFromStructuredTables(): Promise<ResumeContent | null> {
         }
       : {
           email: '',
+          phone: '',
+          location: '',
           linkedin: '',
           github: '',
           twitter: '',
@@ -184,6 +188,8 @@ export async function saveContent(content: ResumeContent): Promise<void> {
         where: { id: 'singleton' },
         update: {
           email: content.contact.email || '',
+          phone: content.contact.phone || '',
+          location: content.contact.location || '',
           linkedin: content.contact.linkedin || '',
           github: content.contact.github || '',
           twitter: content.contact.twitter || '',
@@ -192,6 +198,8 @@ export async function saveContent(content: ResumeContent): Promise<void> {
         create: {
           id: 'singleton',
           email: content.contact.email || '',
+          phone: content.contact.phone || '',
+          location: content.contact.location || '',
           linkedin: content.contact.linkedin || '',
           github: content.contact.github || '',
           twitter: content.contact.twitter || '',
