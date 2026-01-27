@@ -1,5 +1,7 @@
 import { getContent } from '@/lib/content';
 import PrintHeader from '@/components/print/PrintHeader';
+
+export const dynamic = 'force-dynamic';
 import PrintExperience from '@/components/print/PrintExperience';
 import PrintEducation from '@/components/print/PrintEducation';
 import PrintSkills from '@/components/print/PrintSkills';
