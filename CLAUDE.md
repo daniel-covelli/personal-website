@@ -1,29 +1,49 @@
 # Claude Code Project Guide
 
-## Styling Architecture
+## Database (Prisma)
 
-This project has two distinct styling contexts:
+**Local dev connects directly to production.** No staging environment.
 
-### Website Styles (Tailwind CSS)
-- Located in: `components/sections/*.tsx`
-- Uses Tailwind utility classes
-- Example: `Experience.tsx`, `Education.tsx`, `Projects.tsx`
+### Safe Commands
+```bash
+npx prisma migrate deploy   # Apply pending migrations
+npx prisma generate         # Regenerate client
+```
 
-### Print/PDF Styles
-- Located in: `app/print.css`
-- Uses traditional CSS with pt-based font sizes
-- Components in: `components/print/*.tsx`
-- These use class names like `print-bullets`, `print-entry`, etc.
+### Dangerous Commands (will destroy prod data)
+```bash
+npx prisma migrate reset    # Drops entire database
+npx prisma migrate dev      # Can reset on drift
+npx prisma db seed          # Wipes tables then re-seeds
+npx prisma db push          # Can lose data
+```
 
-## Key Differences
+### Adding Schema Changes
+```bash
+npx prisma migrate dev --name change-name --create-only  # Create only
+# Review SQL in prisma/migrations/
+npx prisma migrate deploy                                 # Then apply
+```
 
-| Element | Website | Print |
-|---------|---------|-------|
-| Bullet points | `text-sm` (14px) | `8pt` |
-| Body text | `text-base` (16px) | `10pt` |
-| Section titles | `text-2xl` | `12pt` |
+### Files to Update for New Fields
+1. `prisma/schema.prisma` - Schema
+2. `lib/types.ts` - TypeScript interface
+3. `lib/content.ts` - getContent/saveContent
+4. Components (print, sections, admin)
 
-## When Making Style Changes
+---
 
-- **Website appearance**: Edit the Tailwind classes in `components/sections/*.tsx`
-- **Print/PDF appearance**: Edit `app/print.css` and `components/print/*.tsx`
+## PDF Generation
+
+- Endpoint: `/api/pdf` (Puppeteer renders `/resume/print`)
+- Preview: `/resume/preview`
+- **Margins controlled only via CSS** in `app/print.css` `@page` rule (not Puppeteer options)
+
+---
+
+## Styling
+
+| Context | Location | Tech |
+|---------|----------|------|
+| Website | `components/sections/` | Tailwind |
+| Print/PDF | `components/print/` + `app/print.css` | CSS (pt units) |

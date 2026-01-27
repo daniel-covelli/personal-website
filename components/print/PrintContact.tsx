@@ -5,38 +5,41 @@ interface PrintContactProps {
 }
 
 export default function PrintContact({ data }: PrintContactProps) {
-  const items = [
-    { label: 'Email', value: data.email },
-    { label: 'LinkedIn', value: data.linkedin },
-    { label: 'GitHub', value: data.github },
-    { label: 'Twitter', value: data.twitter },
-    { label: 'Website', value: data.website },
+  const topRow = [
+    { value: data.location, href: null, display: data.location },
+    { value: data.phone, href: data.phone ? `tel:${data.phone}` : null, display: data.phone },
+    { value: data.email, href: data.email ? `mailto:${data.email}` : null, display: data.email },
   ].filter((item) => item.value);
 
-  if (items.length === 0) return null;
+  const bottomRow = [
+    { value: data.website, href: data.website, display: data.website },
+    { value: data.github, href: data.github, display: data.github },
+    { value: data.linkedin, href: data.linkedin, display: data.linkedin },
+  ].filter((item) => item.value);
 
-  // Extract display value from URLs
-  const getDisplayValue = (label: string, value: string) => {
-    if (label === 'Email') return value;
-    try {
-      const url = new URL(value);
-      return url.hostname + url.pathname.replace(/\/$/, '');
-    } catch {
-      return value;
-    }
-  };
+  if (topRow.length === 0 && bottomRow.length === 0) return null;
+
+  const renderRow = (items: typeof topRow) => (
+    <>
+      {items.map((item, index) => (
+        <span key={item.display}>
+          {item.href ? (
+            <a href={item.href} className="print-contact-link">
+              {item.display}
+            </a>
+          ) : (
+            item.display
+          )}
+          {index < items.length - 1 && <span className="print-contact-separator">|</span>}
+        </span>
+      ))}
+    </>
+  );
 
   return (
-    <section className="print-section">
-      <h2 className="print-section-title">Contact</h2>
-      <div className="print-contact">
-        {items.map((item) => (
-          <span key={item.label} className="print-contact-item">
-            <span className="print-contact-label">{item.label}:</span>{' '}
-            {getDisplayValue(item.label, item.value)}
-          </span>
-        ))}
-      </div>
-    </section>
+    <div className="print-contact-block">
+      {topRow.length > 0 && <div className="print-contact-row">{renderRow(topRow)}</div>}
+      {bottomRow.length > 0 && <div className="print-contact-row">{renderRow(bottomRow)}</div>}
+    </div>
   );
 }

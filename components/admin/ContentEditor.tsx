@@ -770,6 +770,30 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
             <h3 className="mb-4 text-lg font-semibold">Contact Information</h3>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
+                Phone
+              </label>
+              <input
+                type="tel"
+                value={content.contact.phone}
+                onChange={(e) => updateContact('phone', e.target.value)}
+                placeholder="555-123-4567"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Location (City, State)
+              </label>
+              <input
+                type="text"
+                value={content.contact.location}
+                onChange={(e) => updateContact('location', e.target.value)}
+                placeholder="San Francisco, CA"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Email
               </label>
               <input

@@ -42,26 +42,25 @@ export async function GET(request: Request) {
       timeout: 20000,
     });
 
-    // Generate PDF
+    // Generate PDF - margins controlled via CSS @page and body padding
     const pdf = await page.pdf({
-      format: 'Letter',
+      preferCSSPageSize: true,
       printBackground: true,
-      margin: {
-        top: '0.5in',
-        right: '0.5in',
-        bottom: '0.5in',
-        left: '0.5in',
-      },
     });
 
     await browser.close();
 
-    // Return PDF as download
+    // Check if this is a preview request (display inline) or download
+    const isPreview = url.searchParams.get('preview') === '1';
+
+    // Return PDF
     return new NextResponse(Buffer.from(pdf), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="resume.pdf"',
+        'Content-Disposition': isPreview
+          ? 'inline'
+          : 'attachment; filename="resume.pdf"',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     });
