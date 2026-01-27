@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
+
+export const dynamic = 'force-dynamic';
 import Header from '@/components/sections/Header';
 import Experience from '@/components/sections/Experience';
 import Education from '@/components/sections/Education';
