@@ -31,7 +31,7 @@ export default function Experience({ data }: ExperienceProps) {
                 <p className="mb-2 text-gray-600">{exp.description}</p>
               )}
               {exp.bullets?.length > 0 && (
-                <ul className="list-inside list-disc space-y-1 text-gray-600">
+                <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
                   {exp.bullets.map((bullet, i) => (
                     <li key={i}>{bullet}</li>
                   ))}
