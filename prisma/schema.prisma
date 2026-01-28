@@ -99,7 +99,6 @@ model Project {
   name        String
   description String?  @db.Text
   bullets     String[]
-  techStack   String[] @map("tech_stack")
   githubUrl   String?  @map("github_url")
   liveUrl     String?  @map("live_url")
   sortOrder   Int      @default(0) @map("sort_order")

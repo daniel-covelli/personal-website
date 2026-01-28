@@ -27,11 +27,9 @@ export default function Education({ data }: EducationProps) {
                 <p className="mb-2 text-gray-600">{edu.description}</p>
               )}
               {edu.bullets?.length > 0 && (
-                <ul className="list-inside list-disc space-y-1 text-gray-600">
-                  {edu.bullets.map((bullet, i) => (
-                    <li key={i}>{bullet}</li>
-                  ))}
-                </ul>
+                <p className="text-gray-600">
+                  {edu.bullets.join(' · ')}
+                </p>
               )}
             </div>
           ))}
