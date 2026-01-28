@@ -27,7 +27,7 @@ export default function Education({ data }: EducationProps) {
                 <p className="mb-2 text-gray-600">{edu.description}</p>
               )}
               {edu.bullets?.length > 0 && (
-                <p className="text-gray-600">
+                <p className="text-sm text-gray-600">
                   {edu.bullets.join(' · ')}
                 </p>
               )}

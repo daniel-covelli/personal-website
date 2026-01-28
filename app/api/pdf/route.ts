@@ -61,7 +61,7 @@ export async function GET(request: Request) {
         'Content-Disposition': isPreview
           ? 'inline'
           : 'attachment; filename="resume.pdf"',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
       },
     });
   } catch (error) {
