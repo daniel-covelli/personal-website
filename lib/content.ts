@@ -54,7 +54,6 @@ async function getContentFromStructuredTables(): Promise<ResumeContent | null> {
       name: proj.name,
       description: proj.description || undefined,
       bullets: proj.bullets,
-      techStack: proj.techStack,
       links: {
         github: proj.githubUrl || undefined,
         live: proj.liveUrl || undefined,
@@ -175,7 +174,6 @@ export async function saveContent(content: ResumeContent): Promise<void> {
             name: proj.name,
             description: proj.description || null,
             bullets: proj.bullets || [],
-            techStack: proj.techStack,
             githubUrl: proj.links?.github || null,
             liveUrl: proj.links?.live || null,
             sortOrder: i,

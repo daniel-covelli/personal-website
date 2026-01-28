@@ -22,32 +22,23 @@ export default function Projects({ data }: ProjectsProps) {
               <h3 className="mb-2 text-lg font-semibold text-gray-900">
                 {project.name}
               </h3>
-              {(project.description || project.bullets?.length > 0) && (
-                <div className="mb-4">
-                  {project.description && (
-                    <p className="mb-2 text-sm text-gray-600">
-                      {project.description}
-                    </p>
-                  )}
-                  {project.bullets?.length > 0 && (
-                    <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
-                      {project.bullets.map((bullet, i) => (
-                        <li key={i}>{bullet}</li>
-                      ))}
-                    </ul>
-                  )}
+              {project.description && (
+                <p className="mb-4 text-sm text-gray-600">
+                  {project.description}
+                </p>
+              )}
+              {project.bullets?.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {project.bullets.map((bullet, i) => (
+                    <span
+                      key={i}
+                      className="rounded bg-stone-200 px-2 py-1 text-xs text-stone-700"
+                    >
+                      {bullet}
+                    </span>
+                  ))}
                 </div>
               )}
-              <div className="mb-4 flex flex-wrap gap-2">
-                {project.techStack.map((tech, index) => (
-                  <span
-                    key={index}
-                    className="rounded bg-stone-200 px-2 py-1 text-xs text-stone-700"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
               <div className="flex gap-4">
                 {project.links.github && (
                   <a

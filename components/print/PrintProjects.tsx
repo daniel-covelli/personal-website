@@ -18,15 +18,25 @@ export default function PrintProjects({ data }: PrintProjectsProps) {
               <p className="print-project-description">{project.description}</p>
             )}
             {project.bullets?.length > 0 && (
-              <ul className="print-bullets">
-                {project.bullets.map((bullet, i) => (
-                  <li key={i}>{bullet}</li>
-                ))}
-              </ul>
-            )}
-            {project.techStack.length > 0 && (
               <div className="print-tech-stack">
-                {project.techStack.join(' | ')}
+                {project.bullets.join(' | ')}
+              </div>
+            )}
+            {(project.links.github || project.links.live) && (
+              <div className="print-project-links">
+                {project.links.github && (
+                  <a href={project.links.github} className="print-contact-link">
+                    GitHub
+                  </a>
+                )}
+                {project.links.github && project.links.live && (
+                  <span className="print-contact-separator">|</span>
+                )}
+                {project.links.live && (
+                  <a href={project.links.live} className="print-contact-link">
+                    Live Demo
+                  </a>
+                )}
               </div>
             )}
           </div>

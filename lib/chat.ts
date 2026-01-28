@@ -38,7 +38,7 @@ export function buildSystemPrompt(content: ResumeContent): string {
       const bulletList = (proj.bullets || []).map((b) => `  • ${b}`).join('\n');
       const desc = proj.description ? `\n  ${proj.description}` : '';
       const linksText = links.length ? ` [${links.join(', ')}]` : '';
-      return `- ${proj.name} (Tech: ${proj.techStack.join(', ')})${linksText}:${desc}${bulletList ? '\n' + bulletList : ''}`;
+      return `- ${proj.name}${linksText}:${desc}${bulletList ? '\n' + bulletList : ''}`;
     })
     .join('\n\n');
 

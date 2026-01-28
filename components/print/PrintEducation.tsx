@@ -24,11 +24,9 @@ export default function PrintEducation({ data }: PrintEducationProps) {
               <p className="print-entry-description">{edu.description}</p>
             )}
             {edu.bullets?.length > 0 && (
-              <ul className="print-bullets">
-                {edu.bullets.map((bullet, i) => (
-                  <li key={i}>{bullet}</li>
-                ))}
-              </ul>
+              <p className="print-entry-inline-bullets">
+                {edu.bullets.join(' · ')}
+              </p>
             )}
           </div>
         ))}

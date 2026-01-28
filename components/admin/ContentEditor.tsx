@@ -113,6 +113,14 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     setContent({ ...content, experience: newExp });
   }
 
+  function moveExperience(index: number, direction: 'up' | 'down') {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= content.experience.length) return;
+    const newExp = [...content.experience];
+    [newExp[index], newExp[newIndex]] = [newExp[newIndex], newExp[index]];
+    setContent({ ...content, experience: newExp });
+  }
+
   function updateEducation(
     index: number,
     field: keyof Education,
@@ -205,6 +213,40 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     setContent({ ...content, skills: { categories: newCategories } });
   }
 
+  function moveSkillCategory(index: number, direction: 'up' | 'down') {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= content.skills.categories.length) return;
+    const newCategories = [...content.skills.categories];
+    [newCategories[index], newCategories[newIndex]] = [newCategories[newIndex], newCategories[index]];
+    setContent({ ...content, skills: { categories: newCategories } });
+  }
+
+  function addSkillItem(catIndex: number) {
+    const newCategories = [...content.skills.categories];
+    newCategories[catIndex] = {
+      ...newCategories[catIndex],
+      items: [...(newCategories[catIndex].items || []), ''],
+    };
+    setContent({ ...content, skills: { categories: newCategories } });
+  }
+
+  function updateSkillItem(catIndex: number, itemIndex: number, value: string) {
+    const newCategories = [...content.skills.categories];
+    const newItems = [...newCategories[catIndex].items];
+    newItems[itemIndex] = value;
+    newCategories[catIndex] = { ...newCategories[catIndex], items: newItems };
+    setContent({ ...content, skills: { categories: newCategories } });
+  }
+
+  function removeSkillItem(catIndex: number, itemIndex: number) {
+    const newCategories = [...content.skills.categories];
+    newCategories[catIndex] = {
+      ...newCategories[catIndex],
+      items: newCategories[catIndex].items.filter((_, i) => i !== itemIndex),
+    };
+    setContent({ ...content, skills: { categories: newCategories } });
+  }
+
   function updateProject(index: number, field: keyof Project, value: unknown) {
     const newProjects = [...content.projects];
     newProjects[index] = { ...newProjects[index], [field]: value };
@@ -253,7 +295,6 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
           name: '',
           description: '',
           bullets: [],
-          techStack: [],
           links: {},
         },
       ],
@@ -262,6 +303,14 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
 
   function removeProject(index: number) {
     const newProjects = content.projects.filter((_, i) => i !== index);
+    setContent({ ...content, projects: newProjects });
+  }
+
+  function moveProject(index: number, direction: 'up' | 'down') {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= content.projects.length) return;
+    const newProjects = [...content.projects];
+    [newProjects[index], newProjects[newIndex]] = [newProjects[newIndex], newProjects[index]];
     setContent({ ...content, projects: newProjects });
   }
 
@@ -373,9 +422,29 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                 className="space-y-3 rounded-lg border border-gray-200 p-4"
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-sm text-gray-500">
-                    Experience {index + 1}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      Experience {index + 1}
+                    </span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => moveExperience(index, 'up')}
+                        disabled={index === 0}
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move up"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveExperience(index, 'down')}
+                        disabled={index === content.experience.length - 1}
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move down"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
                   <button
                     onClick={() => removeExperience(index)}
                     className="text-sm text-red-600 hover:text-red-700"
@@ -436,8 +505,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   </label>
                   {(exp.bullets || []).map((bullet, bulletIndex) => (
                     <div key={bulletIndex} className="flex gap-2">
-                      <input
-                        type="text"
+                      <textarea
                         placeholder={`Bullet ${bulletIndex + 1}`}
                         value={bullet}
                         onChange={(e) =>
@@ -447,13 +515,14 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                             e.target.value
                           )
                         }
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
+                        rows={2}
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 resize-y"
                       />
                       <button
                         onClick={() =>
                           removeExperienceBullet(index, bulletIndex)
                         }
-                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="self-start rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
                         ×
                       </button>
@@ -551,8 +620,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   </label>
                   {(edu.bullets || []).map((bullet, bulletIndex) => (
                     <div key={bulletIndex} className="flex gap-2">
-                      <input
-                        type="text"
+                      <textarea
                         placeholder={`Bullet ${bulletIndex + 1}`}
                         value={bullet}
                         onChange={(e) =>
@@ -562,13 +630,14 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                             e.target.value
                           )
                         }
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
+                        rows={2}
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 resize-y"
                       />
                       <button
                         onClick={() =>
                           removeEducationBullet(index, bulletIndex)
                         }
-                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="self-start rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
                         ×
                       </button>
@@ -603,9 +672,29 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                 className="space-y-3 rounded-lg border border-gray-200 p-4"
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-sm text-gray-500">
-                    Category {index + 1}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      Category {index + 1}
+                    </span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => moveSkillCategory(index, 'up')}
+                        disabled={index === 0}
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move up"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveSkillCategory(index, 'down')}
+                        disabled={index === content.skills.categories.length - 1}
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move down"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
                   <button
                     onClick={() => removeSkillCategory(index)}
                     className="text-sm text-red-600 hover:text-red-700"
@@ -622,22 +711,36 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2"
                 />
-                <input
-                  type="text"
-                  placeholder="Skills (comma-separated)"
-                  value={category.items.join(', ')}
-                  onChange={(e) =>
-                    updateSkillCategory(
-                      index,
-                      'items',
-                      e.target.value
-                        .split(',')
-                        .map((s) => s.trim())
-                        .filter(Boolean)
-                    )
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                />
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Skills
+                  </label>
+                  {(category.items || []).map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder={`Skill ${itemIndex + 1}`}
+                        value={item}
+                        onChange={(e) =>
+                          updateSkillItem(index, itemIndex, e.target.value)
+                        }
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
+                      />
+                      <button
+                        onClick={() => removeSkillItem(index, itemIndex)}
+                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => addSkillItem(index)}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    + Add skill
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -660,9 +763,29 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                 className="space-y-3 rounded-lg border border-gray-200 p-4"
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-sm text-gray-500">
-                    Project {index + 1}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      Project {index + 1}
+                    </span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => moveProject(index, 'up')}
+                        disabled={index === 0}
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move up"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveProject(index, 'down')}
+                        disabled={index === content.projects.length - 1}
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move down"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
                   <button
                     onClick={() => removeProject(index)}
                     className="text-sm text-red-600 hover:text-red-700"
@@ -692,8 +815,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   </label>
                   {(project.bullets || []).map((bullet, bulletIndex) => (
                     <div key={bulletIndex} className="flex gap-2">
-                      <input
-                        type="text"
+                      <textarea
                         placeholder={`Bullet ${bulletIndex + 1}`}
                         value={bullet}
                         onChange={(e) =>
@@ -703,11 +825,12 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                             e.target.value
                           )
                         }
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
+                        rows={2}
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 resize-y"
                       />
                       <button
                         onClick={() => removeProjectBullet(index, bulletIndex)}
-                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="self-start rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
                         ×
                       </button>
@@ -720,22 +843,6 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     + Add bullet
                   </button>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Tech Stack (comma-separated)"
-                  value={project.techStack.join(', ')}
-                  onChange={(e) =>
-                    updateProject(
-                      index,
-                      'techStack',
-                      e.target.value
-                        .split(',')
-                        .map((s) => s.trim())
-                        .filter(Boolean)
-                    )
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                />
                 <input
                   type="text"
                   placeholder="GitHub URL"

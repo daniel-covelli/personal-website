@@ -125,6 +125,14 @@ body {
   margin-bottom: 0.25rem;
 }
 
+.print-entry-inline-bullets {
+  font-size: 8pt;
+  color: #4b5563;
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+
 /* Bullet list styles */
 .print-bullets {
   margin: 0;
@@ -146,7 +154,7 @@ body {
 /* Skills styles */
 .print-skills-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem 1rem;
   width: 100%;
 }
@@ -205,6 +213,11 @@ body {
   overflow-wrap: break-word;
 }
 
+.print-project-links {
+  font-size: 8pt;
+  margin-top: 0.25rem;
+}
+
 /* Contact styles - two rows */
 .print-contact-block {
   text-align: center;
@@ -215,7 +228,6 @@ body {
 }
 
 .print-contact-row {
-
   line-height: 1.3;
 }
 
