@@ -13,7 +13,7 @@ export default function Skills({ data }: SkillsProps) {
         <h2 className="mb-8 border-b pb-2 text-2xl font-bold text-gray-900">
           Skills
         </h2>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {data.categories.map((category) => (
             <div key={category.id}>
               <h3 className="mb-3 font-semibold text-gray-900">
