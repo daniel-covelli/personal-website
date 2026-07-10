@@ -90,6 +90,24 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     setContent({ ...content, experience: newExp });
   }
 
+  function moveExperienceBullet(
+    expIndex: number,
+    bulletIndex: number,
+    direction: 'up' | 'down'
+  ) {
+    const bullets = content.experience[expIndex].bullets;
+    const newIndex = direction === 'up' ? bulletIndex - 1 : bulletIndex + 1;
+    if (newIndex < 0 || newIndex >= bullets.length) return;
+    const newBullets = [...bullets];
+    [newBullets[bulletIndex], newBullets[newIndex]] = [
+      newBullets[newIndex],
+      newBullets[bulletIndex],
+    ];
+    const newExp = [...content.experience];
+    newExp[expIndex] = { ...newExp[expIndex], bullets: newBullets };
+    setContent({ ...content, experience: newExp });
+  }
+
   function addExperience() {
     setContent({
       ...content,
@@ -161,6 +179,24 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     setContent({ ...content, education: newEdu });
   }
 
+  function moveEducationBullet(
+    eduIndex: number,
+    bulletIndex: number,
+    direction: 'up' | 'down'
+  ) {
+    const bullets = content.education[eduIndex].bullets;
+    const newIndex = direction === 'up' ? bulletIndex - 1 : bulletIndex + 1;
+    if (newIndex < 0 || newIndex >= bullets.length) return;
+    const newBullets = [...bullets];
+    [newBullets[bulletIndex], newBullets[newIndex]] = [
+      newBullets[newIndex],
+      newBullets[bulletIndex],
+    ];
+    const newEdu = [...content.education];
+    newEdu[eduIndex] = { ...newEdu[eduIndex], bullets: newBullets };
+    setContent({ ...content, education: newEdu });
+  }
+
   function addEducation() {
     setContent({
       ...content,
@@ -217,7 +253,10 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= content.skills.categories.length) return;
     const newCategories = [...content.skills.categories];
-    [newCategories[index], newCategories[newIndex]] = [newCategories[newIndex], newCategories[index]];
+    [newCategories[index], newCategories[newIndex]] = [
+      newCategories[newIndex],
+      newCategories[index],
+    ];
     setContent({ ...content, skills: { categories: newCategories } });
   }
 
@@ -285,6 +324,24 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     setContent({ ...content, projects: newProjects });
   }
 
+  function moveProjectBullet(
+    projIndex: number,
+    bulletIndex: number,
+    direction: 'up' | 'down'
+  ) {
+    const bullets = content.projects[projIndex].bullets;
+    const newIndex = direction === 'up' ? bulletIndex - 1 : bulletIndex + 1;
+    if (newIndex < 0 || newIndex >= bullets.length) return;
+    const newBullets = [...bullets];
+    [newBullets[bulletIndex], newBullets[newIndex]] = [
+      newBullets[newIndex],
+      newBullets[bulletIndex],
+    ];
+    const newProjects = [...content.projects];
+    newProjects[projIndex] = { ...newProjects[projIndex], bullets: newBullets };
+    setContent({ ...content, projects: newProjects });
+  }
+
   function addProject() {
     setContent({
       ...content,
@@ -310,7 +367,10 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= content.projects.length) return;
     const newProjects = [...content.projects];
-    [newProjects[index], newProjects[newIndex]] = [newProjects[newIndex], newProjects[index]];
+    [newProjects[index], newProjects[newIndex]] = [
+      newProjects[newIndex],
+      newProjects[index],
+    ];
     setContent({ ...content, projects: newProjects });
   }
 
@@ -430,7 +490,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveExperience(index, 'up')}
                         disabled={index === 0}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move up"
                       >
                         ↑
@@ -438,7 +498,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveExperience(index, 'down')}
                         disabled={index === content.experience.length - 1}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move down"
                       >
                         ↓
@@ -516,16 +576,41 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           )
                         }
                         rows={2}
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 resize-y"
+                        className="flex-1 resize-y rounded-lg border border-gray-300 px-3 py-2"
                       />
-                      <button
-                        onClick={() =>
-                          removeExperienceBullet(index, bulletIndex)
-                        }
-                        className="self-start rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
-                      >
-                        ×
-                      </button>
+                      <div className="flex flex-col gap-1 self-start">
+                        <button
+                          onClick={() =>
+                            moveExperienceBullet(index, bulletIndex, 'up')
+                          }
+                          disabled={bulletIndex === 0}
+                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          title="Move up"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() =>
+                            moveExperienceBullet(index, bulletIndex, 'down')
+                          }
+                          disabled={
+                            bulletIndex === (exp.bullets || []).length - 1
+                          }
+                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                        <button
+                          onClick={() =>
+                            removeExperienceBullet(index, bulletIndex)
+                          }
+                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          title="Remove"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <button
@@ -631,16 +716,41 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           )
                         }
                         rows={2}
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 resize-y"
+                        className="flex-1 resize-y rounded-lg border border-gray-300 px-3 py-2"
                       />
-                      <button
-                        onClick={() =>
-                          removeEducationBullet(index, bulletIndex)
-                        }
-                        className="self-start rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
-                      >
-                        ×
-                      </button>
+                      <div className="flex flex-col gap-1 self-start">
+                        <button
+                          onClick={() =>
+                            moveEducationBullet(index, bulletIndex, 'up')
+                          }
+                          disabled={bulletIndex === 0}
+                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          title="Move up"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() =>
+                            moveEducationBullet(index, bulletIndex, 'down')
+                          }
+                          disabled={
+                            bulletIndex === (edu.bullets || []).length - 1
+                          }
+                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                        <button
+                          onClick={() =>
+                            removeEducationBullet(index, bulletIndex)
+                          }
+                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          title="Remove"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <button
@@ -680,15 +790,17 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveSkillCategory(index, 'up')}
                         disabled={index === 0}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move up"
                       >
                         ↑
                       </button>
                       <button
                         onClick={() => moveSkillCategory(index, 'down')}
-                        disabled={index === content.skills.categories.length - 1}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        disabled={
+                          index === content.skills.categories.length - 1
+                        }
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move down"
                       >
                         ↓
@@ -771,7 +883,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveProject(index, 'up')}
                         disabled={index === 0}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move up"
                       >
                         ↑
@@ -779,7 +891,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveProject(index, 'down')}
                         disabled={index === content.projects.length - 1}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move down"
                       >
                         ↓
@@ -826,14 +938,41 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           )
                         }
                         rows={2}
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 resize-y"
+                        className="flex-1 resize-y rounded-lg border border-gray-300 px-3 py-2"
                       />
-                      <button
-                        onClick={() => removeProjectBullet(index, bulletIndex)}
-                        className="self-start rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
-                      >
-                        ×
-                      </button>
+                      <div className="flex flex-col gap-1 self-start">
+                        <button
+                          onClick={() =>
+                            moveProjectBullet(index, bulletIndex, 'up')
+                          }
+                          disabled={bulletIndex === 0}
+                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          title="Move up"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() =>
+                            moveProjectBullet(index, bulletIndex, 'down')
+                          }
+                          disabled={
+                            bulletIndex === (project.bullets || []).length - 1
+                          }
+                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                        <button
+                          onClick={() =>
+                            removeProjectBullet(index, bulletIndex)
+                          }
+                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          title="Remove"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <button
