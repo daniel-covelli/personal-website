@@ -24,11 +24,11 @@ export default async function AdminPage() {
           </div>
           <div className="flex items-center gap-4">
             <a
-              href="/"
+              href="/resume/preview"
               target="_blank"
               className="text-sm text-blue-600 hover:underline"
             >
-              View Resume
+              Preview Resume
             </a>
             <LogoutButton />
           </div>
