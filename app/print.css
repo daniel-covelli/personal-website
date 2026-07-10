@@ -1,5 +1,50 @@
 /* Print-specific styles for PDF generation */
 
+/*
+ * Self-hosted full-charset static Inter (loaded straight from /public/fonts).
+ *
+ * The PDF is produced by Puppeteer/headless Chrome printing this page. Chrome
+ * embeds *static* web fonts into the PDF as real subsetted TrueType, but it
+ * rasterizes next/font's variable Inter into non-embedded Type3 glyphs — and
+ * Type3 text is rendered inconsistently by different PDF viewers (Chrome's
+ * inline preview vs. the downloaded file in Preview/Acrobat). Using static
+ * Inter here makes the font embed properly so the download matches the preview.
+ *
+ * These are the full-charset weights from the official Inter distribution
+ * (rsms.me/inter, SIL OFL) — NOT Google's language subsets — so every glyph the
+ * resume uses embeds, including "→" (U+2192), which the latin subset omits and
+ * which otherwise renders as a missing-glyph box. Do NOT swap this for
+ * next/font, and do not replace these with subset files.
+ */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-700.woff2') format('woff2');
+}
+
 @page {
   size: Letter;
   margin: 0.2in;
