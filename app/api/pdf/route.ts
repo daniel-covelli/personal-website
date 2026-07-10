@@ -42,6 +42,11 @@ export async function GET(request: Request) {
       timeout: 20000,
     });
 
+    // Ensure web fonts are fully loaded before printing. Otherwise Chrome may
+    // render text as non-embedded Type3 glyphs that different PDF viewers
+    // (inline preview vs. downloaded file) substitute inconsistently.
+    await page.evaluateHandle('document.fonts.ready');
+
     // Generate PDF - margins controlled via CSS @page and body padding
     const pdf = await page.pdf({
       preferCSSPageSize: true,
