@@ -1,58 +1,66 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { getContent } from '@/lib/content';
 import { buildSystemPrompt, ChatMessage } from '@/lib/chat';
 import { getOrCreateSessionId } from '@/lib/session';
 import { getOrCreateConversation, addMessage } from '@/lib/conversations';
-import { getChatModels } from '@/lib/chat-config';
+import {
+  getFallbackChain,
+  getUserSelectableModels,
+  ChatModelEntry,
+} from '@/lib/models/catalog';
+import { getAdapter } from '@/lib/providers';
 
 export const dynamic = 'force-dynamic';
 // Bound the serverless function so a stalled model call can't hang indefinitely.
 export const maxDuration = 30;
 
-const anthropic = new Anthropic();
-
-// The chat tries an ordered list of models (managed from /admin, see
-// lib/chat-config.ts) until one succeeds. Anthropic retires model families on a
-// schedule — a retired ID returns 404 and, because the failure happens
-// mid-stream, used to silently hang the chat. The ordered fallback chain means
-// one retirement can't take the feature down, and the list can be updated
-// without a code change or redeploy.
-
 export async function POST(request: Request) {
   try {
-    const { messages, isGreeting } = (await request.json()) as {
+    const {
+      messages,
+      isGreeting,
+      model: requestedModel,
+    } = (await request.json()) as {
       messages: ChatMessage[];
       conversationId?: string;
       isGreeting?: boolean;
+      model?: string;
     };
 
-    // Get or create session
     const sessionId = await getOrCreateSessionId();
-
-    // Get or create conversation
     const conversation = await getOrCreateConversation(sessionId);
 
     const content = await getContent();
     const systemPrompt = buildSystemPrompt(content);
-    const models = await getChatModels();
 
-    let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
+    // The enabled models, in sortOrder, form the resilience fallback chain.
+    const chain = await getFallbackChain();
 
-    if (isGreeting) {
-      // For greeting, ask the assistant to introduce itself casually
-      anthropicMessages = [
-        {
-          role: 'user',
-          content:
-            'Introduce yourself in a casual, friendly way (1-2 sentences max). Keep it short and conversational - mention whose resume this is and that you can chat about their background. No formal language.',
-        },
-      ];
-    } else {
-      anthropicMessages = messages.map((msg) => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-      }));
+    // A visitor may pick a model, but ONLY from the curated userSelectable set —
+    // never an arbitrary (e.g. expensive) model. Validate server-side; an
+    // invalid/disallowed pick is ignored and the default chain is used. A valid
+    // pick is tried first, then we fall back through the rest of the chain.
+    let attempt: ChatModelEntry[] = chain;
+    if (!isGreeting && requestedModel) {
+      const selectable = await getUserSelectableModels();
+      const picked = selectable.find((m) => m.modelId === requestedModel);
+      if (picked) {
+        attempt = [picked, ...chain.filter((m) => m.id !== picked.id)];
+      }
     }
+
+    // Normalize into provider-agnostic messages.
+    const providerMessages = isGreeting
+      ? [
+          {
+            role: 'user' as const,
+            content:
+              'Introduce yourself in a casual, friendly way (1-2 sentences max). Keep it short and conversational - mention whose resume this is and that you can chat about their background. No formal language.',
+          },
+        ]
+      : messages.map((msg) => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+        }));
 
     const maxTokens = isGreeting ? 150 : 1024;
     const encoder = new TextEncoder();
@@ -64,50 +72,59 @@ export async function POST(request: Request) {
             encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
           );
 
-        // Streams text deltas from `model` to the client, accumulating the full
-        // text. Throws if the model call fails (e.g. a retired-model 404).
         let streamedText = '';
-        const runModel = async (model: string) => {
-          const stream = anthropic.messages.stream({
-            model,
-            max_tokens: maxTokens,
+        let attributionSent = false;
+
+        // Streams one model's reply. On the first text delta (for a real chat
+        // turn, not the greeting) it emits an `answeredBy` event so the client
+        // can show which model actually responded — important because a picked
+        // model may have failed and we fell through to another.
+        const runModel = async (entry: ChatModelEntry) => {
+          const adapter = getAdapter(entry.provider);
+          for await (const { text } of adapter.streamChat({
+            model: entry.modelId,
             system: systemPrompt,
-            messages: anthropicMessages,
-          });
-          for await (const event of stream) {
-            if (
-              event.type === 'content_block_delta' &&
-              event.delta.type === 'text_delta'
-            ) {
-              streamedText += event.delta.text;
-              send({ text: event.delta.text });
+            messages: providerMessages,
+            maxTokens,
+          })) {
+            if (!attributionSent && !isGreeting) {
+              attributionSent = true;
+              send({
+                answeredBy: {
+                  modelId: entry.modelId,
+                  label: entry.label,
+                  lab: entry.lab,
+                  provider: entry.provider,
+                },
+              });
             }
+            streamedText += text;
+            send({ text });
           }
         };
 
         try {
-          // Send conversation ID to client
           send({ conversationId: conversation.id });
 
-          // Try each configured model in order until one streams successfully.
-          // This is the resilience mechanism: if a model is retired (404) or
-          // errors, we fall through to the next in the chain.
+          // Try each model in order until one streams successfully. A retired
+          // model (404), a missing provider key, or any error falls through to
+          // the next in the chain.
           let succeeded = false;
           let lastError: unknown = null;
-          for (const model of models) {
+          for (const entry of attempt) {
             try {
-              await runModel(model);
+              await runModel(entry);
               succeeded = true;
               break;
             } catch (modelError) {
               lastError = modelError;
               const status = (modelError as { status?: number })?.status;
               console.error(
-                `Chat: model "${model}" failed (status ${status ?? 'unknown'})`,
+                `Chat: model "${entry.modelId}" (${entry.provider}) failed (status ${status ?? 'unknown'})`,
                 modelError
               );
-              // Once any text has streamed to the client, retrying a different
-              // model would duplicate output — stop and surface the error.
+              // Once any text has streamed, switching models would duplicate
+              // output on the client — stop and surface the error.
               if (streamedText !== '') break;
               // Otherwise fall through to the next model in the chain.
             }
@@ -136,10 +153,9 @@ export async function POST(request: Request) {
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
         } catch (error) {
-          // The response is already committed as a 200 stream, so we cannot
-          // change the status. Log it (surfaces in Vercel) and send a
-          // structured error event the client can render — never
-          // controller.error(), which aborts the stream and hangs the client.
+          // The response is already a committed 200 stream, so we can't change
+          // the status. Log it and send a structured error event the client
+          // can render — never controller.error(), which hangs the client.
           console.error('Chat streaming error:', error);
           try {
             send({

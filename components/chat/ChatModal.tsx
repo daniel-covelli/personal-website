@@ -11,6 +11,8 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ChatMessage } from '@/lib/chat';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import ModelPicker, { SelectableModel } from './ModelPicker';
+import type { Lab } from '@/lib/models/catalog';
 
 // Give up on a stalled request instead of spinning forever.
 const CHAT_TIMEOUT_MS = 30000;
@@ -18,6 +20,7 @@ const CHAT_TIMEOUT_MS = 30000;
 interface StreamHandlers {
   onConversationId?: (id: string) => void;
   onText: (text: string) => void;
+  onAnsweredBy?: (a: { modelId: string; label: string; lab: Lab }) => void;
 }
 
 /**
@@ -29,7 +32,7 @@ interface StreamHandlers {
  */
 async function streamAssistant(
   body: unknown,
-  { onConversationId, onText }: StreamHandlers
+  { onConversationId, onText, onAnsweredBy }: StreamHandlers
 ): Promise<void> {
   const abort = new AbortController();
   const timeout = setTimeout(() => abort.abort(), CHAT_TIMEOUT_MS);
@@ -76,6 +79,7 @@ async function streamAssistant(
             conversationId?: string;
             text?: string;
             error?: string;
+            answeredBy?: { modelId: string; label: string; lab: Lab };
           };
           try {
             parsed = JSON.parse(data);
@@ -85,6 +89,7 @@ async function streamAssistant(
 
           if (parsed.error) throw new Error(parsed.error);
           if (parsed.conversationId) onConversationId?.(parsed.conversationId);
+          if (parsed.answeredBy) onAnsweredBy?.(parsed.answeredBy);
           if (parsed.text) onText(parsed.text);
         }
         if (done) break;
@@ -123,6 +128,10 @@ export default function ChatModal({
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [selectableModels, setSelectableModels] = useState<SelectableModel[]>(
+    []
+  );
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const getInitialGreeting = useCallback(async () => {
@@ -223,6 +232,40 @@ export default function ChatModal({
     loadConversation();
   }, [getInitialGreeting]);
 
+  // Load the visitor-selectable model list (empty unless the admin has enabled
+  // some) and restore any prior choice from localStorage.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/chat-models');
+        if (!res.ok) return;
+        const data = (await res.json()) as { models: SelectableModel[] };
+        if (cancelled) return;
+        setSelectableModels(data.models);
+        const stored = localStorage.getItem('chat-selected-model');
+        if (stored && data.models.some((m) => m.modelId === stored)) {
+          setSelectedModel(stored);
+        }
+      } catch {
+        // No picker — the chat just uses the default chain.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSelectModel = useCallback((modelId: string | null) => {
+    setSelectedModel(modelId);
+    try {
+      if (modelId) localStorage.setItem('chat-selected-model', modelId);
+      else localStorage.removeItem('chat-selected-model');
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
   useLayoutEffect(() => {
     if (!buttonElement) return;
 
@@ -290,11 +333,18 @@ export default function ChatModal({
               content,
             })),
             conversationId,
+            model: selectedModel ?? undefined,
           },
           {
             onConversationId: (id) => {
               if (!conversationId) setConversationId(id);
             },
+            onAnsweredBy: (answeredBy) =>
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantId ? { ...msg, answeredBy } : msg
+                )
+              ),
             onText: (text) =>
               setMessages((prev) =>
                 prev.map((msg) =>
@@ -313,7 +363,7 @@ export default function ChatModal({
         setStreamingId(null);
       }
     },
-    [messages, conversationId]
+    [messages, conversationId, selectedModel]
   );
 
   return (
@@ -360,6 +410,13 @@ export default function ChatModal({
               AI Assistant
             </DialogPrimitive.Description>
             <div className="flex items-center gap-1">
+              {selectableModels.length > 0 && (
+                <ModelPicker
+                  models={selectableModels}
+                  value={selectedModel}
+                  onChange={handleSelectModel}
+                />
+              )}
               {isAdmin && messages.length > 0 && (
                 <button
                   onClick={handleDeleteConversation}
