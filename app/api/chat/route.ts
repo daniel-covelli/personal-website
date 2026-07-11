@@ -3,6 +3,7 @@ import { getContent } from '@/lib/content';
 import { buildSystemPrompt, ChatMessage } from '@/lib/chat';
 import { getOrCreateSessionId } from '@/lib/session';
 import { getOrCreateConversation, addMessage } from '@/lib/conversations';
+import { getChatModels } from '@/lib/chat-config';
 
 export const dynamic = 'force-dynamic';
 // Bound the serverless function so a stalled model call can't hang indefinitely.
@@ -10,12 +11,12 @@ export const maxDuration = 30;
 
 const anthropic = new Anthropic();
 
-// Anthropic retires dated model snapshots on a schedule — a retired ID returns
-// 404 and (because the failure happens mid-stream) used to silently hang the
-// chat. Use the rolling alias, and fall back to a second current model if the
-// primary errors, so one retirement can't take the feature down.
-const PRIMARY_MODEL = 'claude-haiku-4-5';
-const FALLBACK_MODEL = 'claude-sonnet-5';
+// The chat tries an ordered list of models (managed from /admin, see
+// lib/chat-config.ts) until one succeeds. Anthropic retires model families on a
+// schedule — a retired ID returns 404 and, because the failure happens
+// mid-stream, used to silently hang the chat. The ordered fallback chain means
+// one retirement can't take the feature down, and the list can be updated
+// without a code change or redeploy.
 
 export async function POST(request: Request) {
   try {
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
 
     const content = await getContent();
     const systemPrompt = buildSystemPrompt(content);
+    const models = await getChatModels();
 
     let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
 
@@ -87,21 +89,32 @@ export async function POST(request: Request) {
           // Send conversation ID to client
           send({ conversationId: conversation.id });
 
-          try {
-            await runModel(PRIMARY_MODEL);
-          } catch (primaryError) {
-            const status = (primaryError as { status?: number })?.status;
-            console.error(
-              `Chat: ${PRIMARY_MODEL} failed (status ${status ?? 'unknown'}) — falling back to ${FALLBACK_MODEL}`,
-              primaryError
-            );
-            // Only safe to retry when nothing has streamed yet; otherwise a
-            // retry would duplicate text on the client.
-            if (streamedText === '') {
-              await runModel(FALLBACK_MODEL);
-            } else {
-              throw primaryError;
+          // Try each configured model in order until one streams successfully.
+          // This is the resilience mechanism: if a model is retired (404) or
+          // errors, we fall through to the next in the chain.
+          let succeeded = false;
+          let lastError: unknown = null;
+          for (const model of models) {
+            try {
+              await runModel(model);
+              succeeded = true;
+              break;
+            } catch (modelError) {
+              lastError = modelError;
+              const status = (modelError as { status?: number })?.status;
+              console.error(
+                `Chat: model "${model}" failed (status ${status ?? 'unknown'})`,
+                modelError
+              );
+              // Once any text has streamed to the client, retrying a different
+              // model would duplicate output — stop and surface the error.
+              if (streamedText !== '') break;
+              // Otherwise fall through to the next model in the chain.
             }
+          }
+
+          if (!succeeded) {
+            throw lastError ?? new Error('All configured chat models failed');
           }
 
           // Persist the exchange only after a successful reply, so a failed
