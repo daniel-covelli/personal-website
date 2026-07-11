@@ -2,7 +2,9 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
+import { getChatModels } from '@/lib/chat-config';
 import ContentEditor from '@/components/admin/ContentEditor';
+import ChatConfigEditor from '@/components/admin/ChatConfigEditor';
 import LogoutButton from './LogoutButton';
 
 export default async function AdminPage() {
@@ -13,6 +15,7 @@ export default async function AdminPage() {
   }
 
   const content = await getContent();
+  const chatModels = await getChatModels();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -37,6 +40,7 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         <ContentEditor initialContent={content} />
+        <ChatConfigEditor initialModels={chatModels} />
       </main>
     </div>
   );
