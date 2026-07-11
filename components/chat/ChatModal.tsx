@@ -12,6 +12,96 @@ import { ChatMessage } from '@/lib/chat';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
+// Give up on a stalled request instead of spinning forever.
+const CHAT_TIMEOUT_MS = 30000;
+
+interface StreamHandlers {
+  onConversationId?: (id: string) => void;
+  onText: (text: string) => void;
+}
+
+/**
+ * POSTs to /api/chat and consumes the SSE stream. Resolves when the stream
+ * completes; throws a user-presentable Error on HTTP failure, a server-sent
+ * `{ error }` event, or a timeout — so callers can always stop the spinner and
+ * show something. Buffers across reads because SSE events can split across
+ * chunk boundaries.
+ */
+async function streamAssistant(
+  body: unknown,
+  { onConversationId, onText }: StreamHandlers
+): Promise<void> {
+  const abort = new AbortController();
+  const timeout = setTimeout(() => abort.abort(), CHAT_TIMEOUT_MS);
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: abort.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error('The assistant is unavailable right now.');
+    }
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('No response stream');
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let done = false;
+
+    while (!done) {
+      const { done: streamDone, value } = await reader.read();
+      if (streamDone) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // Process only complete `\n\n`-delimited SSE events.
+      let sep: number;
+      while ((sep = buffer.indexOf('\n\n')) !== -1) {
+        const rawEvent = buffer.slice(0, sep);
+        buffer = buffer.slice(sep + 2);
+
+        for (const line of rawEvent.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') {
+            done = true;
+            break;
+          }
+
+          let parsed: {
+            conversationId?: string;
+            text?: string;
+            error?: string;
+          };
+          try {
+            parsed = JSON.parse(data);
+          } catch {
+            continue; // incomplete/invalid JSON fragment — skip
+          }
+
+          if (parsed.error) throw new Error(parsed.error);
+          if (parsed.conversationId) onConversationId?.(parsed.conversationId);
+          if (parsed.text) onText(parsed.text);
+        }
+        if (done) break;
+      }
+    }
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(
+        'The assistant took too long to respond. Please try again.'
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 interface ChatModalProps {
   personName: string;
   onClose: () => void;
@@ -46,60 +136,30 @@ export default function ChatModal({
     setMessages([assistantMessage]);
     setIsLoading(true);
     setStreamingId(assistantId);
+    setError(null);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [],
-          isGreeting: true,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get greeting');
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error('No response stream');
-
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') break;
-
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.conversationId) {
-                setConversationId(parsed.conversationId);
-              }
-              if (parsed.text) {
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantId
-                      ? { ...msg, content: msg.content + parsed.text }
-                      : msg
-                  )
-                );
-              }
-            } catch {
-              // Skip invalid JSON
-            }
-          }
+      await streamAssistant(
+        { messages: [], isGreeting: true },
+        {
+          onConversationId: setConversationId,
+          onText: (text) =>
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantId
+                  ? { ...msg, content: msg.content + text }
+                  : msg
+              )
+            ),
         }
-      }
+      );
     } catch (err) {
       console.error('Failed to get initial greeting:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'The assistant is unavailable right now.'
+      );
       setMessages([]);
     } finally {
       setIsLoading(false);
@@ -223,60 +283,28 @@ export default function ChatModal({
       setError(null);
 
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        await streamAssistant(
+          {
             messages: [...messages, userMessage].map(({ role, content }) => ({
               role,
               content,
             })),
             conversationId,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to send message');
-        }
-
-        const reader = response.body?.getReader();
-        if (!reader) throw new Error('No response stream');
-
-        const decoder = new TextDecoder();
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') break;
-
-              try {
-                const parsed = JSON.parse(data);
-                // Handle conversation ID from server
-                if (parsed.conversationId && !conversationId) {
-                  setConversationId(parsed.conversationId);
-                }
-                if (parsed.text) {
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantId
-                        ? { ...msg, content: msg.content + parsed.text }
-                        : msg
-                    )
-                  );
-                }
-              } catch {
-                // Skip invalid JSON
-              }
-            }
+          },
+          {
+            onConversationId: (id) => {
+              if (!conversationId) setConversationId(id);
+            },
+            onText: (text) =>
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantId
+                    ? { ...msg, content: msg.content + text }
+                    : msg
+                )
+              ),
           }
-        }
+        );
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
         setMessages((prev) => prev.filter((msg) => msg.id !== assistantId));
