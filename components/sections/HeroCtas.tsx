@@ -21,20 +21,12 @@ export default function HeroCtas() {
         aria-label="Interview me"
         faceClassName="px-5 py-2.5 text-sm"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.7}
-          className="h-4 w-4"
+        <span
+          aria-hidden="true"
+          className="-translate-y-[0.07em] select-none text-lg font-semibold leading-none"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 10.5h8M8 14h5m-9 6.5 3.2-2.4a2 2 0 0 1 1.2-.4H18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14.5Z"
-          />
-        </svg>
+          @
+        </span>
         Interview me
       </MovingBorderButton>
 

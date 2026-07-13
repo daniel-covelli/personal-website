@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquareText } from 'lucide-react';
 import ChatModal from './ChatModal';
 import { RemoveScroll } from 'react-remove-scroll';
 import { MovingBorderButton } from '@/components/ui/moving-border-button';
@@ -38,16 +37,15 @@ export default function ChatButton({ personName, isAdmin }: ChatButtonProps) {
         }}
         aria-label="Open chat"
         containerClassName="fixed bottom-6 right-6 z-40"
-        faceClassName="h-11 w-11"
+        faceClassName="h-9 w-9"
         duration={3200}
       >
-        <MessageSquareText
-          className="h-5 w-5"
-          fill="#ffffff"
-          stroke="#7c3aed"
-          strokeWidth={1.25}
+        <span
           aria-hidden="true"
-        />
+          className="-translate-y-[0.07em] select-none text-xl font-bold leading-none text-white"
+        >
+          @
+        </span>
       </MovingBorderButton>
 
       {isOpen && buttonRef.current && (

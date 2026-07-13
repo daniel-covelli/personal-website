@@ -31,7 +31,10 @@ export default function MessageList({
     return (
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="text-center text-subtle">
-          <Spinner className="mb-3 h-6 w-6 text-brand" label="Loading conversation" />
+          <Spinner
+            className="mb-3 h-6 w-6 text-brand"
+            label="Loading conversation"
+          />
           <p>Loading conversation...</p>
         </div>
       </div>
@@ -60,6 +63,7 @@ export default function MessageList({
             key={message.id}
             message={message}
             isStreaming={message.id === streamingId}
+            isExpanded={isExpanded}
           />
         ))}
         <div ref={bottomRef} />
