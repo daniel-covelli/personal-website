@@ -1,10 +1,13 @@
 import { ResumeContent } from './types';
+import type { Lab } from './models/catalog';
 
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   skipAnimation?: boolean;
+  /** Which model actually produced this reply (from the `answeredBy` SSE event). */
+  answeredBy?: { modelId: string; label: string; lab: Lab };
 }
 
 export function buildSystemPrompt(content: ResumeContent): string {

@@ -122,13 +122,38 @@ model Contact {
   @@map("contact")
 }
 
-// Ordered list of Claude model IDs the chat assistant tries, in order, until
-// one succeeds. Stored here (rather than hardcoded) so a model retirement can
-// be fixed from /admin without a code change or redeploy. Singleton row.
+// DEPRECATED — superseded by ChatModel below (multi-provider catalog). Kept as
+// a dead table only to avoid schema/DB drift; a follow-up migration drops it
+// once the multi-model code is deployed. Nothing reads it anymore.
 model ChatConfig {
   id        String   @id @default("singleton")
   models    String[]
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("chat_config")
+}
+
+// Catalog of chat models across providers. Each row is one fallback/selectable
+// model. The enabled rows ordered by sortOrder form the resilience fallback
+// chain; userSelectable rows appear in the visitor-facing picker.
+//
+//   provider — serving adapter + API key: anthropic | openai | google | groq
+//   lab      — brand for logo/name:        anthropic | openai | google | meta | mistral
+//
+// provider != lab: an OpenAI-compatible host (e.g. groq) can serve Meta (llama)
+// and Mistral (mixtral) models. See lib/providers/ for the adapters and
+// components/chat/labs for the lab logo/name registry.
+model ChatModel {
+  id             String   @id @default(cuid())
+  provider       String
+  lab            String
+  modelId        String   @map("model_id")
+  label          String
+  enabled        Boolean  @default(true)
+  userSelectable Boolean  @default(false) @map("user_selectable")
+  sortOrder      Int      @default(0) @map("sort_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("chat_models")
 }
