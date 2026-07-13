@@ -1,18 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { ResumeContent } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { ResumeContent, Article } from '@/lib/types';
 import {
   SYSTEM_PROMPT_VARIABLES,
   GREETING_PROMPT_VARIABLES,
 } from '@/lib/chat-template';
 import ContentEditor from './ContentEditor';
 import ChatConfigEditor from './ChatConfigEditor';
+import ArticlesEditor from './ArticlesEditor';
 import PromptEditor from './PromptEditor';
 
 interface AdminTabsProps {
   content: ResumeContent;
   chatModels: string[];
+  articles: Article[];
   // In-effect templates + their server-rendered first paint for each editor's
   // live preview (computed server-side in page.tsx; the editors re-render edits
   // via /api/chat-config).
@@ -26,6 +28,7 @@ interface AdminTabsProps {
 
 const TABS = [
   { id: 'resume', label: 'Resume' },
+  { id: 'writing', label: 'Writing' },
   { id: 'config', label: 'Config' },
 ] as const;
 
@@ -34,6 +37,7 @@ type TabId = (typeof TABS)[number]['id'];
 export default function AdminTabs({
   content,
   chatModels,
+  articles,
   systemPrompt,
   defaultSystemPrompt,
   initialRenderedSystemPrompt,
@@ -42,6 +46,15 @@ export default function AdminTabs({
   initialRenderedGreeting,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('resume');
+
+  // Honor a #tab hash (e.g. /admin#writing from the "New article" link) after
+  // mount — set post-hydration to avoid an SSR/client markup mismatch.
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (TABS.some((t) => t.id === hash)) {
+      setActiveTab(hash as TabId);
+    }
+  }, []);
 
   return (
     <div>
@@ -74,6 +87,9 @@ export default function AdminTabs({
           inactive one is hidden rather than unmounted. */}
       <div className={activeTab === 'resume' ? '' : 'hidden'}>
         <ContentEditor initialContent={content} />
+      </div>
+      <div className={activeTab === 'writing' ? '' : 'hidden'}>
+        <ArticlesEditor initialArticles={articles} />
       </div>
       <div className={activeTab === 'config' ? '' : 'hidden'}>
         <ChatConfigEditor initialModels={chatModels} />

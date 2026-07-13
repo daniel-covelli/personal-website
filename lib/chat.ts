@@ -1,5 +1,5 @@
 import { Liquid } from 'liquidjs';
-import { ResumeContent } from './types';
+import { ResumeContent, ArticleIndexEntry } from './types';
 import {
   DEFAULT_SYSTEM_PROMPT_TEMPLATE,
   SYSTEM_PROMPT_VARIABLES,
@@ -99,12 +99,28 @@ ${contactText}`;
  * full structured resume (so a template can loop over experience/projects/etc.)
  * plus a few conveniences:
  *   - `resume`: the whole resume pre-rendered as one block
+ *   - `articles`: the published-article index (for the Articles section) — each
+ *     entry has { title, summary, slug, tags, date }. The full body is loaded on
+ *     demand at chat time via the read_article tool (see app/api/chat/route.ts).
  *   - NAME/TITLE/RESUME: uppercase aliases kept for backward compatibility with
  *     any prompt saved under the previous {{NAME}}/{{TITLE}}/{{RESUME}} scheme.
  */
-function buildTemplateContext(content: ResumeContent): Record<string, unknown> {
+function buildTemplateContext(
+  content: ResumeContent,
+  articles: ArticleIndexEntry[] = []
+): Record<string, unknown> {
   const { header, experience, education, skills, projects, contact } = content;
   const resume = buildResumeBlock(content);
+  const articleList = articles.map((a) => ({
+    slug: a.slug,
+    title: a.title,
+    summary: a.summary,
+    tags: a.tags,
+    // Pre-format the date so templates need no Liquid date filter (publishedAt
+    // may be null for a just-published post that hasn't been stamped).
+    date: a.publishedAt ? a.publishedAt.slice(0, 10) : 'undated',
+    publishedAt: a.publishedAt,
+  }));
   return {
     name: header.name,
     title: header.title,
@@ -116,6 +132,7 @@ function buildTemplateContext(content: ResumeContent): Record<string, unknown> {
     projects,
     contact,
     resume,
+    articles: articleList,
     // Backward-compatible aliases for the old token scheme.
     NAME: header.name,
     TITLE: header.title,
@@ -147,13 +164,14 @@ function renderWithFallback(
 }
 
 /** Renders the system-prompt `template` (default when omitted) against the live
- * resume content. */
+ * resume content and the published-article index. */
 export function buildSystemPrompt(
   content: ResumeContent,
-  template: string = DEFAULT_SYSTEM_PROMPT_TEMPLATE
+  template: string = DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  articles: ArticleIndexEntry[] = []
 ): string {
   return renderWithFallback(
-    buildTemplateContext(content),
+    buildTemplateContext(content, articles),
     template,
     DEFAULT_SYSTEM_PROMPT_TEMPLATE
   );
@@ -177,9 +195,13 @@ export function buildGreetingPrompt(
  * was typed. Throws on failure; the caller surfaces the message. */
 export function renderTemplatePreview(
   content: ResumeContent,
-  template: string
+  template: string,
+  articles: ArticleIndexEntry[] = []
 ): string {
-  return engine.parseAndRenderSync(template, buildTemplateContext(content));
+  return engine.parseAndRenderSync(
+    template,
+    buildTemplateContext(content, articles)
+  );
 }
 
 /**

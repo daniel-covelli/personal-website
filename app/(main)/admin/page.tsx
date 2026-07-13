@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
 import { getChatConfig } from '@/lib/chat-config';
+import { getAllArticles } from '@/lib/articles';
 import {
   DEFAULT_SYSTEM_PROMPT_TEMPLATE,
   DEFAULT_GREETING_PROMPT_TEMPLATE,
@@ -11,6 +12,8 @@ import { buildSystemPrompt, buildGreetingPrompt } from '@/lib/chat';
 import AdminTabs from '@/components/admin/AdminTabs';
 import LogoutButton from './LogoutButton';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
 
@@ -18,14 +21,32 @@ export default async function AdminPage() {
     redirect('/login?callbackUrl=/admin');
   }
 
-  const [content, config] = await Promise.all([getContent(), getChatConfig()]);
+  const [content, config, articles] = await Promise.all([
+    getContent(),
+    getChatConfig(),
+    getAllArticles(),
+  ]);
+
+  // The article index the assistant actually sees is published-only; build it
+  // here so the system-prompt preview shows the same Articles section the chat
+  // would receive.
+  const publishedArticleIndex = articles
+    .filter((a) => a.published)
+    .map((a) => ({
+      slug: a.slug,
+      title: a.title,
+      summary: a.summary,
+      tags: a.tags,
+      publishedAt: a.publishedAt,
+    }));
 
   // Render the in-effect templates server-side (reusing the already-loaded resume
   // content, no extra query) so each editor's live preview paints instantly on
   // expand; edits re-render via /api/chat-config. Keeps liquidjs out of the bundle.
   const initialRenderedSystemPrompt = buildSystemPrompt(
     content,
-    config.systemPrompt
+    config.systemPrompt,
+    publishedArticleIndex
   );
   const initialRenderedGreeting = buildGreetingPrompt(
     content,
@@ -59,6 +80,7 @@ export default async function AdminPage() {
         <AdminTabs
           content={content}
           chatModels={config.models}
+          articles={articles}
           systemPrompt={config.systemPrompt}
           defaultSystemPrompt={DEFAULT_SYSTEM_PROMPT_TEMPLATE}
           initialRenderedSystemPrompt={initialRenderedSystemPrompt}

@@ -47,3 +47,21 @@ npx prisma migrate deploy                                 # Then apply
 |---------|----------|------|
 | Website | `components/sections/` | Tailwind |
 | Print/PDF | `components/print/` + `app/print.css` | CSS (pt units) |
+
+---
+
+## Articles
+
+Long-form Markdown posts. Pages: `/articles` (index) and `/articles/[slug]`.
+
+| Concern | Location |
+|---------|----------|
+| DB model + data access | `Article` in `prisma/schema.prisma`, `lib/articles.ts`, types in `lib/types.ts` |
+| Rendering | `components/articles/ArticleMarkdown.tsx` (react-markdown + remark-gfm + rehype-highlight) |
+| Diagrams | ` ```mermaid ` blocks → `components/articles/Mermaid.tsx` (client, theme-aware) |
+| Code highlight theme | `.article-prose` rules in `app/globals.css` (light + dark) |
+| Admin CRUD | `components/admin/ArticlesEditor.tsx` + `app/api/articles/` (writes need admin session) |
+
+- **Images are URL-based** (no upload infra) — same pattern as `header.imageUrl`. `data:` URIs are stripped by react-markdown's sanitizer; use `https://`.
+- **Agent drill-down:** the chat carries a lightweight index of *published* articles in its system prompt (`buildSystemPrompt` in `lib/chat.ts`) and pulls a full body on demand via the `read_article` tool — a streaming tool-use loop in `app/api/chat/route.ts`. Drafts are never exposed to the chat or the public site.
+- The home page shows a "Writing" teaser (`components/sections/Writing.tsx`) only when published articles exist.

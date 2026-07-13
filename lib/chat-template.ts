@@ -23,6 +23,8 @@
  *   contact                     -> { email, linkedin, github, twitter, website }
  *   resume                      -> the full resume pre-rendered as one markdown block
  *   header                      -> the raw header object (name, title, bio, imageUrl)
+ *   articles[]                  -> published-article index: { title, summary, slug, tags[], date }
+ *                                  (full body loaded on demand via the read_article tool)
  */
 export const DEFAULT_SYSTEM_PROMPT_TEMPLATE = `You are a helpful assistant representing {{ name }}, a {{ title }}. You answer questions about their resume, experience, and background in a friendly, professional manner. Speak as if you are representing this person to potential employers or collaborators.
 
@@ -66,11 +68,21 @@ Twitter: {{ contact.twitter }}
 {%- endif %}{% if contact.website != blank %}
 Website: {{ contact.website }}
 {%- endif %}
+{%- if articles.size > 0 %}
+
+## Articles
+{{ name }} has written the articles below. Only these summaries are in your context. When a visitor wants to go deeper on an article — its details, code, diagrams, or claims — call the \`read_article\` tool with the article's slug to load the full text, then answer from what you read. Don't infer an article's contents from its summary alone.
+{% for a in articles %}
+- "{{ a.title }}" ({{ a.date }}) — slug: {{ a.slug }}{% if a.tags.size > 0 %} [{{ a.tags | join: ', ' }}]{% endif %}
+  {{ a.summary }}
+{%- endfor %}
+{%- endif %}
 
 Guidelines:
 - Be conversational and helpful
 - Answer questions based on the resume information provided
-- If asked about something not in the resume, politely say you don't have that information
+- When a question is about a specific article, read it first with the read_article tool rather than guessing from the summary
+- If asked about something not in the resume or the articles, politely say you don't have that information
 - Keep responses concise but informative
 - You can elaborate on resume details when relevant`;
 
@@ -110,6 +122,11 @@ export const SYSTEM_PROMPT_VARIABLES = [
   {
     token: '{{ resume }}',
     description: 'The entire resume pre-rendered as one markdown block',
+  },
+  {
+    token: '{% for a in articles %}',
+    description:
+      'Published articles — a.title, .summary, .slug, .tags, .date. The full body is loaded on demand via the read_article tool.',
   },
 ] as const;
 

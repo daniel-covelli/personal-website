@@ -9,6 +9,8 @@ import {
 } from '@/lib/chat-config';
 import { renderTemplatePreview, validateTemplate } from '@/lib/chat';
 import { getContent } from '@/lib/content';
+import { getArticleIndex } from '@/lib/articles';
+import { ArticleIndexEntry } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,8 +74,16 @@ export async function POST(request: NextRequest) {
     }
 
     const content = await getContent();
+    // Include the published-article index so a template that renders the
+    // Articles section previews the same content the chat would receive.
+    let articleIndex: ArticleIndexEntry[] = [];
     try {
-      const rendered = renderTemplatePreview(content, template);
+      articleIndex = await getArticleIndex();
+    } catch (indexError) {
+      console.error('Failed to load article index for preview:', indexError);
+    }
+    try {
+      const rendered = renderTemplatePreview(content, template, articleIndex);
       return NextResponse.json({ rendered });
     } catch (error) {
       // Parse or render failure for the candidate template — surface it so the
