@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
+import { Spinner } from '@/components/ui/spinner';
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -39,7 +40,7 @@ export default function MessageInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-hair p-4">
+    <form onSubmit={handleSubmit} className="border-t border-hair px-4 py-3">
       <div className={isExpanded ? 'mx-auto w-full max-w-3xl' : ''}>
         <div className="flex items-end gap-2">
           <textarea
@@ -55,12 +56,19 @@ export default function MessageInput({
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="rounded-xl bg-brand-solid px-4 py-2 text-white transition-colors hover:bg-brand-solid-hover disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
+            className={`relative flex items-center justify-center rounded-xl px-4 py-2 text-white transition-colors ${
+              isLoading
+                ? 'bg-brand-solid'
+                : 'bg-brand-solid hover:bg-brand-solid-hover disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700'
+            }`}
           >
-            {isLoading ? (
-              <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              'Send'
+            {/* "Send" stays in the DOM (just hidden) while loading so the button
+                keeps its exact size; the spinner is overlaid, centered. */}
+            <span className={isLoading ? 'invisible' : ''}>Send</span>
+            {isLoading && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Spinner className="h-5 w-5" label="Sending" />
+              </span>
             )}
           </button>
         </div>

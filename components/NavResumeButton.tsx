@@ -1,6 +1,7 @@
 'use client';
 
-import { Download, Loader2 } from 'lucide-react';
+import { Download } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { useResumeDownload } from '@/lib/useResumeDownload';
 
 /**
@@ -21,7 +22,7 @@ export default function NavResumeButton() {
       className="flex h-7 w-7 items-center justify-center rounded-full text-subtle transition-colors hover:bg-chip hover:text-ink disabled:cursor-not-allowed"
     >
       {isDownloading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Spinner className="h-4 w-4" label="Downloading resume" />
       ) : (
         <Download className="h-4 w-4" strokeWidth={1.75} />
       )}

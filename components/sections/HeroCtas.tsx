@@ -1,7 +1,8 @@
 'use client';
 
-import { Download, Loader2 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { MovingBorderButton } from '@/components/ui/moving-border-button';
+import { Spinner } from '@/components/ui/spinner';
 import { openChat } from '@/lib/chatLauncher';
 import { useResumeDownload } from '@/lib/useResumeDownload';
 
@@ -45,7 +46,7 @@ export default function HeroCtas() {
         className="inline-flex items-center gap-2 rounded-full border border-hair px-4 py-2.5 text-sm font-medium text-body transition-colors hover:border-subtle hover:text-ink disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isDownloading ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <Spinner className="h-3.5 w-3.5" label="Downloading resume" />
         ) : (
           <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
         )}
