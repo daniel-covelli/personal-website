@@ -18,7 +18,7 @@ export default function Education({ data }: EducationProps) {
               <h3 className="text-lg font-bold leading-tight tracking-[-0.01em] text-ink">
                 {edu.degree}
               </h3>
-              <p className="mt-1 text-sm font-semibold text-brand">
+              <p className="mt-0.5 text-sm font-semibold text-brand">
                 {edu.institution}
               </p>
               <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.05em] text-subtle tabular-nums">
