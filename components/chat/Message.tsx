@@ -2,6 +2,7 @@
 
 import { ChatMessage } from '@/lib/chat';
 import { useTypewriter } from '@/lib/useTypewriter';
+import Markdown from './Markdown';
 import { Orbit } from 'ldrs/react';
 import 'ldrs/react/Orbit.css';
 
@@ -13,7 +14,7 @@ interface MessageProps {
 function AnimatedAssistantMessage({ content }: { content: string }) {
   const displayedText = useTypewriter(content);
 
-  return <p className="whitespace-pre-wrap">{displayedText}</p>;
+  return <Markdown>{displayedText}</Markdown>;
 }
 
 export default function Message({ message }: MessageProps) {
@@ -36,7 +37,7 @@ export default function Message({ message }: MessageProps) {
           className={`max-w-[80%] rounded-2xl bg-chip px-4 py-2 text-sm text-ink`}
         >
           {message.skipAnimation ? (
-            <p className="whitespace-pre-wrap">{message.content}</p>
+            <Markdown>{message.content}</Markdown>
           ) : (
             <AnimatedAssistantMessage content={message.content} />
           )}

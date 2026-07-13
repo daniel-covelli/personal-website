@@ -342,7 +342,7 @@ export default function ChatModal({
         {/* Chat window */}
         <DialogPrimitive.Content
           ref={contentRef}
-          className={`fixed z-[70] flex flex-col overflow-hidden rounded-2xl bg-panel shadow-2xl outline-none transition-all [transition-duration:350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+          className={`fixed z-[70] flex flex-col overflow-hidden rounded-2xl border border-hair bg-panel shadow-soft outline-none transition-all [transition-duration:350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
             isExpanded ? '' : 'h-[600px] max-h-[80vh] w-full max-w-md'
           }`}
           style={
@@ -395,8 +395,9 @@ export default function ChatModal({
             }
           }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-hair bg-surface px-4 py-3">
+          {/* Header — panel (not surface), so the top of the window stays
+              distinct from the page background, which is also surface. */}
+          <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-3">
             <DialogPrimitive.Title className="font-semibold text-ink">
               Assistant
             </DialogPrimitive.Title>
