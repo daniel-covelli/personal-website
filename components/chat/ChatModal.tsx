@@ -8,7 +8,7 @@ import {
   useEffect,
 } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { ChatMessage } from '@/lib/chat';
+import { ChatMessage } from '@/lib/types';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 

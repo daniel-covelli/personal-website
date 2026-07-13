@@ -1,63 +1,28 @@
+import { Liquid } from 'liquidjs';
 import { ResumeContent } from './types';
+import {
+  DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  SYSTEM_PROMPT_VARIABLES,
+} from './chat-template';
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  skipAnimation?: boolean;
-}
+// Re-exported so existing importers of `@/lib/chat` keep working. ChatMessage
+// lives in ./types (a dependency-free module) so client components can import it
+// without pulling this file's `liquidjs` dependency into the browser bundle; the
+// template constants likewise live in the dependency-free chat-template module.
+export type { ChatMessage } from './types';
+export { DEFAULT_SYSTEM_PROMPT_TEMPLATE, SYSTEM_PROMPT_VARIABLES };
+
+// A single shared Liquid engine. Templates come from admin config or the built-in
+// default and are rendered against in-memory data only (no file includes / async
+// filters), so synchronous rendering is safe and keeps buildSystemPrompt sync.
+const engine = new Liquid();
 
 /**
- * The chat assistant's system prompt is built from a *template* that can be
- * edited from /admin (see lib/chat-config.ts: getSystemPromptTemplate). This
- * constant is the built-in default used whenever no custom template has been
- * saved — it reproduces the assistant's original prompt exactly.
- *
- * Placeholders are filled in by buildSystemPrompt at request time:
- *   {{NAME}}   -> the resume owner's name
- *   {{TITLE}}  -> their title
- *   {{RESUME}} -> the full resume, rendered live from the current Resume-tab
- *                 content (About / Experience / Education / Skills / Projects /
- *                 Contact). Keep this placeholder so the assistant always
- *                 answers from up-to-date resume data.
+ * Renders the resume content into a single markdown block. Exposed to templates
+ * as the `{{ resume }}` variable so a custom prompt can drop the whole resume in
+ * one place instead of looping over each section. The built-in default template
+ * renders the sections itself (see chat-template.ts) rather than using this.
  */
-export const DEFAULT_SYSTEM_PROMPT_TEMPLATE = `You are a helpful assistant representing {{NAME}}, a {{TITLE}}. You answer questions about their resume, experience, and background in a friendly, professional manner. Speak as if you are representing this person to potential employers or collaborators.
-
-Here is their resume information:
-
-{{RESUME}}
-
-Guidelines:
-- Be conversational and helpful
-- Answer questions based on the resume information provided
-- If asked about something not in the resume, politely say you don't have that information
-- Keep responses concise but informative
-- You can elaborate on resume details when relevant`;
-
-/** Placeholder tokens an admin can use inside a custom system-prompt template. */
-export const SYSTEM_PROMPT_PLACEHOLDERS = [
-  { token: '{{NAME}}', description: "The resume owner's name" },
-  { token: '{{TITLE}}', description: 'Their professional title' },
-  {
-    token: '{{RESUME}}',
-    description: 'Full resume, injected live from the Resume tab',
-  },
-] as const;
-
-// Fill every {{KEY}} token with its value in a single pass. A replacer function
-// is used (rather than a string replacement) so values containing `$` — e.g.
-// "$120k" in a resume bullet — are inserted verbatim instead of being treated
-// as replacement patterns. Unknown tokens are left untouched.
-function fillTemplate(
-  template: string,
-  values: Record<string, string>
-): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (match, key: string) =>
-    Object.prototype.hasOwnProperty.call(values, key) ? values[key] : match
-  );
-}
-
-/** Renders the resume content into the markdown block used by {{RESUME}}. */
 function buildResumeBlock(content: ResumeContent): string {
   const { header, experience, education, skills, projects, contact } = content;
 
@@ -123,20 +88,75 @@ ${contactText}`;
 }
 
 /**
- * Builds the assistant's system prompt by filling `template` with the live
- * resume content. `template` defaults to DEFAULT_SYSTEM_PROMPT_TEMPLATE; the
- * chat route passes the admin-configured template from getSystemPromptTemplate().
+ * Builds the Liquid render context from the live resume content. Exposes the
+ * full structured resume (so a template can loop over experience/projects/etc.)
+ * plus a few conveniences:
+ *   - `resume`: the whole resume pre-rendered as one block
+ *   - NAME/TITLE/RESUME: uppercase aliases kept for backward compatibility with
+ *     any prompt saved under the previous {{NAME}}/{{TITLE}}/{{RESUME}} scheme.
+ */
+function buildTemplateContext(content: ResumeContent): Record<string, unknown> {
+  const { header, experience, education, skills, projects, contact } = content;
+  const resume = buildResumeBlock(content);
+  return {
+    name: header.name,
+    title: header.title,
+    bio: header.bio,
+    header,
+    experience,
+    education,
+    skills,
+    projects,
+    contact,
+    resume,
+    // Backward-compatible aliases for the old token scheme.
+    NAME: header.name,
+    TITLE: header.title,
+    RESUME: resume,
+  };
+}
+
+/**
+ * Builds the assistant's system prompt by rendering `template` (Liquid) against
+ * the live resume content. `template` defaults to the built-in default; the chat
+ * route passes the admin-configured template from getSystemPromptTemplate().
  *
- * With the default template and an unchanged resume this returns exactly the
- * same string the assistant used before the prompt became editable.
+ * If a custom template fails to render (e.g. a malformed tag slipped past
+ * validation, or references a field in an unexpected way), we fall back to the
+ * built-in default rather than let a bad saved template take the chat down —
+ * consistent with the defensive fallbacks in lib/chat-config.ts.
  */
 export function buildSystemPrompt(
   content: ResumeContent,
   template: string = DEFAULT_SYSTEM_PROMPT_TEMPLATE
 ): string {
-  return fillTemplate(template, {
-    NAME: content.header.name,
-    TITLE: content.header.title,
-    RESUME: buildResumeBlock(content),
-  });
+  const context = buildTemplateContext(content);
+  try {
+    return engine.parseAndRenderSync(template, context);
+  } catch (error) {
+    if (template !== DEFAULT_SYSTEM_PROMPT_TEMPLATE) {
+      console.error(
+        'Failed to render custom system prompt template, using default:',
+        error
+      );
+      return engine.parseAndRenderSync(DEFAULT_SYSTEM_PROMPT_TEMPLATE, context);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Validates that a template parses as Liquid. Returns an error message describing
+ * the syntax problem, or null if it is valid. Used by the admin config API to
+ * reject a broken template at save time instead of at chat time. Note this only
+ * catches *syntax* errors (parse); a template can still fail at render if it uses
+ * data in an unsupported way — buildSystemPrompt's fallback covers that.
+ */
+export function validateTemplate(template: string): string | null {
+  try {
+    engine.parse(template);
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Invalid template';
+  }
 }

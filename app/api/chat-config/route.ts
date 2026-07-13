@@ -6,6 +6,7 @@ import {
   saveChatModels,
   saveSystemPromptTemplate,
 } from '@/lib/chat-config';
+import { validateTemplate } from '@/lib/chat';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,7 +66,19 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         );
       }
-      // Empty/whitespace is normalised to "use the default" inside the lib.
+      // Reject a malformed Liquid template here so the admin gets immediate
+      // feedback instead of a silently-broken chat. Empty/whitespace clears the
+      // override (validates trivially) and is normalised to "use the default"
+      // inside the lib.
+      if (typeof systemPrompt === 'string') {
+        const templateError = validateTemplate(systemPrompt);
+        if (templateError) {
+          return NextResponse.json(
+            { error: `Invalid template: ${templateError}` },
+            { status: 400 }
+          );
+        }
+      }
       await saveSystemPromptTemplate(systemPrompt);
     }
 

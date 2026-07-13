@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from './chat';
+import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from './chat-template';
 
 /**
  * The chat assistant tries these model IDs in order until one succeeds (see
@@ -50,9 +50,9 @@ export async function saveChatModels(models: string[]): Promise<void> {
 
 /**
  * Returns the configured system-prompt template, falling back to the built-in
- * default (lib/chat.ts) whenever no override is saved OR the query fails (e.g.
- * the migration hasn't been applied yet). The template still contains its
- * {{NAME}}/{{TITLE}}/{{RESUME}} placeholders — buildSystemPrompt fills them.
+ * default (lib/chat-template.ts) whenever no override is saved OR the query fails
+ * (e.g. the migration hasn't been applied yet). The template is a Liquid template
+ * with its resume variables unresolved — buildSystemPrompt renders it.
  */
 export async function getSystemPromptTemplate(): Promise<string> {
   try {

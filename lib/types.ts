@@ -66,3 +66,10 @@ export interface ResumeContent {
   projects: Project[];
   contact: Contact;
 }
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  skipAnimation?: boolean;
+}

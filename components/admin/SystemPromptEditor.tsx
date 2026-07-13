@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { SYSTEM_PROMPT_VARIABLES } from '@/lib/chat-template';
 
 interface SystemPromptEditorProps {
   // The template currently in effect (the saved override, or the built-in
@@ -11,13 +12,17 @@ interface SystemPromptEditorProps {
   defaultPrompt: string;
 }
 
-const PLACEHOLDERS: { token: string; description: string }[] = [
-  { token: '{{NAME}}', description: 'Your name' },
-  { token: '{{TITLE}}', description: 'Your title' },
-  {
-    token: '{{RESUME}}',
-    description: 'Full resume, injected live from the Resume tab',
-  },
+// Variable names that pull in resume data. Used only to warn when a template
+// references none of them (see below) — the assistant would then have no resume
+// context at all.
+const RESUME_VARS = [
+  'resume',
+  'experience',
+  'education',
+  'skills',
+  'projects',
+  'contact',
+  'bio',
 ];
 
 export default function SystemPromptEditor({
@@ -29,7 +34,7 @@ export default function SystemPromptEditor({
   const [message, setMessage] = useState('');
 
   const isDefault = prompt.trim() === defaultPrompt.trim();
-  const missingResume = !prompt.includes('{{RESUME}}');
+  const missingResume = !RESUME_VARS.some((v) => prompt.includes(v));
 
   async function handleSave() {
     setSaving(true);
@@ -42,17 +47,22 @@ export default function SystemPromptEditor({
         body: JSON.stringify({ systemPrompt: prompt }),
       });
 
-      setMessage(
-        res.ok
-          ? 'System prompt saved successfully!'
-          : 'Failed to save system prompt'
-      );
+      if (res.ok) {
+        setMessage('System prompt saved successfully!');
+      } else {
+        // Surface the server's reason (e.g. an invalid Liquid template) so the
+        // admin can fix it rather than guess.
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setMessage(data?.error ?? 'Failed to save system prompt');
+      }
     } catch {
       setMessage('Error saving system prompt');
     }
 
     setSaving(false);
-    setTimeout(() => setMessage(''), 3000);
+    setTimeout(() => setMessage(''), 5000);
   }
 
   return (
@@ -61,13 +71,21 @@ export default function SystemPromptEditor({
         <div>
           <h3 className="text-lg font-semibold">System Prompt</h3>
           <p className="mt-1 text-sm text-gray-500">
-            Controls how the chat assistant behaves. Your resume is injected
-            automatically wherever you place the{' '}
+            Controls how the chat assistant behaves. This is a{' '}
+            <a
+              href="https://liquidjs.com/tutorials/intro-to-liquid.html"
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Liquid
+            </a>{' '}
+            template — your resume is injected as variables when the assistant
+            runs, so it always reflects the latest Resume tab content. Drop in{' '}
             <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">
-              {'{{RESUME}}'}
+              {'{{ resume }}'}
             </code>{' '}
-            placeholder, so the assistant always answers from the latest Resume
-            tab content.
+            for the whole resume, or loop over the individual sections.
           </p>
         </div>
         <span
@@ -88,11 +106,9 @@ export default function SystemPromptEditor({
       />
 
       <div className="mt-3">
-        <p className="text-xs font-medium text-gray-500">
-          Available placeholders
-        </p>
-        <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
-          {PLACEHOLDERS.map((p) => (
+        <p className="text-xs font-medium text-gray-500">Available variables</p>
+        <ul className="mt-1 flex flex-col gap-y-1 text-xs text-gray-400">
+          {SYSTEM_PROMPT_VARIABLES.map((p) => (
             <li key={p.token}>
               <code className="font-mono text-gray-600">{p.token}</code> —{' '}
               {p.description}
@@ -103,9 +119,9 @@ export default function SystemPromptEditor({
 
       {missingResume && (
         <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
-          Heads up: without the{' '}
-          <code className="font-mono">{'{{RESUME}}'}</code> placeholder the
-          assistant won&rsquo;t receive any resume details.
+          Heads up: this template doesn&rsquo;t reference any resume data (e.g.{' '}
+          <code className="font-mono">{'{{ resume }}'}</code>), so the assistant
+          won&rsquo;t receive any resume details.
         </p>
       )}
 
