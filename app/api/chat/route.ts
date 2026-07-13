@@ -4,6 +4,38 @@ import { buildSystemPrompt, ChatMessage } from '@/lib/chat';
 import { getOrCreateSessionId } from '@/lib/session';
 import { getOrCreateConversation, addMessage } from '@/lib/conversations';
 import { getChatModels } from '@/lib/chat-config';
+import {
+  getArticleIndex,
+  getArticleBySlug,
+  formatArticleForAgent,
+} from '@/lib/articles';
+import { ArticleIndexEntry } from '@/lib/types';
+
+// The assistant carries only a lightweight index of articles in its prompt and
+// pulls a full body on demand with this tool. Keeps the prompt small no matter
+// how many articles exist, and lets a visitor "drill down" on any post.
+const tools: Anthropic.Tool[] = [
+  {
+    name: 'read_article',
+    description:
+      "Load the full Markdown text of one of the site's published articles by its slug. Only the article index (titles, summaries, slugs) is in your context by default — call this before answering anything specific about an article's contents, code, or diagrams. The mermaid diagram source is included, so you can read diagrams too.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        slug: {
+          type: 'string',
+          description:
+            'The slug of the article to read, taken from the Articles index in the system prompt.',
+        },
+      },
+      required: ['slug'],
+    },
+  },
+];
+
+// Cap the read_article rounds so a confused model can't loop forever; on the
+// final round tools are withheld, forcing a text answer.
+const MAX_TOOL_ROUNDS = 4;
 
 export const dynamic = 'force-dynamic';
 // Bound the serverless function so a stalled model call can't hang indefinitely.
@@ -33,7 +65,15 @@ export async function POST(request: Request) {
     const conversation = await getOrCreateConversation(sessionId);
 
     const content = await getContent();
-    const systemPrompt = buildSystemPrompt(content);
+    // A DB hiccup on the article index must never take the chat down — fall
+    // back to an empty index (same defensive posture as getChatModels).
+    let articleIndex: ArticleIndexEntry[] = [];
+    try {
+      articleIndex = await getArticleIndex();
+    } catch (indexError) {
+      console.error('Failed to load article index for chat:', indexError);
+    }
+    const systemPrompt = buildSystemPrompt(content, articleIndex);
     const models = await getChatModels();
 
     let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
@@ -65,23 +105,74 @@ export async function POST(request: Request) {
           );
 
         // Streams text deltas from `model` to the client, accumulating the full
-        // text. Throws if the model call fails (e.g. a retired-model 404).
+        // text. Runs an agentic loop: if the model calls read_article, the
+        // article is fetched, fed back as a tool result, and the model
+        // continues — all while text keeps streaming to the client. Throws if
+        // the model call fails (e.g. a retired-model 404).
         let streamedText = '';
         const runModel = async (model: string) => {
-          const stream = anthropic.messages.stream({
-            model,
-            max_tokens: maxTokens,
-            system: systemPrompt,
-            messages: anthropicMessages,
-          });
-          for await (const event of stream) {
-            if (
-              event.type === 'content_block_delta' &&
-              event.delta.type === 'text_delta'
-            ) {
-              streamedText += event.delta.text;
-              send({ text: event.delta.text });
+          const working: Anthropic.MessageParam[] = anthropicMessages.map(
+            (m) => ({ role: m.role, content: m.content })
+          );
+
+          for (let round = 0; ; round++) {
+            // Greeting turns never use tools; on the last round tools are
+            // withheld so the model must answer instead of calling again.
+            const useTools = !isGreeting && round < MAX_TOOL_ROUNDS;
+            const stream = anthropic.messages.stream({
+              model,
+              max_tokens: maxTokens,
+              system: systemPrompt,
+              messages: working,
+              ...(useTools ? { tools } : {}),
+            });
+
+            for await (const event of stream) {
+              if (
+                event.type === 'content_block_delta' &&
+                event.delta.type === 'text_delta'
+              ) {
+                streamedText += event.delta.text;
+                send({ text: event.delta.text });
+              }
             }
+
+            const finalMessage = await stream.finalMessage();
+            if (finalMessage.stop_reason !== 'tool_use') return;
+
+            // Record the assistant's tool-calling turn, then resolve each
+            // read_article call and hand the results back for the next round.
+            working.push({ role: 'assistant', content: finalMessage.content });
+            const toolResults: Anthropic.ToolResultBlockParam[] = [];
+            for (const block of finalMessage.content) {
+              if (block.type !== 'tool_use') continue;
+              if (block.name === 'read_article') {
+                const rawSlug = (block.input as { slug?: unknown })?.slug;
+                const slug = typeof rawSlug === 'string' ? rawSlug : '';
+                let article = null;
+                try {
+                  article = slug ? await getArticleBySlug(slug) : null;
+                } catch (readError) {
+                  console.error('read_article lookup failed:', readError);
+                }
+                toolResults.push({
+                  type: 'tool_result',
+                  tool_use_id: block.id,
+                  content: article
+                    ? formatArticleForAgent(article)
+                    : `No published article found with slug "${slug}". Check the Articles index for valid slugs.`,
+                  ...(article ? {} : { is_error: true }),
+                });
+              } else {
+                toolResults.push({
+                  type: 'tool_result',
+                  tool_use_id: block.id,
+                  content: `Unknown tool "${block.name}".`,
+                  is_error: true,
+                });
+              }
+            }
+            working.push({ role: 'user', content: toolResults });
           }
         };
 

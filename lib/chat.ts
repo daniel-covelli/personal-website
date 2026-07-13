@@ -1,4 +1,4 @@
-import { ResumeContent } from './types';
+import { ResumeContent, ArticleIndexEntry } from './types';
 
 export interface ChatMessage {
   id: string;
@@ -7,7 +7,10 @@ export interface ChatMessage {
   skipAnimation?: boolean;
 }
 
-export function buildSystemPrompt(content: ResumeContent): string {
+export function buildSystemPrompt(
+  content: ResumeContent,
+  articles: ArticleIndexEntry[] = []
+): string {
   const { header, experience, education, skills, projects, contact } = content;
 
   const experienceText = experience
@@ -52,7 +55,25 @@ export function buildSystemPrompt(content: ResumeContent): string {
     .filter(Boolean)
     .join('\n');
 
-  return `You are a helpful assistant representing ${header.name}, a ${header.title}. You answer questions about their resume, experience, and background in a friendly, professional manner. Speak as if you are representing this person to potential employers or collaborators.
+  // Lightweight article index. The full body of any post is fetched on demand
+  // via the read_article tool (see app/api/chat/route.ts) — keeping the prompt
+  // small no matter how many articles exist.
+  const articlesText = articles.length
+    ? articles
+        .map((a) => {
+          const date = a.publishedAt ? a.publishedAt.slice(0, 10) : 'undated';
+          const tags = a.tags.length ? ` [${a.tags.join(', ')}]` : '';
+          return `- "${a.title}" (${date}) — slug: ${a.slug}${tags}\n  ${a.summary}`;
+        })
+        .join('\n')
+    : 'No articles have been published yet.';
+
+  const articlesSection = `## Articles
+${header.name} has written the articles below. Only these summaries are in your context. When a visitor wants to go deeper on an article — its details, code, diagrams, or claims — call the \`read_article\` tool with the article's slug to load the full text, then answer from what you read. Do not invent or infer an article's contents from its summary alone.
+
+${articlesText}`;
+
+  return `You are a helpful assistant representing ${header.name}, a ${header.title}. You answer questions about their resume, experience, background, and written articles in a friendly, professional manner. Speak as if you are representing this person to potential employers or collaborators.
 
 Here is their resume information:
 
@@ -74,10 +95,13 @@ ${projectsText}
 ## Contact
 ${contactText}
 
+${articlesSection}
+
 Guidelines:
 - Be conversational and helpful
 - Answer questions based on the resume information provided
-- If asked about something not in the resume, politely say you don't have that information
+- When a question is about a specific article, read it first with the read_article tool rather than guessing from the summary
+- If asked about something not in the resume or the articles, politely say you don't have that information
 - Keep responses concise but informative
 - You can elaborate on resume details when relevant`;
 }

@@ -199,3 +199,108 @@ html body[data-scroll-locked] {
   margin-left: 0px !important; /* For RTL layout */
   overflow: visible !important;
 }
+
+/* ── Syntax highlighting (rehype-highlight / highlight.js) ────────────────
+ * Scoped to .article-prose so it only affects rendered articles. GitHub-ish
+ * palette, theme-aware via .dark. The code block background/border come from
+ * the wrapper in ArticleMarkdown; here we only color the tokens. */
+.article-prose pre,
+.article-prose pre code {
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    monospace;
+}
+
+.article-prose .hljs {
+  color: rgb(var(--ink));
+  background: transparent;
+}
+.article-prose .hljs-comment,
+.article-prose .hljs-quote {
+  color: #6e7781;
+  font-style: italic;
+}
+.article-prose .hljs-keyword,
+.article-prose .hljs-selector-tag,
+.article-prose .hljs-literal,
+.article-prose .hljs-type,
+.article-prose .hljs-deletion {
+  color: #cf222e;
+}
+.article-prose .hljs-string,
+.article-prose .hljs-doctag,
+.article-prose .hljs-regexp,
+.article-prose .hljs-addition {
+  color: #0a3069;
+}
+.article-prose .hljs-number,
+.article-prose .hljs-attr,
+.article-prose .hljs-attribute,
+.article-prose .hljs-variable,
+.article-prose .hljs-template-variable,
+.article-prose .hljs-selector-attr,
+.article-prose .hljs-selector-pseudo {
+  color: #0550ae;
+}
+.article-prose .hljs-title,
+.article-prose .hljs-section,
+.article-prose .hljs-name,
+.article-prose .hljs-built_in,
+.article-prose .hljs-title.function_,
+.article-prose .hljs-title.class_ {
+  color: #8250df;
+}
+.article-prose .hljs-symbol,
+.article-prose .hljs-bullet,
+.article-prose .hljs-meta {
+  color: #6e7781;
+}
+.article-prose .hljs-emphasis {
+  font-style: italic;
+}
+.article-prose .hljs-strong {
+  font-weight: 600;
+}
+
+.dark .article-prose .hljs {
+  color: #c9d1d9;
+}
+.dark .article-prose .hljs-comment,
+.dark .article-prose .hljs-quote,
+.dark .article-prose .hljs-symbol,
+.dark .article-prose .hljs-bullet,
+.dark .article-prose .hljs-meta {
+  color: #8b949e;
+}
+.dark .article-prose .hljs-keyword,
+.dark .article-prose .hljs-selector-tag,
+.dark .article-prose .hljs-literal,
+.dark .article-prose .hljs-deletion {
+  color: #ff7b72;
+}
+.dark .article-prose .hljs-type {
+  color: #ffa657;
+}
+.dark .article-prose .hljs-string,
+.dark .article-prose .hljs-doctag,
+.dark .article-prose .hljs-regexp,
+.dark .article-prose .hljs-addition {
+  color: #a5d6ff;
+}
+.dark .article-prose .hljs-number,
+.dark .article-prose .hljs-attr,
+.dark .article-prose .hljs-attribute,
+.dark .article-prose .hljs-variable,
+.dark .article-prose .hljs-template-variable,
+.dark .article-prose .hljs-selector-attr,
+.dark .article-prose .hljs-selector-pseudo {
+  color: #79c0ff;
+}
+.dark .article-prose .hljs-title,
+.dark .article-prose .hljs-section,
+.dark .article-prose .hljs-name,
+.dark .article-prose .hljs-built_in,
+.dark .article-prose .hljs-title.function_,
+.dark .article-prose .hljs-title.class_ {
+  color: #d2a8ff;
+}

@@ -16,6 +16,12 @@ export default function Nav({ name }: NavProps) {
           {name}
         </Link>
         <div className="flex items-center gap-3">
+          <Link
+            href="/articles"
+            className="text-xs font-medium text-subtle transition-colors hover:text-ink"
+          >
+            Writing
+          </Link>
           <ThemeToggle />
           <a
             href="/api/pdf"

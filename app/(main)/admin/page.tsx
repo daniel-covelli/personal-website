@@ -3,9 +3,13 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
 import { getChatModels } from '@/lib/chat-config';
+import { getAllArticles } from '@/lib/articles';
 import ContentEditor from '@/components/admin/ContentEditor';
 import ChatConfigEditor from '@/components/admin/ChatConfigEditor';
+import ArticlesEditor from '@/components/admin/ArticlesEditor';
 import LogoutButton from './LogoutButton';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -14,8 +18,11 @@ export default async function AdminPage() {
     redirect('/login?callbackUrl=/admin');
   }
 
-  const content = await getContent();
-  const chatModels = await getChatModels();
+  const [content, chatModels, articles] = await Promise.all([
+    getContent(),
+    getChatModels(),
+    getAllArticles(),
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,6 +47,7 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         <ContentEditor initialContent={content} />
+        <ArticlesEditor initialArticles={articles} />
         <ChatConfigEditor initialModels={chatModels} />
       </main>
     </div>
