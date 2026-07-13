@@ -29,7 +29,7 @@ export default function Experience({ data }: ExperienceProps) {
                 </p>
               )}
               {exp.bullets?.length > 0 && (
-                <ul className="list-inside list-disc space-y-1.5 text-sm leading-relaxed text-body">
+                <ul className="list-disc space-y-2.5 pl-5 text-sm leading-normal text-body marker:text-subtle">
                   {exp.bullets.map((bullet, i) => (
                     <li key={i}>{bullet}</li>
                   ))}
