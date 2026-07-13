@@ -334,7 +334,7 @@ export default function ChatModal({
         {/* Chat window */}
         <DialogPrimitive.Content
           ref={contentRef}
-          className="fixed z-50 flex h-[600px] max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-panel shadow-2xl outline-none transition-all duration-300 ease-out"
+          className="fixed z-50 flex h-[600px] max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-hair bg-panel shadow-soft outline-none transition-all duration-300 ease-out"
           style={{
             bottom: `${position.bottom}px`,
             right: `${position.right}px`,
@@ -351,8 +351,9 @@ export default function ChatModal({
             onClose();
           }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-hair bg-surface px-4 py-3">
+          {/* Header — panel (not surface), so the top of the window stays
+              distinct from the page background, which is also surface. */}
+          <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-3">
             <DialogPrimitive.Title className="font-semibold text-ink">
               Assistant
             </DialogPrimitive.Title>
