@@ -15,7 +15,9 @@ export default function Skills({ data }: SkillsProps) {
         <div className="grid gap-6 md:grid-cols-2">
           {data.categories.map((category) => (
             <div key={category.id}>
-              <h3 className="mb-3 font-semibold text-ink">{category.name}</h3>
+              <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-subtle">
+                {category.name}
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {category.items.map((skill, index) => (
                   <span
