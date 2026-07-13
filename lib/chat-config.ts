@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from './chat';
 
 /**
  * The chat assistant tries these model IDs in order until one succeeds (see
@@ -44,5 +45,41 @@ export async function saveChatModels(models: string[]): Promise<void> {
     where: { id: 'singleton' },
     update: { models: cleaned },
     create: { id: 'singleton', models: cleaned },
+  });
+}
+
+/**
+ * Returns the configured system-prompt template, falling back to the built-in
+ * default (lib/chat.ts) whenever no override is saved OR the query fails (e.g.
+ * the migration hasn't been applied yet). The template still contains its
+ * {{NAME}}/{{TITLE}}/{{RESUME}} placeholders — buildSystemPrompt fills them.
+ */
+export async function getSystemPromptTemplate(): Promise<string> {
+  try {
+    const config = await prisma.chatConfig.findUnique({
+      where: { id: 'singleton' },
+    });
+    const stored = config?.systemPrompt;
+    return stored && stored.trim().length > 0
+      ? stored
+      : DEFAULT_SYSTEM_PROMPT_TEMPLATE;
+  } catch (error) {
+    console.error('Failed to load system prompt, using default:', error);
+    return DEFAULT_SYSTEM_PROMPT_TEMPLATE;
+  }
+}
+
+/**
+ * Persists the system-prompt template. Passing null or an empty/whitespace-only
+ * value clears the override so the built-in default is used again.
+ */
+export async function saveSystemPromptTemplate(
+  prompt: string | null
+): Promise<void> {
+  const value = prompt && prompt.trim().length > 0 ? prompt : null;
+  await prisma.chatConfig.upsert({
+    where: { id: 'singleton' },
+    update: { systemPrompt: value },
+    create: { id: 'singleton', models: [], systemPrompt: value },
   });
 }

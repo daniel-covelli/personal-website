@@ -2,9 +2,9 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
-import { getChatModels } from '@/lib/chat-config';
-import ContentEditor from '@/components/admin/ContentEditor';
-import ChatConfigEditor from '@/components/admin/ChatConfigEditor';
+import { getChatModels, getSystemPromptTemplate } from '@/lib/chat-config';
+import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from '@/lib/chat';
+import AdminTabs from '@/components/admin/AdminTabs';
 import LogoutButton from './LogoutButton';
 
 export default async function AdminPage() {
@@ -14,8 +14,11 @@ export default async function AdminPage() {
     redirect('/login?callbackUrl=/admin');
   }
 
-  const content = await getContent();
-  const chatModels = await getChatModels();
+  const [content, chatModels, systemPrompt] = await Promise.all([
+    getContent(),
+    getChatModels(),
+    getSystemPromptTemplate(),
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -23,7 +26,9 @@ export default async function AdminPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-sm text-gray-500">Manage your resume content</p>
+            <p className="text-sm text-gray-500">
+              Manage your resume content and chat assistant
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <a
@@ -39,8 +44,12 @@ export default async function AdminPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <ContentEditor initialContent={content} />
-        <ChatConfigEditor initialModels={chatModels} />
+        <AdminTabs
+          content={content}
+          chatModels={chatModels}
+          systemPrompt={systemPrompt}
+          defaultSystemPrompt={DEFAULT_SYSTEM_PROMPT_TEMPLATE}
+        />
       </main>
     </div>
   );

@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getChatModels, saveChatModels } from '@/lib/chat-config';
+import {
+  getChatModels,
+  saveChatModels,
+  saveSystemPromptTemplate,
+} from '@/lib/chat-config';
 
 export const dynamic = 'force-dynamic';
+
+// Guardrail against an accidental/abusive multi-megabyte payload. Well above any
+// realistic prompt (the default is ~1KB) but bounded.
+const MAX_SYSTEM_PROMPT_LENGTH = 100_000;
 
 export async function GET() {
   try {
@@ -26,12 +34,40 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await request.json()) as { models?: unknown };
-    const models = Array.isArray(body.models)
-      ? body.models.filter((m): m is string => typeof m === 'string')
-      : [];
+    const body = (await request.json()) as {
+      models?: unknown;
+      systemPrompt?: unknown;
+    };
 
-    await saveChatModels(models);
+    // Each field is optional and saved independently, so the models editor and
+    // the system-prompt editor can each PUT just the piece they own.
+    if ('models' in body) {
+      const models = Array.isArray(body.models)
+        ? body.models.filter((m): m is string => typeof m === 'string')
+        : [];
+      await saveChatModels(models);
+    }
+
+    if ('systemPrompt' in body) {
+      const { systemPrompt } = body;
+      if (systemPrompt !== null && typeof systemPrompt !== 'string') {
+        return NextResponse.json(
+          { error: 'systemPrompt must be a string or null' },
+          { status: 400 }
+        );
+      }
+      if (
+        typeof systemPrompt === 'string' &&
+        systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH
+      ) {
+        return NextResponse.json(
+          { error: 'System prompt is too long' },
+          { status: 400 }
+        );
+      }
+      // Empty/whitespace is normalised to "use the default" inside the lib.
+      await saveSystemPromptTemplate(systemPrompt);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
