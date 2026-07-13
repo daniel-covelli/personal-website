@@ -1,7 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
-import { getPublishedArticles } from '@/lib/articles';
 
 export const dynamic = 'force-dynamic';
 import Header from '@/components/sections/Header';
@@ -9,17 +8,15 @@ import Experience from '@/components/sections/Experience';
 import Education from '@/components/sections/Education';
 import Skills from '@/components/sections/Skills';
 import Projects from '@/components/sections/Projects';
-import Writing from '@/components/sections/Writing';
 import Contact from '@/components/sections/Contact';
 import Nav from '@/components/Nav';
 import ChatButton from '@/components/chat/ChatButton';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export default async function Home() {
-  const [content, session, articles] = await Promise.all([
+  const [content, session] = await Promise.all([
     getContent(),
     getServerSession(authOptions),
-    getPublishedArticles(),
   ]);
   const isAdmin = !!session;
 
@@ -32,7 +29,6 @@ export default async function Home() {
         <Education data={content.education} />
         <Skills data={content.skills} />
         <Projects data={content.projects} />
-        <Writing data={articles} />
         <Contact data={content.contact} />
         <footer className="px-4 py-8">
           <div className="mx-auto flex max-w-3xl items-center justify-between text-sm text-subtle">
