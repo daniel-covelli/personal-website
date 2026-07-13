@@ -1,6 +1,6 @@
 /**
  * The chat assistant's system prompt is a *Liquid* template (https://liquidjs.com)
- * that can be edited from /admin (see lib/chat-config.ts: getSystemPromptTemplate).
+ * that can be edited from /admin (see lib/chat-config.ts: getChatConfig).
  * This module holds the built-in default and the list of variables an admin may
  * reference — it is intentionally dependency-free (no liquidjs import) so it can
  * be shared by both server code and the client-side admin editor without pulling
@@ -111,4 +111,19 @@ export const SYSTEM_PROMPT_VARIABLES = [
     token: '{{ resume }}',
     description: 'The entire resume pre-rendered as one markdown block',
   },
+] as const;
+
+/**
+ * Built-in default for the chat's opening message, generated from this editable
+ * Liquid instruction sent as the first user turn (see app/api/chat/route.ts). The
+ * system prompt still applies when it runs, so this only steers WHAT the first
+ * message says, not the assistant's voice.
+ */
+export const DEFAULT_GREETING_PROMPT_TEMPLATE = `Introduce yourself in a casual, friendly way (1-2 sentences max). Keep it short and conversational - mention whose resume this is and that you can chat about their background. No formal language.`;
+
+/** Surfaced in the greeting editor; all resume vars above are available too, but
+ * the opening line rarely needs more than these. */
+export const GREETING_PROMPT_VARIABLES = [
+  { token: '{{ name }}', description: "The resume owner's name" },
+  { token: '{{ title }}', description: 'Their professional title' },
 ] as const;

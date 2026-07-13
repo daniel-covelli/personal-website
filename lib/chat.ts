@@ -3,6 +3,8 @@ import { ResumeContent } from './types';
 import {
   DEFAULT_SYSTEM_PROMPT_TEMPLATE,
   SYSTEM_PROMPT_VARIABLES,
+  DEFAULT_GREETING_PROMPT_TEMPLATE,
+  GREETING_PROMPT_VARIABLES,
 } from './chat-template';
 
 // Re-exported so existing importers of `@/lib/chat` keep working. ChatMessage
@@ -10,7 +12,12 @@ import {
 // without pulling this file's `liquidjs` dependency into the browser bundle; the
 // template constants likewise live in the dependency-free chat-template module.
 export type { ChatMessage } from './types';
-export { DEFAULT_SYSTEM_PROMPT_TEMPLATE, SYSTEM_PROMPT_VARIABLES };
+export {
+  DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  SYSTEM_PROMPT_VARIABLES,
+  DEFAULT_GREETING_PROMPT_TEMPLATE,
+  GREETING_PROMPT_VARIABLES,
+};
 
 // A single shared Liquid engine. Templates come from admin config or the built-in
 // default and are rendered against in-memory data only (no file includes / async
@@ -117,32 +124,62 @@ function buildTemplateContext(content: ResumeContent): Record<string, unknown> {
 }
 
 /**
- * Builds the assistant's system prompt by rendering `template` (Liquid) against
- * the live resume content. `template` defaults to the built-in default; the chat
- * route passes the admin-configured template from getSystemPromptTemplate().
- *
- * If a custom template fails to render (e.g. a malformed tag slipped past
- * validation, or references a field in an unexpected way), we fall back to the
- * built-in default rather than let a bad saved template take the chat down —
- * consistent with the defensive fallbacks in lib/chat-config.ts.
+ * Renders `template` against the resume `context`, falling back to `fallback` if
+ * a custom template fails to render (e.g. a malformed tag slipped past validation,
+ * or references a field in an unexpected way) — rather than let a bad saved
+ * template take the chat down. Consistent with the defensive fallbacks in
+ * lib/chat-config.ts. If the fallback itself is what failed, the error propagates.
  */
+function renderWithFallback(
+  context: Record<string, unknown>,
+  template: string,
+  fallback: string
+): string {
+  try {
+    return engine.parseAndRenderSync(template, context);
+  } catch (error) {
+    if (template !== fallback) {
+      console.error('Failed to render custom template, using default:', error);
+      return engine.parseAndRenderSync(fallback, context);
+    }
+    throw error;
+  }
+}
+
+/** Renders the system-prompt `template` (default when omitted) against the live
+ * resume content. */
 export function buildSystemPrompt(
   content: ResumeContent,
   template: string = DEFAULT_SYSTEM_PROMPT_TEMPLATE
 ): string {
-  const context = buildTemplateContext(content);
-  try {
-    return engine.parseAndRenderSync(template, context);
-  } catch (error) {
-    if (template !== DEFAULT_SYSTEM_PROMPT_TEMPLATE) {
-      console.error(
-        'Failed to render custom system prompt template, using default:',
-        error
-      );
-      return engine.parseAndRenderSync(DEFAULT_SYSTEM_PROMPT_TEMPLATE, context);
-    }
-    throw error;
-  }
+  return renderWithFallback(
+    buildTemplateContext(content),
+    template,
+    DEFAULT_SYSTEM_PROMPT_TEMPLATE
+  );
+}
+
+/** Renders the opening-message instruction `template` used to generate the chat's
+ * first message. */
+export function buildGreetingPrompt(
+  content: ResumeContent,
+  template: string = DEFAULT_GREETING_PROMPT_TEMPLATE
+): string {
+  return renderWithFallback(
+    buildTemplateContext(content),
+    template,
+    DEFAULT_GREETING_PROMPT_TEMPLATE
+  );
+}
+
+/** Renders `template` WITHOUT the build*Prompt fallback, so the admin editors'
+ * live preview shows the real output — or the real parse/render error — for what
+ * was typed. Throws on failure; the caller surfaces the message. */
+export function renderTemplatePreview(
+  content: ResumeContent,
+  template: string
+): string {
+  return engine.parseAndRenderSync(template, buildTemplateContext(content));
 }
 
 /**

@@ -2,15 +2,26 @@
 
 import { useState } from 'react';
 import { ResumeContent } from '@/lib/types';
+import {
+  SYSTEM_PROMPT_VARIABLES,
+  GREETING_PROMPT_VARIABLES,
+} from '@/lib/chat-template';
 import ContentEditor from './ContentEditor';
 import ChatConfigEditor from './ChatConfigEditor';
-import SystemPromptEditor from './SystemPromptEditor';
+import PromptEditor from './PromptEditor';
 
 interface AdminTabsProps {
   content: ResumeContent;
   chatModels: string[];
+  // In-effect templates + their server-rendered first paint for each editor's
+  // live preview (computed server-side in page.tsx; the editors re-render edits
+  // via /api/chat-config).
   systemPrompt: string;
   defaultSystemPrompt: string;
+  initialRenderedSystemPrompt: string;
+  greetingPrompt: string;
+  defaultGreetingPrompt: string;
+  initialRenderedGreeting: string;
 }
 
 const TABS = [
@@ -25,6 +36,10 @@ export default function AdminTabs({
   chatModels,
   systemPrompt,
   defaultSystemPrompt,
+  initialRenderedSystemPrompt,
+  greetingPrompt,
+  defaultGreetingPrompt,
+  initialRenderedGreeting,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('resume');
 
@@ -62,9 +77,58 @@ export default function AdminTabs({
       </div>
       <div className={activeTab === 'config' ? '' : 'hidden'}>
         <ChatConfigEditor initialModels={chatModels} />
-        <SystemPromptEditor
+        <PromptEditor
+          title="System Prompt"
+          description={
+            <>
+              Controls how the chat assistant behaves. This is a{' '}
+              <a
+                href="https://liquidjs.com/tutorials/intro-to-liquid.html"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Liquid
+              </a>{' '}
+              template — your resume is injected as variables when the assistant
+              runs, so it always reflects the latest Resume tab content. Drop in{' '}
+              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">
+                {'{{ resume }}'}
+              </code>{' '}
+              for the whole resume, or loop over the individual sections.
+            </>
+          }
+          field="systemPrompt"
           initialPrompt={systemPrompt}
           defaultPrompt={defaultSystemPrompt}
+          initialRenderedPrompt={initialRenderedSystemPrompt}
+          variables={SYSTEM_PROMPT_VARIABLES}
+          warnMissingResume
+          previewDescription="The template above rendered against your current resume content — exactly what the assistant would receive. Updates as you edit."
+          saveLabel="Save System Prompt"
+        />
+        <PromptEditor
+          title="Opening Message"
+          description={
+            <>
+              The instruction used to generate the chat&rsquo;s first message.
+              Also a Liquid template — the assistant&rsquo;s voice comes from
+              the System Prompt above; this just steers what the opening line
+              says. Reference{' '}
+              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">
+                {'{{ name }}'}
+              </code>{' '}
+              and other variables as needed.
+            </>
+          }
+          field="greetingPrompt"
+          initialPrompt={greetingPrompt}
+          defaultPrompt={defaultGreetingPrompt}
+          initialRenderedPrompt={initialRenderedGreeting}
+          variables={GREETING_PROMPT_VARIABLES}
+          rows={5}
+          previewDescription="The instruction the model receives to write the opening message (variables filled in). The actual greeting is generated fresh each time the chat opens."
+          saveLabel="Save Opening Message"
         />
       </div>
     </div>

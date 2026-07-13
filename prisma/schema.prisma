@@ -132,7 +132,12 @@ model ChatConfig {
   // from /admin. NULL means "use the built-in default" (lib/chat.ts). May contain
   // {{NAME}}/{{TITLE}}/{{RESUME}} placeholders filled at request time.
   systemPrompt String?  @db.Text @map("system_prompt")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  // Optional override for the opening-message instruction (also a Liquid template,
+  // editable from /admin). NULL means "use the built-in default" (lib/chat.ts).
+  // Rendered against the same resume context and sent as the user turn that asks
+  // the model to write the first message.
+  greetingPrompt String? @db.Text @map("greeting_prompt")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("chat_config")
 }
