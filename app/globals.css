@@ -9,6 +9,12 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Paint the root canvas with the page surface so a fast scroll / rubber-band
+   * overscroll never flashes the near-black shadcn `--background` behind the
+   * content. Uses --surface directly (not a Tailwind class) so it flips with
+   * the theme. Transition matches the body's for a smooth light/dark switch. */
+  background-color: rgb(var(--surface));
+  transition: background-color 0.3s ease;
 }
 
 /* Body colors come from the theme CSS variables (see @layer base below) so
@@ -172,7 +178,11 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    /* Surface (not the shadcn `--background`) so the area revealed behind the
+     * inner scroll container on overscroll matches the page, not a near-black
+     * slab. The main content sits on `bg-surface` too, so this is a no-op in
+     * normal view and only shows through during an overscroll bounce. */
+    @apply bg-surface text-foreground;
   }
 }
 
