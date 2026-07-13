@@ -396,7 +396,7 @@ export default function ChatModal({
         >
           {/* Header — panel (not surface), so the top of the window stays
               distinct from the page background, which is also surface. */}
-          <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-3">
+          <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-2">
             <DialogPrimitive.Title className="font-semibold text-ink">
               Chat
             </DialogPrimitive.Title>
