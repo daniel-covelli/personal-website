@@ -107,8 +107,6 @@ interface ChatModalProps {
   onClose: () => void;
   buttonElement: HTMLButtonElement;
   isAdmin?: boolean;
-  isExpanded: boolean;
-  onExpandedChange: (expanded: boolean) => void;
 }
 
 export default function ChatModal({
@@ -116,8 +114,6 @@ export default function ChatModal({
   onClose,
   buttonElement,
   isAdmin,
-  isExpanded,
-  onExpandedChange,
 }: ChatModalProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,6 +122,7 @@ export default function ChatModal({
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -384,21 +381,25 @@ export default function ChatModal({
             // of closing the whole chat.
             if (isExpanded) {
               e.preventDefault();
-              onExpandedChange(false);
+              setIsExpanded(false);
             }
           }}
           onInteractOutside={(e) => {
             e.preventDefault();
-            // Clicking outside always closes the chat — whether docked or
-            // expanded. (Escape, by contrast, collapses an expanded panel.)
-            onClose();
+            // Clicking the blurred backdrop collapses an expanded panel; from
+            // the docked panel it closes the chat (unchanged behavior).
+            if (isExpanded) {
+              setIsExpanded(false);
+            } else {
+              onClose();
+            }
           }}
         >
           {/* Header — panel (not surface), so the top of the window stays
               distinct from the page background, which is also surface. */}
           <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-3">
             <DialogPrimitive.Title className="font-semibold text-ink">
-              Chat
+              Assistant
             </DialogPrimitive.Title>
             <DialogPrimitive.Description className="sr-only">
               AI Assistant
@@ -428,7 +429,7 @@ export default function ChatModal({
                 </button>
               )}
               <button
-                onClick={() => onExpandedChange(!isExpanded)}
+                onClick={() => setIsExpanded((v) => !v)}
                 className="p-1 text-subtle transition-colors hover:text-ink"
                 aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
                 title={isExpanded ? 'Collapse' : 'Expand'}
