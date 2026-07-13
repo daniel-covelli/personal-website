@@ -2,8 +2,12 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
-import { getChatModels, getSystemPromptTemplate } from '@/lib/chat-config';
-import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from '@/lib/chat-template';
+import { getChatConfig } from '@/lib/chat-config';
+import {
+  DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  DEFAULT_GREETING_PROMPT_TEMPLATE,
+} from '@/lib/chat-template';
+import { buildSystemPrompt, buildGreetingPrompt } from '@/lib/chat';
 import AdminTabs from '@/components/admin/AdminTabs';
 import LogoutButton from './LogoutButton';
 
@@ -14,11 +18,19 @@ export default async function AdminPage() {
     redirect('/login?callbackUrl=/admin');
   }
 
-  const [content, chatModels, systemPrompt] = await Promise.all([
-    getContent(),
-    getChatModels(),
-    getSystemPromptTemplate(),
-  ]);
+  const [content, config] = await Promise.all([getContent(), getChatConfig()]);
+
+  // Render the in-effect templates server-side (reusing the already-loaded resume
+  // content, no extra query) so each editor's live preview paints instantly on
+  // expand; edits re-render via /api/chat-config. Keeps liquidjs out of the bundle.
+  const initialRenderedSystemPrompt = buildSystemPrompt(
+    content,
+    config.systemPrompt
+  );
+  const initialRenderedGreeting = buildGreetingPrompt(
+    content,
+    config.greetingPrompt
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,9 +58,13 @@ export default async function AdminPage() {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <AdminTabs
           content={content}
-          chatModels={chatModels}
-          systemPrompt={systemPrompt}
+          chatModels={config.models}
+          systemPrompt={config.systemPrompt}
           defaultSystemPrompt={DEFAULT_SYSTEM_PROMPT_TEMPLATE}
+          initialRenderedSystemPrompt={initialRenderedSystemPrompt}
+          greetingPrompt={config.greetingPrompt}
+          defaultGreetingPrompt={DEFAULT_GREETING_PROMPT_TEMPLATE}
+          initialRenderedGreeting={initialRenderedGreeting}
         />
       </main>
     </div>
