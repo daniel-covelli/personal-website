@@ -85,7 +85,6 @@ export async function POST(request: Request) {
       config.systemPrompt,
       articleIndex
     );
-    const models = config.models;
 
     let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
 

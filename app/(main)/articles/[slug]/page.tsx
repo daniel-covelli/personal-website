@@ -59,8 +59,8 @@ export default async function ArticlePage({ params }: PageProps) {
             </a>
 
             {article.headerImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- arbitrary
-              // external URL; next/image needs known dimensions.
+              // Arbitrary external URL; next/image needs known dimensions.
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={article.headerImageUrl}
                 alt=""

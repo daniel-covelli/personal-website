@@ -18,8 +18,8 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       className="group flex flex-col overflow-hidden rounded-lg border border-hair bg-panel shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lg"
     >
       {article.headerImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- arbitrary
-        // external URL; next/image needs known dimensions.
+        // Arbitrary external URL; next/image needs known dimensions.
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={article.headerImageUrl}
           alt=""
