@@ -3,12 +3,13 @@
 import { ChatMessage } from '@/lib/types';
 import { useTypewriter } from '@/lib/useTypewriter';
 import Markdown from './Markdown';
-import { Orbit } from 'ldrs/react';
-import 'ldrs/react/Orbit.css';
+import BloomSpinner from './BloomSpinner';
 
 interface MessageProps {
   message: ChatMessage;
   isStreaming?: boolean;
+  /** Show the leading "@" agent mark beside assistant replies (expanded view only). */
+  isExpanded?: boolean;
 }
 
 function AnimatedAssistantMessage({ content }: { content: string }) {
@@ -17,7 +18,7 @@ function AnimatedAssistantMessage({ content }: { content: string }) {
   return <Markdown>{displayedText}</Markdown>;
 }
 
-export default function Message({ message }: MessageProps) {
+export default function Message({ message, isExpanded = false }: MessageProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -30,17 +31,26 @@ export default function Message({ message }: MessageProps) {
         </div>
       ) : message.content === '' ? (
         <div className="px-3 py-2">
-          <Orbit size={25} speed={1.5} color="gray" />
+          <BloomSpinner />
         </div>
       ) : (
-        <div
-          className={`max-w-[80%] rounded-2xl bg-chip px-4 py-2 text-sm text-ink`}
-        >
-          {message.skipAnimation ? (
-            <Markdown>{message.content}</Markdown>
-          ) : (
-            <AnimatedAssistantMessage content={message.content} />
+        <div className="relative flex items-start">
+          {isExpanded && (
+            <span
+              aria-hidden="true"
+              className="absolute right-full top-1 mr-2.5 flex h-7 w-7 select-none items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-sm font-bold text-white shadow-sm"
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.28)' }}
+            >
+              <span className="-translate-y-[0.06em] leading-none">@</span>
+            </span>
           )}
+          <div className="max-w-[80%] rounded-2xl bg-chip px-4 py-2 text-sm text-ink">
+            {message.skipAnimation ? (
+              <Markdown>{message.content}</Markdown>
+            ) : (
+              <AnimatedAssistantMessage content={message.content} />
+            )}
+          </div>
         </div>
       )}
     </div>
