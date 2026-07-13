@@ -122,6 +122,7 @@ export default function ChatModal({
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -323,32 +324,75 @@ export default function ChatModal({
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          className={`fixed inset-0 z-50 bg-black/20 transition-opacity duration-300 ${
-            isAnimating ? 'opacity-0' : 'opacity-100'
-          }`}
+        {/* Backdrop. Radix suppresses its own <Dialog.Overlay> when
+            modal={false} (which we use so the docked chat leaves the page
+            interactive), so we render our own. It only dims + blurs the page
+            when expanded; docked it stays transparent and click-through. */}
+        <div
+          aria-hidden
           onWheel={(e) => e.preventDefault()}
           onTouchMove={(e) => e.preventDefault()}
+          className={`fixed inset-0 z-[60] transition-all duration-300 ${
+            isExpanded
+              ? 'bg-black/40 opacity-100 backdrop-blur-lg'
+              : 'pointer-events-none bg-transparent opacity-0'
+          }`}
         />
 
         {/* Chat window */}
         <DialogPrimitive.Content
           ref={contentRef}
-          className="fixed z-50 flex h-[600px] max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-panel shadow-2xl outline-none transition-all duration-300 ease-out"
-          style={{
-            bottom: `${position.bottom}px`,
-            right: `${position.right}px`,
-            left: 'auto',
-            top: 'auto',
-            transformOrigin: 'bottom right',
-            transform: isAnimating
-              ? 'scale(0.9) translateY(10px)'
-              : 'scale(1) translateY(0)',
-            opacity: isAnimating ? 0 : 1,
+          className={`fixed z-[70] flex flex-col overflow-hidden rounded-2xl bg-panel shadow-2xl outline-none transition-all [transition-duration:350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+            isExpanded ? '' : 'h-[600px] max-h-[80vh] w-full max-w-md'
+          }`}
+          style={
+            isExpanded
+              ? {
+                  // Large centered panel floating over the blurred page. Kept off
+                  // the edges (capped size + centered) so a margin of blurred
+                  // background always shows around it. Positioned via right/bottom
+                  // with top/left auto — the SAME model as the docked state — so
+                  // expanding only interpolates numbers and stays smooth (no
+                  // teleport). right/bottom resolve to the centering margin.
+                  right: 'max(48px, calc((100vw - 1200px) / 2))',
+                  bottom: 'max(48px, calc((100dvh - 920px) / 2))',
+                  left: 'auto',
+                  top: 'auto',
+                  width: 'min(1200px, calc(100vw - 96px))',
+                  height: 'min(920px, calc(100dvh - 96px))',
+                  transformOrigin: 'bottom right',
+                  transform: 'none',
+                  opacity: 1,
+                }
+              : {
+                  bottom: `${position.bottom}px`,
+                  right: `${position.right}px`,
+                  left: 'auto',
+                  top: 'auto',
+                  transformOrigin: 'bottom right',
+                  transform: isAnimating
+                    ? 'scale(0.9) translateY(10px)'
+                    : 'scale(1) translateY(0)',
+                  opacity: isAnimating ? 0 : 1,
+                }
+          }
+          onEscapeKeyDown={(e) => {
+            // When expanded, Escape collapses back to the docked panel instead
+            // of closing the whole chat.
+            if (isExpanded) {
+              e.preventDefault();
+              setIsExpanded(false);
+            }
           }}
           onInteractOutside={(e) => {
             e.preventDefault();
-            onClose();
+            // Clicking the blurred backdrop collapses an expanded panel; from
+            // the docked panel it closes the chat (unchanged behavior).
+            if (isExpanded) {
+              setIsExpanded(false);
+            } else {
+              onClose();
+            }
           }}
         >
           {/* Header */}
@@ -383,6 +427,44 @@ export default function ChatModal({
                   </svg>
                 </button>
               )}
+              <button
+                onClick={() => setIsExpanded((v) => !v)}
+                className="p-1 text-subtle transition-colors hover:text-ink"
+                aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
+                title={isExpanded ? 'Collapse' : 'Expand'}
+              >
+                {isExpanded ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25v-4.5m0 4.5h-4.5m4.5 0L15 15M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15"
+                    />
+                  </svg>
+                )}
+              </button>
               <DialogPrimitive.Close
                 className="p-1 text-subtle transition-colors hover:text-ink"
                 aria-label="Close chat"
@@ -416,8 +498,13 @@ export default function ChatModal({
             streamingId={streamingId}
             personName={personName}
             isLoadingHistory={isLoadingHistory}
+            isExpanded={isExpanded}
           />
-          <MessageInput onSend={sendMessage} isLoading={isLoading} />
+          <MessageInput
+            onSend={sendMessage}
+            isLoading={isLoading}
+            isExpanded={isExpanded}
+          />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
