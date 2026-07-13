@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Header as HeaderType } from '@/lib/types';
 import { DottedGlowBackground } from '@/components/ui/dotted-glow-background';
+import HeroCtas from './HeroCtas';
 
 interface HeaderProps {
   data: HeaderType;
@@ -43,10 +44,9 @@ export default function Header({ data }: HeaderProps) {
             <h1 className="mb-2 text-3xl font-bold text-ink md:text-4xl">
               {data.name}
             </h1>
-            <p className="mb-3 text-lg font-medium text-body md:text-xl">
-              {data.title}
-            </p>
+            {/* Job title intentionally hidden from the hero. */}
             <p className="max-w-xl leading-relaxed text-subtle">{data.bio}</p>
+            <HeroCtas />
           </div>
         </div>
       </div>
