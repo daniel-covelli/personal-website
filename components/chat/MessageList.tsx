@@ -10,6 +10,7 @@ interface MessageListProps {
   streamingId: string | null;
   personName: string;
   isLoadingHistory?: boolean;
+  isExpanded?: boolean;
 }
 
 export default function MessageList({
@@ -17,6 +18,7 @@ export default function MessageList({
   streamingId,
   personName,
   isLoadingHistory = false,
+  isExpanded = false,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +53,7 @@ export default function MessageList({
 
   return (
     <ScrollArea className="flex-1">
-      <div className="space-y-4 p-4">
+      <div className={`space-y-4 p-4 ${isExpanded ? 'mx-auto max-w-3xl' : ''}`}>
         {messages.map((message) => (
           <Message
             key={message.id}
