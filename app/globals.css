@@ -63,6 +63,12 @@ body {
   scrollbar-color: #39414d transparent;
 }
 
+/* Experience timeline node: a denim dot with a soft halo. Driven by the
+ * brand token so the glow tints correctly in both themes. */
+.tl-halo {
+  box-shadow: 0 0 0 4px rgb(var(--brand) / 0.16);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -12,10 +12,13 @@ export default function Experience({ data }: ExperienceProps) {
     <section className="px-4 py-12">
       <div className="mx-auto max-w-3xl">
         <SectionHeading>Experience</SectionHeading>
-        <div className="space-y-8">
+        <div className="relative space-y-8 before:absolute before:bottom-2 before:left-[5px] before:top-2 before:w-px before:bg-hair before:content-['']">
           {data.map((exp) => (
-            <div key={exp.id} className="relative border-l-2 border-rail pl-6">
-              <div className="absolute -left-[7px] top-1 h-3 w-3 rounded-full bg-brand" />
+            <div key={exp.id} className="relative pl-7">
+              <span
+                aria-hidden="true"
+                className="tl-halo absolute left-[2.5px] top-[7px] h-1.5 w-1.5 rounded-full bg-brand"
+              />
               <h3 className="text-lg font-bold leading-tight tracking-[-0.01em] text-ink">
                 {exp.jobTitle}
               </h3>
