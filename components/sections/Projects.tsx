@@ -18,11 +18,13 @@ export default function Projects({ data }: ProjectsProps) {
               key={project.id}
               className="rounded-lg border border-hair bg-panel p-6 shadow-soft"
             >
-              <h3 className="mb-2 text-lg font-semibold text-ink">
+              <h3 className="mb-2 text-lg font-bold tracking-[-0.01em] text-ink">
                 {project.name}
               </h3>
               {project.description && (
-                <p className="mb-4 text-sm text-body">{project.description}</p>
+                <p className="mb-4 text-sm leading-relaxed text-body">
+                  {project.description}
+                </p>
               )}
               {project.bullets?.length > 0 && (
                 <div className="mb-4 flex flex-wrap gap-2">
