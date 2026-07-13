@@ -9,7 +9,7 @@ interface SectionHeadingProps {
  */
 export default function SectionHeading({ children }: SectionHeadingProps) {
   return (
-    <h2 className="mb-8 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.15em] text-subtle">
+    <h2 className="mb-8 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-brand">
       {children}
       <span className="h-px flex-1 bg-hair" aria-hidden="true" />
     </h2>

@@ -15,16 +15,24 @@ export default function Education({ data }: EducationProps) {
         <div className="space-y-6">
           {data.map((edu) => (
             <div key={edu.id}>
-              <h3 className="text-lg font-semibold text-ink">{edu.degree}</h3>
-              <p className="font-medium text-body">{edu.institution}</p>
-              <p className="mb-2 text-sm text-subtle">
+              <h3 className="text-lg font-bold leading-tight tracking-[-0.01em] text-ink">
+                {edu.degree}
+              </h3>
+              {/* Gaps are 3px/4px (not equal) so the *visual* space reads even:
+                  the taller degree line box leaves ~1px more room below it. */}
+              <p className="mt-[3px] text-sm font-semibold leading-tight text-brand">
+                {edu.institution}
+              </p>
+              <p className="mt-1 text-xs font-medium uppercase leading-tight tracking-[0.05em] text-subtle tabular-nums">
                 {edu.startDate} — {edu.endDate}
               </p>
               {edu.description && (
-                <p className="mb-2 text-body">{edu.description}</p>
+                <p className="mt-3 text-[15px] leading-relaxed text-body">
+                  {edu.description}
+                </p>
               )}
               {edu.bullets?.length > 0 && (
-                <p className="text-sm text-body">
+                <p className="mt-2 text-[13px] leading-relaxed text-subtle">
                   {edu.bullets.join(' · ')}
                 </p>
               )}
