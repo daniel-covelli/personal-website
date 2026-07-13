@@ -3,7 +3,7 @@ import { getContent } from '@/lib/content';
 import { buildSystemPrompt, ChatMessage } from '@/lib/chat';
 import { getOrCreateSessionId } from '@/lib/session';
 import { getOrCreateConversation, addMessage } from '@/lib/conversations';
-import { getChatModels } from '@/lib/chat-config';
+import { getChatModels, getSystemPromptTemplate } from '@/lib/chat-config';
 
 export const dynamic = 'force-dynamic';
 // Bound the serverless function so a stalled model call can't hang indefinitely.
@@ -33,8 +33,11 @@ export async function POST(request: Request) {
     const conversation = await getOrCreateConversation(sessionId);
 
     const content = await getContent();
-    const systemPrompt = buildSystemPrompt(content);
-    const models = await getChatModels();
+    const [systemPromptTemplate, models] = await Promise.all([
+      getSystemPromptTemplate(),
+      getChatModels(),
+    ]);
+    const systemPrompt = buildSystemPrompt(content, systemPromptTemplate);
 
     let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
 
