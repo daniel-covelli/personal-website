@@ -1,4 +1,5 @@
 import { Contact as ContactType } from '@/lib/types';
+import SectionHeading from './SectionHeading';
 
 interface ContactProps {
   data: ContactType;
@@ -18,9 +19,7 @@ export default function Contact({ data }: ContactProps) {
   return (
     <section className="px-4 py-12">
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-8 border-b pb-2 text-2xl font-bold text-gray-900">
-          Contact
-        </h2>
+        <SectionHeading>Contact</SectionHeading>
         <div className="flex flex-wrap justify-center gap-6">
           {links.map((link) => (
             <a
@@ -28,9 +27,9 @@ export default function Contact({ data }: ContactProps) {
               href={link.href}
               target={link.label !== 'Email' ? '_blank' : undefined}
               rel={link.label !== 'Email' ? 'noopener noreferrer' : undefined}
-              className="flex items-center gap-2 rounded-lg bg-stone-200 px-4 py-2 transition-colors hover:bg-stone-300"
+              className="flex items-center gap-2 rounded-lg bg-chip px-4 py-2 transition-colors hover:bg-pill"
             >
-              <span className="font-medium text-gray-700">{link.label}</span>
+              <span className="font-medium text-body">{link.label}</span>
             </a>
           ))}
         </div>

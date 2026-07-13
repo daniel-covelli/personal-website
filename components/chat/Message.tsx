@@ -3,6 +3,7 @@
 import { ChatMessage } from '@/lib/chat';
 import { useTypewriter } from '@/lib/useTypewriter';
 import { LABS } from './labs';
+import Markdown from './Markdown';
 import { Orbit } from 'ldrs/react';
 import 'ldrs/react/Orbit.css';
 
@@ -14,7 +15,7 @@ interface MessageProps {
 function AnimatedAssistantMessage({ content }: { content: string }) {
   const displayedText = useTypewriter(content);
 
-  return <p className="whitespace-pre-wrap">{displayedText}</p>;
+  return <Markdown>{displayedText}</Markdown>;
 }
 
 // Small "answered by <Lab> <label>" tag shown under an assistant reply when we
@@ -46,7 +47,7 @@ export default function Message({ message }: MessageProps) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       {isUser ? (
         <div
-          className={`max-w-[80%] rounded-2xl bg-sky-500 px-4 py-2 text-sm text-white`}
+          className={`max-w-[80%] rounded-2xl bg-brand-solid px-4 py-2 text-sm text-white`}
         >
           <p className="whitespace-pre-wrap">{message.content}</p>
         </div>
@@ -56,9 +57,9 @@ export default function Message({ message }: MessageProps) {
         </div>
       ) : (
         <div className="flex max-w-[80%] flex-col gap-1">
-          <div className="rounded-2xl bg-gray-100 px-4 py-2 text-sm text-gray-900">
+          <div className="rounded-2xl bg-chip px-4 py-2 text-sm text-ink">
             {message.skipAnimation ? (
-              <p className="whitespace-pre-wrap">{message.content}</p>
+              <Markdown>{message.content}</Markdown>
             ) : (
               <AnimatedAssistantMessage content={message.content} />
             )}

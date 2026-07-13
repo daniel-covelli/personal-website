@@ -10,6 +10,7 @@ interface MessageListProps {
   streamingId: string | null;
   personName: string;
   isLoadingHistory?: boolean;
+  isExpanded?: boolean;
 }
 
 export default function MessageList({
@@ -17,6 +18,7 @@ export default function MessageList({
   streamingId,
   personName,
   isLoadingHistory = false,
+  isExpanded = false,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -27,8 +29,8 @@ export default function MessageList({
   if (isLoadingHistory) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
-        <div className="text-center text-gray-500">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+        <div className="text-center text-subtle">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-hair border-t-brand" />
           <p>Loading conversation...</p>
         </div>
       </div>
@@ -38,7 +40,7 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
-        <div className="text-center text-gray-500">
+        <div className="text-center text-subtle">
           <p className="mb-2 text-lg">Welcome!</p>
           <p>
             Ask me anything about {personName}&apos;s experience, skills, or
@@ -51,7 +53,7 @@ export default function MessageList({
 
   return (
     <ScrollArea className="flex-1">
-      <div className="space-y-4 p-4">
+      <div className={`space-y-4 p-4 ${isExpanded ? 'mx-auto max-w-3xl' : ''}`}>
         {messages.map((message) => (
           <Message
             key={message.id}

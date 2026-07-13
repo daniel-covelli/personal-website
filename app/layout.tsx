@@ -9,13 +9,43 @@ export const metadata: Metadata = {
   description: 'Personal website and resume for Daniel Covelli',
 };
 
+// Runs before first paint to set the theme class on <html>, so returning
+// visitors never flash the wrong theme. Only the home page is themed — the
+// print/PDF routes and admin pages stay light. An explicit toggle (`theme`)
+// wins; otherwise we use the last sun-based result (`theme-auto`), falling back
+// to a local-time guess that ThemeProvider later refines via geolocation.
+const themeScript = `
+(function () {
+  try {
+    if (location.pathname !== '/') return;
+    var override = localStorage.getItem('theme');
+    var theme;
+    if (override === 'light' || override === 'dark') {
+      theme = override;
+    } else {
+      var cached = localStorage.getItem('theme-auto');
+      if (cached === 'light' || cached === 'dark') {
+        theme = cached;
+      } else {
+        var h = new Date().getHours();
+        theme = h >= 7 && h < 19 ? 'light' : 'dark';
+      }
+    }
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={inter.className} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

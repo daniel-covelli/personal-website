@@ -1,4 +1,5 @@
 import { Project } from '@/lib/types';
+import SectionHeading from './SectionHeading';
 
 interface ProjectsProps {
   data: Project[];
@@ -10,20 +11,18 @@ export default function Projects({ data }: ProjectsProps) {
   return (
     <section className="px-4 py-12">
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-8 border-b pb-2 text-2xl font-bold text-gray-900">
-          Projects
-        </h2>
+        <SectionHeading>Projects</SectionHeading>
         <div className="grid gap-6 md:grid-cols-2">
           {data.map((project) => (
             <div
               key={project.id}
-              className="rounded-lg border border-stone-200 bg-stone-100 p-6 shadow-sm"
+              className="rounded-lg border border-hair bg-panel p-6 shadow-soft"
             >
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              <h3 className="mb-2 text-lg font-bold tracking-[-0.01em] text-ink">
                 {project.name}
               </h3>
               {project.description && (
-                <p className="mb-4 text-sm text-gray-600">
+                <p className="mb-4 text-sm leading-relaxed text-body">
                   {project.description}
                 </p>
               )}
@@ -32,7 +31,7 @@ export default function Projects({ data }: ProjectsProps) {
                   {project.bullets.map((bullet, i) => (
                     <span
                       key={i}
-                      className="rounded bg-stone-200 px-2 py-1 text-xs text-stone-700"
+                      className="rounded bg-chip px-2 py-1 text-xs text-chip-fg"
                     >
                       {bullet}
                     </span>
@@ -45,7 +44,7 @@ export default function Projects({ data }: ProjectsProps) {
                     href={project.links.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
+                    className="text-sm text-brand hover:text-brand-strong hover:underline"
                   >
                     GitHub
                   </a>
@@ -55,7 +54,7 @@ export default function Projects({ data }: ProjectsProps) {
                     href={project.links.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
+                    className="text-sm text-brand hover:text-brand-strong hover:underline"
                   >
                     Live Demo
                   </a>

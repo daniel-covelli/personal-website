@@ -1,4 +1,5 @@
 import { Skills as SkillsType } from '@/lib/types';
+import SectionHeading from './SectionHeading';
 
 interface SkillsProps {
   data: SkillsType;
@@ -10,20 +11,18 @@ export default function Skills({ data }: SkillsProps) {
   return (
     <section className="px-4 py-12">
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-8 border-b pb-2 text-2xl font-bold text-gray-900">
-          Skills
-        </h2>
+        <SectionHeading>Skills</SectionHeading>
         <div className="grid gap-6 md:grid-cols-2">
           {data.categories.map((category) => (
             <div key={category.id}>
-              <h3 className="mb-3 font-semibold text-gray-900">
+              <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-subtle">
                 {category.name}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {category.items.map((skill, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-sky-50 px-3 py-1 text-sm text-sky-700"
+                    className="rounded-full bg-pill px-3 py-1 text-sm text-pill-fg"
                   >
                     {skill}
                   </span>
