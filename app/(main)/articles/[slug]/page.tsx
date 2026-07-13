@@ -58,6 +58,16 @@ export default async function ArticlePage({ params }: PageProps) {
               ← All writing
             </a>
 
+            {article.headerImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- arbitrary
+              // external URL; next/image needs known dimensions.
+              <img
+                src={article.headerImageUrl}
+                alt=""
+                className="mb-8 mt-6 max-h-[420px] w-full rounded-xl border border-hair object-cover shadow-soft"
+              />
+            ) : null}
+
             <header className="mb-8 mt-4">
               {article.tags.length ? (
                 <div className="mb-4 flex flex-wrap gap-2">
@@ -94,16 +104,6 @@ export default async function ArticlePage({ params }: PageProps) {
                 </p>
               ) : null}
             </header>
-
-            {article.headerImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- arbitrary
-              // external URL; next/image needs known dimensions.
-              <img
-                src={article.headerImageUrl}
-                alt=""
-                className="mb-10 max-h-[420px] w-full rounded-xl border border-hair object-cover shadow-soft"
-              />
-            ) : null}
 
             <ArticleMarkdown>{article.body}</ArticleMarkdown>
 
