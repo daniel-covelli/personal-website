@@ -1,6 +1,6 @@
 'use client';
 
-import { ChatMessage } from '@/lib/chat';
+import { ChatMessage } from '@/lib/types';
 import { useTypewriter } from '@/lib/useTypewriter';
 import Markdown from './Markdown';
 import { Orbit } from 'ldrs/react';

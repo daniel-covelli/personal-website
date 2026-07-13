@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
 import { getChatModels, getSystemPromptTemplate } from '@/lib/chat-config';
-import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from '@/lib/chat';
+import { DEFAULT_SYSTEM_PROMPT_TEMPLATE } from '@/lib/chat-template';
 import AdminTabs from '@/components/admin/AdminTabs';
 import LogoutButton from './LogoutButton';
 
