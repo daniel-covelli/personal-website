@@ -27,8 +27,8 @@ export default function MessageList({
   if (isLoadingHistory) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
-        <div className="text-center text-gray-500">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+        <div className="text-center text-subtle">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-hair border-t-brand" />
           <p>Loading conversation...</p>
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
-        <div className="text-center text-gray-500">
+        <div className="text-center text-subtle">
           <p className="mb-2 text-lg">Welcome!</p>
           <p>
             Ask me anything about {personName}&apos;s experience, skills, or

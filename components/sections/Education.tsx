@@ -1,4 +1,5 @@
 import { Education as EducationType } from '@/lib/types';
+import SectionHeading from './SectionHeading';
 
 interface EducationProps {
   data: EducationType[];
@@ -10,24 +11,20 @@ export default function Education({ data }: EducationProps) {
   return (
     <section className="px-4 py-12">
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-8 border-b pb-2 text-2xl font-bold text-gray-900">
-          Education
-        </h2>
+        <SectionHeading>Education</SectionHeading>
         <div className="space-y-6">
           {data.map((edu) => (
             <div key={edu.id}>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {edu.degree}
-              </h3>
-              <p className="font-medium text-stone-600">{edu.institution}</p>
-              <p className="mb-2 text-sm text-gray-500">
+              <h3 className="text-lg font-semibold text-ink">{edu.degree}</h3>
+              <p className="font-medium text-body">{edu.institution}</p>
+              <p className="mb-2 text-sm text-subtle">
                 {edu.startDate} — {edu.endDate}
               </p>
               {edu.description && (
-                <p className="mb-2 text-gray-600">{edu.description}</p>
+                <p className="mb-2 text-body">{edu.description}</p>
               )}
               {edu.bullets?.length > 0 && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-body">
                   {edu.bullets.join(' · ')}
                 </p>
               )}

@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <SessionProvider>
       <ScrollArea className="h-screen">
-        <div className="min-h-screen bg-stone-50">{children}</div>
+        <div className="min-h-screen bg-surface">{children}</div>
       </ScrollArea>
     </SessionProvider>
   );

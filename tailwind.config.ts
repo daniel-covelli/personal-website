@@ -10,6 +10,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Site palette ("Slate & Dusty Blue") — backed by CSS vars in
+        // globals.css that flip under .dark. Alpha placeholder enables
+        // opacity modifiers like bg-surface/80.
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        panel: 'rgb(var(--panel) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        body: 'rgb(var(--body) / <alpha-value>)',
+        subtle: 'rgb(var(--subtle) / <alpha-value>)',
+        hair: 'rgb(var(--hair) / <alpha-value>)',
+        rail: 'rgb(var(--rail) / <alpha-value>)',
+        brand: {
+          DEFAULT: 'rgb(var(--brand) / <alpha-value>)',
+          strong: 'rgb(var(--brand-strong) / <alpha-value>)',
+          solid: 'rgb(var(--brand-solid) / <alpha-value>)',
+          'solid-hover': 'rgb(var(--brand-solid-hover) / <alpha-value>)',
+        },
+        pill: {
+          DEFAULT: 'rgb(var(--pill-bg) / <alpha-value>)',
+          fg: 'rgb(var(--pill-fg) / <alpha-value>)',
+        },
+        chip: {
+          DEFAULT: 'rgb(var(--chip-bg) / <alpha-value>)',
+          fg: 'rgb(var(--chip-fg) / <alpha-value>)',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -55,6 +79,10 @@ const config: Config = {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      boxShadow: {
+        // Aurora: a soft, layered card lift (larger + gentler than shadow-sm).
+        soft: '0 1px 2px rgb(20 30 50 / 0.05), 0 18px 36px -22px rgb(30 50 80 / 0.28)',
       },
     },
   },

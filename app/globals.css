@@ -11,9 +11,12 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Body colors come from the theme CSS variables (see @layer base below) so
+ * dark mode takes effect. Transition smooths the light/dark switch. */
 body {
-  background: #ffffff;
-  color: #171717;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 ::-webkit-scrollbar {
@@ -42,6 +45,22 @@ body {
 * {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #39414d; /* cool slate */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #48515f;
+}
+
+.dark ::-webkit-scrollbar-thumb:active {
+  background: #5a6472;
+}
+
+.dark * {
+  scrollbar-color: #39414d transparent;
 }
 
 @layer base {
@@ -97,6 +116,48 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  /* ── Site palette: "Slate & Dusty Blue" ──────────────────────────────
+   * The single source of truth for the site's colors. Values are
+   * space-separated RGB channels so Tailwind can layer opacity on them
+   * (e.g. bg-surface/80). They flip under .dark, so components use one
+   * semantic class (text-ink, bg-surface, …) with no dark: variants.
+   * To restyle the whole site, change the numbers here. */
+  :root {
+    --surface: 247 249 251; /* page background (Paper White) */
+    --panel: 255 255 255; /* nav + cards */
+    --ink: 42 48 56; /* headings / strong text */
+    --body: 74 85 96; /* body copy */
+    --subtle: 119 130 142; /* muted / meta text */
+    --hair: 232 236 241; /* borders + dividers */
+    --rail: 211 221 232; /* experience timeline */
+    --brand: 79 111 143; /* links, dots, accents */
+    --brand-strong: 64 96 127; /* accent hover */
+    --pill-bg: 234 240 246; /* skill pills */
+    --pill-fg: 63 95 127;
+    --chip-bg: 238 242 246; /* project tags */
+    --chip-fg: 74 85 96;
+    /* Filled accents (chat button/bubbles): fixed denim, white text, both themes. */
+    --brand-solid: 79 111 143;
+    --brand-solid-hover: 65 98 127;
+  }
+  .dark {
+    --surface: 20 22 27;
+    --panel: 28 31 38;
+    --ink: 219 224 230;
+    --body: 179 188 198;
+    --subtle: 126 136 148;
+    --hair: 42 46 55;
+    --rail: 47 63 82;
+    --brand: 126 163 201;
+    --brand-strong: 152 183 214;
+    --pill-bg: 35 48 63;
+    --pill-fg: 169 196 221;
+    --chip-bg: 38 43 52;
+    --chip-fg: 179 188 198;
   }
 }
 
