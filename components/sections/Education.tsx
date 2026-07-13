@@ -15,22 +15,22 @@ export default function Education({ data }: EducationProps) {
         <div className="space-y-6">
           {data.map((edu) => (
             <div key={edu.id}>
-              <h3 className="text-lg font-bold tracking-[-0.01em] text-ink">
+              <h3 className="text-lg font-bold leading-tight tracking-[-0.01em] text-ink">
                 {edu.degree}
               </h3>
-              <p className="text-sm font-semibold text-ink">
+              <p className="mt-1 text-sm font-semibold text-brand">
                 {edu.institution}
               </p>
-              <p className="mb-2 text-xs font-medium uppercase tracking-[0.05em] text-subtle tabular-nums">
+              <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.05em] text-subtle tabular-nums">
                 {edu.startDate} — {edu.endDate}
               </p>
               {edu.description && (
-                <p className="mb-2 text-[15px] leading-relaxed text-body">
+                <p className="mt-3 text-[15px] leading-relaxed text-body">
                   {edu.description}
                 </p>
               )}
               {edu.bullets?.length > 0 && (
-                <p className="text-[13px] leading-relaxed text-subtle">
+                <p className="mt-2 text-[13px] leading-relaxed text-subtle">
                   {edu.bullets.join(' · ')}
                 </p>
               )}

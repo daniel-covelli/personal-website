@@ -16,20 +16,22 @@ export default function Experience({ data }: ExperienceProps) {
           {data.map((exp) => (
             <div key={exp.id} className="relative border-l-2 border-rail pl-6">
               <div className="absolute -left-[7px] top-1 h-3 w-3 rounded-full bg-brand" />
-              <h3 className="text-lg font-bold tracking-[-0.01em] text-ink">
+              <h3 className="text-lg font-bold leading-tight tracking-[-0.01em] text-ink">
                 {exp.jobTitle}
               </h3>
-              <p className="text-sm font-semibold text-ink">{exp.company}</p>
-              <p className="mb-2 text-xs font-medium uppercase tracking-[0.05em] text-subtle tabular-nums">
+              <p className="mt-1 text-sm font-semibold text-brand">
+                {exp.company}
+              </p>
+              <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.05em] text-subtle tabular-nums">
                 {exp.startDate} — {exp.endDate}
               </p>
               {exp.description && (
-                <p className="mb-2 text-[15px] leading-relaxed text-body">
+                <p className="mt-3 text-[15px] leading-relaxed text-body">
                   {exp.description}
                 </p>
               )}
               {exp.bullets?.length > 0 && (
-                <ul className="list-disc space-y-2.5 pl-5 text-sm leading-normal text-body marker:text-subtle">
+                <ul className="mt-3 list-disc space-y-2.5 pl-5 text-sm leading-normal text-body marker:text-subtle">
                   {exp.bullets.map((bullet, i) => (
                     <li key={i}>{bullet}</li>
                   ))}
