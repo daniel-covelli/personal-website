@@ -34,7 +34,7 @@ export default function MessageInput({ onSend, isLoading }: MessageInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-stone-200 p-4">
+    <form onSubmit={handleSubmit} className="border-t border-hair p-4">
       <div className="flex items-end gap-2">
         <textarea
           ref={textareaRef}
@@ -43,13 +43,13 @@ export default function MessageInput({ onSend, isLoading }: MessageInputProps) {
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           rows={1}
-          className="flex-1 resize-none overflow-hidden rounded-xl border border-stone-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
+          className="flex-1 resize-none overflow-hidden rounded-xl border border-hair bg-surface px-4 py-2 text-ink placeholder:text-subtle focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand"
           disabled={isLoading}
         />
         <button
           type="submit"
           disabled={!input.trim() || isLoading}
-          className="rounded-xl bg-sky-500 px-4 py-2 text-white transition-colors hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-stone-300"
+          className="rounded-xl bg-brand-solid px-4 py-2 text-white transition-colors hover:bg-brand-solid-hover disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
         >
           {isLoading ? (
             <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -58,7 +58,7 @@ export default function MessageInput({ onSend, isLoading }: MessageInputProps) {
           )}
         </button>
       </div>
-      <p className="mt-2 text-xs text-stone-400">
+      <p className="mt-2 text-xs text-subtle">
         Press Enter to send, Shift+Enter for new line
       </p>
     </form>

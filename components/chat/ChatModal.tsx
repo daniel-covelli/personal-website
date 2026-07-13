@@ -334,7 +334,7 @@ export default function ChatModal({
         {/* Chat window */}
         <DialogPrimitive.Content
           ref={contentRef}
-          className="fixed z-50 flex h-[600px] max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-2xl outline-none transition-all duration-300 ease-out"
+          className="fixed z-50 flex h-[600px] max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-panel shadow-2xl outline-none transition-all duration-300 ease-out"
           style={{
             bottom: `${position.bottom}px`,
             right: `${position.right}px`,
@@ -352,8 +352,8 @@ export default function ChatModal({
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3">
-            <DialogPrimitive.Title className="font-semibold text-stone-900">
+          <div className="flex items-center justify-between border-b border-hair bg-surface px-4 py-3">
+            <DialogPrimitive.Title className="font-semibold text-ink">
               Assistant
             </DialogPrimitive.Title>
             <DialogPrimitive.Description className="sr-only">
@@ -363,7 +363,7 @@ export default function ChatModal({
               {isAdmin && messages.length > 0 && (
                 <button
                   onClick={handleDeleteConversation}
-                  className="p-1 text-gray-400 transition-colors hover:text-red-600"
+                  className="p-1 text-subtle transition-colors hover:text-red-500"
                   aria-label="Delete conversation"
                   title="Delete conversation"
                 >
@@ -384,7 +384,7 @@ export default function ChatModal({
                 </button>
               )}
               <DialogPrimitive.Close
-                className="p-1 text-gray-400 transition-colors hover:text-gray-600"
+                className="p-1 text-subtle transition-colors hover:text-ink"
                 aria-label="Close chat"
               >
                 <svg
@@ -406,7 +406,7 @@ export default function ChatModal({
           </div>
 
           {error && (
-            <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
               {error}
             </div>
           )}
