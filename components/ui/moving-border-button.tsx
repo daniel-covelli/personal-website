@@ -9,11 +9,12 @@ import {
 } from 'react';
 import { cn } from '@/lib/utils';
 
-// Vibrant "Nebula" treatment (chosen in the hero-CTA prototype): a
-// pink -> violet -> indigo gradient face framed by a dark hairline, with
-// white/cyan/violet comets orbiting the border like Aceternity's moving-border.
-const FACE_GRADIENT =
-  'linear-gradient(125deg, #db2777 0%, #7c3aed 50%, #4f46e5 100%)';
+// Vibrant "Nebula" treatment (chosen in the hero-CTA prototype): a gradient
+// face framed by a dark hairline, with white/cyan/violet comets orbiting the
+// border like Aceternity's moving-border. The face gradient is theme-aware
+// (set on the span below): a calmer violet -> indigo in light mode so it
+// doesn't shout against the light page, and the vibrant pink -> violet ->
+// indigo in dark mode.
 const GLOSS =
   'linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 46%)';
 const TEXT_SHADOW = '0 1px 2px rgba(0,0,0,0.28)';
@@ -175,9 +176,11 @@ export const MovingBorderButton = forwardRef<
       <span
         className={cn(
           'relative z-10 inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-semibold text-white',
+          // Calmer violet -> indigo in light mode; vibrant pink -> violet -> indigo in dark.
+          'bg-[linear-gradient(125deg,#7c3aed_0%,#6366f1_55%,#4f46e5_100%)] dark:bg-[linear-gradient(125deg,#db2777_0%,#7c3aed_50%,#4f46e5_100%)]',
           faceClassName
         )}
-        style={{ background: FACE_GRADIENT, textShadow: TEXT_SHADOW }}
+        style={{ textShadow: TEXT_SHADOW }}
       >
         <span
           aria-hidden

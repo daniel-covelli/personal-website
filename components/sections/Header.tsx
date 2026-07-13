@@ -41,11 +41,13 @@ export default function Header({ data }: HeaderProps) {
             />
           )}
           <div className="text-center md:text-left">
-            <h1 className="mb-2 text-3xl font-bold text-ink md:text-4xl">
+            <h1 className="mb-2 text-3xl font-bold text-ink dark:text-slate-100 md:text-4xl">
               {data.name}
             </h1>
             {/* Job title intentionally hidden from the hero. */}
-            <p className="max-w-xl leading-relaxed text-subtle">{data.bio}</p>
+            <p className="max-w-xl leading-relaxed text-body dark:text-ink">
+              {data.bio}
+            </p>
             <HeroCtas />
           </div>
         </div>
