@@ -7,12 +7,14 @@ interface MessageInputProps {
   onSend: (message: string) => void;
   isLoading: boolean;
   isExpanded?: boolean;
+  disabled?: boolean;
 }
 
 export default function MessageInput({
   onSend,
   isLoading,
   isExpanded = false,
+  disabled = false,
 }: MessageInputProps) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -26,7 +28,7 @@ export default function MessageInput({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (input.trim() && !isLoading) {
+    if (input.trim() && !isLoading && !disabled) {
       onSend(input.trim());
       setInput('');
     }
@@ -50,16 +52,16 @@ export default function MessageInput({
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 resize-none overflow-hidden rounded-xl border border-hair bg-surface px-4 py-2 text-ink placeholder:text-subtle focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand"
-            disabled={isLoading}
+            className="min-h-[36px] flex-1 resize-none overflow-hidden rounded-xl border border-hair bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-subtle focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isLoading || disabled}
           />
           <button
             type="submit"
-            disabled={!input.trim() || isLoading}
-            className={`relative flex items-center justify-center rounded-xl px-4 py-2 text-white transition-colors ${
+            disabled={!input.trim() || isLoading || disabled}
+            className={`relative flex h-9 items-center justify-center rounded-xl px-5 text-sm font-semibold text-white transition-all ${
               isLoading
-                ? 'bg-brand-solid'
-                : 'bg-brand-solid hover:bg-brand-solid-hover disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700'
+                ? 'bg-violet-600'
+                : 'bg-violet-600 hover:bg-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700'
             }`}
           >
             {/* "Send" stays in the DOM (just hidden) while loading so the button
@@ -72,9 +74,6 @@ export default function MessageInput({
             )}
           </button>
         </div>
-        <p className="mt-2 text-xs text-subtle">
-          Press Enter to send, Shift+Enter for new line
-        </p>
       </div>
     </form>
   );

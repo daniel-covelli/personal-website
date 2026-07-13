@@ -15,6 +15,38 @@ import MessageInput from './MessageInput';
 // Give up on a stalled request instead of spinning forever.
 const CHAT_TIMEOUT_MS = 30000;
 
+/**
+ * A user-presentable chat failure. `retryable` distinguishes transient
+ * failures (e.g. a timeout) — where the input should stay open so the user can
+ * try again — from fatal ones (e.g. the assistant being unavailable), where the
+ * input is disabled.
+ */
+class ChatError extends Error {
+  readonly retryable: boolean;
+  constructor(message: string, retryable: boolean) {
+    super(message);
+    this.name = 'ChatError';
+    this.retryable = retryable;
+  }
+}
+
+/**
+ * Normalize a thrown value into the error banner shape. Only `ChatError`s
+ * declare themselves retryable; anything else is treated as fatal.
+ */
+function toErrorState(
+  err: unknown,
+  fallback: string
+): { message: string; retryable: boolean } {
+  if (err instanceof ChatError) {
+    return { message: err.message, retryable: err.retryable };
+  }
+  return {
+    message: err instanceof Error ? err.message : fallback,
+    retryable: false,
+  };
+}
+
 interface StreamHandlers {
   onConversationId?: (id: string) => void;
   onText: (text: string) => void;
@@ -43,10 +75,10 @@ async function streamAssistant(
     });
 
     if (!response.ok) {
-      throw new Error('The assistant is unavailable right now.');
+      throw new ChatError('The assistant is unavailable right now.', false);
     }
     const reader = response.body?.getReader();
-    if (!reader) throw new Error('No response stream');
+    if (!reader) throw new ChatError('No response stream', false);
 
     const decoder = new TextDecoder();
     let buffer = '';
@@ -92,8 +124,9 @@ async function streamAssistant(
     }
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new Error(
-        'The assistant took too long to respond. Please try again.'
+      throw new ChatError(
+        'The assistant took too long to respond. Please try again.',
+        true
       );
     }
     throw err;
@@ -123,7 +156,10 @@ export default function ChatModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [streamingId, setStreamingId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{
+    message: string;
+    retryable: boolean;
+  } | null>(null);
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -159,11 +195,7 @@ export default function ChatModal({
       );
     } catch (err) {
       console.error('Failed to get initial greeting:', err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'The assistant is unavailable right now.'
-      );
+      setError(toErrorState(err, 'The assistant is unavailable right now.'));
       setMessages([]);
     } finally {
       setIsLoading(false);
@@ -310,7 +342,7 @@ export default function ChatModal({
           }
         );
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+        setError(toErrorState(err, 'Something went wrong'));
         setMessages((prev) => prev.filter((msg) => msg.id !== assistantId));
       } finally {
         setIsLoading(false);
@@ -319,6 +351,16 @@ export default function ChatModal({
     },
     [messages, conversationId]
   );
+
+  // A fatal error replaces the conversation and locks the input; a retryable
+  // one (e.g. a timeout) is shown above the conversation with the input left
+  // open so the user can try again.
+  const isFatalError = !!error && !error.retryable;
+  const errorBanner = error ? (
+    <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+      {error.message}
+    </div>
+  ) : null;
 
   return (
     <DialogPrimitive.Root
@@ -398,7 +440,7 @@ export default function ChatModal({
               distinct from the page background, which is also surface. */}
           <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-2">
             <DialogPrimitive.Title className="font-semibold text-ink">
-              Chat
+              Interview me
             </DialogPrimitive.Title>
             <DialogPrimitive.Description className="sr-only">
               AI Assistant
@@ -487,23 +529,25 @@ export default function ChatModal({
             </div>
           </div>
 
-          {error && (
-            <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-              {error}
-            </div>
+          {isFatalError ? (
+            <div className="flex flex-1 flex-col">{errorBanner}</div>
+          ) : (
+            <>
+              {errorBanner}
+              <MessageList
+                messages={messages}
+                streamingId={streamingId}
+                personName={personName}
+                isLoadingHistory={isLoadingHistory}
+                isExpanded={isExpanded}
+              />
+            </>
           )}
-
-          <MessageList
-            messages={messages}
-            streamingId={streamingId}
-            personName={personName}
-            isLoadingHistory={isLoadingHistory}
-            isExpanded={isExpanded}
-          />
           <MessageInput
             onSend={sendMessage}
             isLoading={isLoading}
             isExpanded={isExpanded}
+            disabled={isFatalError}
           />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

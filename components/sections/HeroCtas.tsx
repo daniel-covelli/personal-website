@@ -7,7 +7,7 @@ import { openChat } from '@/lib/chatLauncher';
 import { useResumeDownload } from '@/lib/useResumeDownload';
 
 /**
- * The two hero calls to action: a vibrant "Ask about me" button that opens the
+ * The two hero calls to action: a vibrant "Interview me" button that opens the
  * assistant in its expanded view, and a quiet secondary button that downloads
  * the resume PDF (with a loading state while it renders).
  */
@@ -18,7 +18,7 @@ export default function HeroCtas() {
     <div className="mt-7 flex flex-wrap items-center justify-center gap-4 md:justify-start">
       <MovingBorderButton
         onClick={() => openChat({ expanded: true })}
-        aria-label="Ask about me"
+        aria-label="Interview me"
         faceClassName="px-5 py-2.5 text-sm"
       >
         <svg
@@ -35,7 +35,7 @@ export default function HeroCtas() {
             d="M8 10.5h8M8 14h5m-9 6.5 3.2-2.4a2 2 0 0 1 1.2-.4H18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14.5Z"
           />
         </svg>
-        Ask about me
+        Interview me
       </MovingBorderButton>
 
       <button
