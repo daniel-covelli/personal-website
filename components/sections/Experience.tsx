@@ -19,10 +19,12 @@ export default function Experience({ data }: ExperienceProps) {
               <h3 className="text-lg font-bold leading-tight tracking-[-0.01em] text-ink">
                 {exp.jobTitle}
               </h3>
-              <p className="mt-0.5 text-sm font-semibold text-brand">
+              {/* Gaps are 3px/4px (not equal) so the *visual* space reads even:
+                  the taller title line box leaves ~1px more room below it. */}
+              <p className="mt-[3px] text-sm font-semibold leading-tight text-brand">
                 {exp.company}
               </p>
-              <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.05em] text-subtle tabular-nums">
+              <p className="mt-1 text-xs font-medium uppercase leading-tight tracking-[0.05em] text-subtle tabular-nums">
                 {exp.startDate} — {exp.endDate}
               </p>
               {exp.description && (
