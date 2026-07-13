@@ -1,16 +1,36 @@
+import { Liquid } from 'liquidjs';
 import { ResumeContent, ArticleIndexEntry } from './types';
+import {
+  DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  SYSTEM_PROMPT_VARIABLES,
+  DEFAULT_GREETING_PROMPT_TEMPLATE,
+  GREETING_PROMPT_VARIABLES,
+} from './chat-template';
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  skipAnimation?: boolean;
-}
+// Re-exported so existing importers of `@/lib/chat` keep working. ChatMessage
+// lives in ./types (a dependency-free module) so client components can import it
+// without pulling this file's `liquidjs` dependency into the browser bundle; the
+// template constants likewise live in the dependency-free chat-template module.
+export type { ChatMessage } from './types';
+export {
+  DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  SYSTEM_PROMPT_VARIABLES,
+  DEFAULT_GREETING_PROMPT_TEMPLATE,
+  GREETING_PROMPT_VARIABLES,
+};
 
-export function buildSystemPrompt(
-  content: ResumeContent,
-  articles: ArticleIndexEntry[] = []
-): string {
+// A single shared Liquid engine. Templates come from admin config or the built-in
+// default and are rendered against in-memory data only (no file includes / async
+// filters), so synchronous rendering is safe and keeps buildSystemPrompt sync.
+const engine = new Liquid();
+
+/**
+ * Renders the resume content into a single markdown block. Exposed to templates
+ * as the `{{ resume }}` variable so a custom prompt can drop the whole resume in
+ * one place instead of looping over each section. The built-in default template
+ * renders the sections itself (see chat-template.ts) rather than using this.
+ */
+function buildResumeBlock(content: ResumeContent): string {
   const { header, experience, education, skills, projects, contact } = content;
 
   const experienceText = experience
@@ -55,29 +75,7 @@ export function buildSystemPrompt(
     .filter(Boolean)
     .join('\n');
 
-  // Lightweight article index. The full body of any post is fetched on demand
-  // via the read_article tool (see app/api/chat/route.ts) — keeping the prompt
-  // small no matter how many articles exist.
-  const articlesText = articles.length
-    ? articles
-        .map((a) => {
-          const date = a.publishedAt ? a.publishedAt.slice(0, 10) : 'undated';
-          const tags = a.tags.length ? ` [${a.tags.join(', ')}]` : '';
-          return `- "${a.title}" (${date}) — slug: ${a.slug}${tags}\n  ${a.summary}`;
-        })
-        .join('\n')
-    : 'No articles have been published yet.';
-
-  const articlesSection = `## Articles
-${header.name} has written the articles below. Only these summaries are in your context. When a visitor wants to go deeper on an article — its details, code, diagrams, or claims — call the \`read_article\` tool with the article's slug to load the full text, then answer from what you read. Do not invent or infer an article's contents from its summary alone.
-
-${articlesText}`;
-
-  return `You are a helpful assistant representing ${header.name}, a ${header.title}. You answer questions about their resume, experience, background, and written articles in a friendly, professional manner. Speak as if you are representing this person to potential employers or collaborators.
-
-Here is their resume information:
-
-## About
+  return `## About
 ${header.bio}
 
 ## Experience
@@ -93,15 +91,131 @@ ${skillsText}
 ${projectsText}
 
 ## Contact
-${contactText}
+${contactText}`;
+}
 
-${articlesSection}
+/**
+ * Builds the Liquid render context from the live resume content. Exposes the
+ * full structured resume (so a template can loop over experience/projects/etc.)
+ * plus a few conveniences:
+ *   - `resume`: the whole resume pre-rendered as one block
+ *   - `articles`: the published-article index (for the Articles section) — each
+ *     entry has { title, summary, slug, tags, date }. The full body is loaded on
+ *     demand at chat time via the read_article tool (see app/api/chat/route.ts).
+ *   - NAME/TITLE/RESUME: uppercase aliases kept for backward compatibility with
+ *     any prompt saved under the previous {{NAME}}/{{TITLE}}/{{RESUME}} scheme.
+ */
+function buildTemplateContext(
+  content: ResumeContent,
+  articles: ArticleIndexEntry[] = []
+): Record<string, unknown> {
+  const { header, experience, education, skills, projects, contact } = content;
+  const resume = buildResumeBlock(content);
+  const articleList = articles.map((a) => ({
+    slug: a.slug,
+    title: a.title,
+    summary: a.summary,
+    tags: a.tags,
+    // Pre-format the date so templates need no Liquid date filter (publishedAt
+    // may be null for a just-published post that hasn't been stamped).
+    date: a.publishedAt ? a.publishedAt.slice(0, 10) : 'undated',
+    publishedAt: a.publishedAt,
+  }));
+  return {
+    name: header.name,
+    title: header.title,
+    bio: header.bio,
+    header,
+    experience,
+    education,
+    skills,
+    projects,
+    contact,
+    resume,
+    articles: articleList,
+    // Backward-compatible aliases for the old token scheme.
+    NAME: header.name,
+    TITLE: header.title,
+    RESUME: resume,
+  };
+}
 
-Guidelines:
-- Be conversational and helpful
-- Answer questions based on the resume information provided
-- When a question is about a specific article, read it first with the read_article tool rather than guessing from the summary
-- If asked about something not in the resume or the articles, politely say you don't have that information
-- Keep responses concise but informative
-- You can elaborate on resume details when relevant`;
+/**
+ * Renders `template` against the resume `context`, falling back to `fallback` if
+ * a custom template fails to render (e.g. a malformed tag slipped past validation,
+ * or references a field in an unexpected way) — rather than let a bad saved
+ * template take the chat down. Consistent with the defensive fallbacks in
+ * lib/chat-config.ts. If the fallback itself is what failed, the error propagates.
+ */
+function renderWithFallback(
+  context: Record<string, unknown>,
+  template: string,
+  fallback: string
+): string {
+  try {
+    return engine.parseAndRenderSync(template, context);
+  } catch (error) {
+    if (template !== fallback) {
+      console.error('Failed to render custom template, using default:', error);
+      return engine.parseAndRenderSync(fallback, context);
+    }
+    throw error;
+  }
+}
+
+/** Renders the system-prompt `template` (default when omitted) against the live
+ * resume content and the published-article index. */
+export function buildSystemPrompt(
+  content: ResumeContent,
+  template: string = DEFAULT_SYSTEM_PROMPT_TEMPLATE,
+  articles: ArticleIndexEntry[] = []
+): string {
+  return renderWithFallback(
+    buildTemplateContext(content, articles),
+    template,
+    DEFAULT_SYSTEM_PROMPT_TEMPLATE
+  );
+}
+
+/** Renders the opening-message instruction `template` used to generate the chat's
+ * first message. */
+export function buildGreetingPrompt(
+  content: ResumeContent,
+  template: string = DEFAULT_GREETING_PROMPT_TEMPLATE
+): string {
+  return renderWithFallback(
+    buildTemplateContext(content),
+    template,
+    DEFAULT_GREETING_PROMPT_TEMPLATE
+  );
+}
+
+/** Renders `template` WITHOUT the build*Prompt fallback, so the admin editors'
+ * live preview shows the real output — or the real parse/render error — for what
+ * was typed. Throws on failure; the caller surfaces the message. */
+export function renderTemplatePreview(
+  content: ResumeContent,
+  template: string,
+  articles: ArticleIndexEntry[] = []
+): string {
+  return engine.parseAndRenderSync(
+    template,
+    buildTemplateContext(content, articles)
+  );
+}
+
+/**
+ * Validates that a template parses as Liquid. Returns an error message describing
+ * the syntax problem, or null if it is valid. Used by the admin config API to
+ * reject a broken template at save time instead of at chat time. Note this only
+ * catches *syntax* errors (parse); a template can still fail at render if it uses
+ * data in an unsupported way — buildSystemPrompt's fallback covers that.
+ */
+export function validateTemplate(template: string): string | null {
+  try {
+    engine.parse(template);
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Invalid template';
+  }
 }

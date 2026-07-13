@@ -1,9 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getContent } from '@/lib/content';
-import { buildSystemPrompt, ChatMessage } from '@/lib/chat';
+import {
+  buildSystemPrompt,
+  buildGreetingPrompt,
+  ChatMessage,
+} from '@/lib/chat';
 import { getOrCreateSessionId } from '@/lib/session';
 import { getOrCreateConversation, addMessage } from '@/lib/conversations';
-import { getChatModels } from '@/lib/chat-config';
+import { getChatConfig } from '@/lib/chat-config';
 import {
   getArticleIndex,
   getArticleBySlug,
@@ -64,27 +68,35 @@ export async function POST(request: Request) {
     // Get or create conversation
     const conversation = await getOrCreateConversation(sessionId);
 
-    const content = await getContent();
+    const [content, config] = await Promise.all([
+      getContent(),
+      getChatConfig(),
+    ]);
     // A DB hiccup on the article index must never take the chat down — fall
-    // back to an empty index (same defensive posture as getChatModels).
+    // back to an empty index (same defensive posture as getChatConfig).
     let articleIndex: ArticleIndexEntry[] = [];
     try {
       articleIndex = await getArticleIndex();
     } catch (indexError) {
       console.error('Failed to load article index for chat:', indexError);
     }
-    const systemPrompt = buildSystemPrompt(content, articleIndex);
-    const models = await getChatModels();
+    const systemPrompt = buildSystemPrompt(
+      content,
+      config.systemPrompt,
+      articleIndex
+    );
+    const models = config.models;
 
     let anthropicMessages: { role: 'user' | 'assistant'; content: string }[];
 
     if (isGreeting) {
-      // For greeting, ask the assistant to introduce itself casually
+      // The opening message is generated from an editable instruction template
+      // rendered against the same resume context. Tone/personality come from the
+      // system prompt above; this only steers WHAT the first message says.
       anthropicMessages = [
         {
           role: 'user',
-          content:
-            'Introduce yourself in a casual, friendly way (1-2 sentences max). Keep it short and conversational - mention whose resume this is and that you can chat about their background. No formal language.',
+          content: buildGreetingPrompt(content, config.greetingPrompt),
         },
       ];
     } else {
@@ -94,7 +106,10 @@ export async function POST(request: Request) {
       }));
     }
 
-    const maxTokens = isGreeting ? 150 : 1024;
+    // The greeting instruction is admin-configurable and may ask for more than a
+    // one-liner, so give it a little headroom (beyond the old 1-2 sentence intro)
+    // to avoid cutting a longer opening message off mid-sentence.
+    const maxTokens = isGreeting ? 250 : 1024;
     const encoder = new TextEncoder();
 
     const readable = new ReadableStream({
@@ -185,7 +200,7 @@ export async function POST(request: Request) {
           // errors, we fall through to the next in the chain.
           let succeeded = false;
           let lastError: unknown = null;
-          for (const model of models) {
+          for (const model of config.models) {
             try {
               await runModel(model);
               succeeded = true;

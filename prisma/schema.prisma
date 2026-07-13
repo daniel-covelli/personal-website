@@ -147,9 +147,18 @@ model Article {
 // one succeeds. Stored here (rather than hardcoded) so a model retirement can
 // be fixed from /admin without a code change or redeploy. Singleton row.
 model ChatConfig {
-  id        String   @id @default("singleton")
-  models    String[]
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String   @id @default("singleton")
+  models       String[]
+  // Optional override for the chat assistant's system-prompt template, editable
+  // from /admin. NULL means "use the built-in default" (lib/chat.ts). May contain
+  // {{NAME}}/{{TITLE}}/{{RESUME}} placeholders filled at request time.
+  systemPrompt String?  @db.Text @map("system_prompt")
+  // Optional override for the opening-message instruction (also a Liquid template,
+  // editable from /admin). NULL means "use the built-in default" (lib/chat.ts).
+  // Rendered against the same resume context and sent as the user turn that asks
+  // the model to write the first message.
+  greetingPrompt String? @db.Text @map("greeting_prompt")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("chat_config")
 }

@@ -110,3 +110,10 @@ export interface ArticleInput {
   published: boolean;
   publishedAt: string | null;
 }
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  skipAnimation?: boolean;
+}

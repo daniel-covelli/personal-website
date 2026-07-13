@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { ChatMessage } from '@/lib/chat';
+import { ChatMessage } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Spinner } from '@/components/ui/spinner';
 import Message from './Message';
 
 interface MessageListProps {
@@ -30,7 +31,7 @@ export default function MessageList({
     return (
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="text-center text-subtle">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-hair border-t-brand" />
+          <Spinner className="mb-3 h-6 w-6 text-brand" label="Loading conversation" />
           <p>Loading conversation...</p>
         </div>
       </div>
