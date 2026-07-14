@@ -1,8 +1,19 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// Geist Mono (variable weight) — the monospaced "data" face for logged metadata
+// such as the Field Notes ticker. Exposed as a CSS variable and wired to the
+// `font-data` Tailwind utility; body copy stays Inter.
+const geistMono = localFont({
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Daniel Covelli - Software Engineer',
@@ -44,7 +55,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.className} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
