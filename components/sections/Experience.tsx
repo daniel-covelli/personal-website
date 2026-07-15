@@ -1,11 +1,13 @@
-import { Experience as ExperienceType } from '@/lib/types';
+import { Experience as ExperienceType, Article } from '@/lib/types';
 import SectionHeading from './SectionHeading';
+import ExperienceFieldNotes from './ExperienceFieldNotes';
 
 interface ExperienceProps {
   data: ExperienceType[];
+  notesByCompany?: Record<string, Article[]>;
 }
 
-export default function Experience({ data }: ExperienceProps) {
+export default function Experience({ data, notesByCompany }: ExperienceProps) {
   if (data.length === 0) return null;
 
   return (
@@ -42,6 +44,9 @@ export default function Experience({ data }: ExperienceProps) {
                   ))}
                 </ul>
               )}
+              {notesByCompany?.[exp.company]?.length ? (
+                <ExperienceFieldNotes notes={notesByCompany[exp.company]} />
+              ) : null}
             </div>
           ))}
         </div>

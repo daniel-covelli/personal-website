@@ -8,6 +8,7 @@ import ArticleView, {
 
 interface ArticlesEditorProps {
   initialArticles: Article[];
+  companies: string[];
 }
 
 interface EditorState {
@@ -18,6 +19,9 @@ interface EditorState {
   body: string;
   headerImageUrl: string;
   tags: string; // comma-separated in the input
+  placement: string; // '' | 'banner' | an exact resume company
+  bannerTitle: string; // banner override headline (banner placement only)
+  bannerSubtitle: string; // small kicker shown before the banner headline
   published: boolean;
   publishedAt: string; // 'YYYY-MM-DD' or ''
 }
@@ -42,6 +46,9 @@ function emptyState(): EditorState {
     body: '',
     headerImageUrl: '',
     tags: '',
+    placement: '',
+    bannerTitle: '',
+    bannerSubtitle: '',
     published: false,
     publishedAt: '',
   };
@@ -56,6 +63,9 @@ function articleToState(a: Article): EditorState {
     body: a.body,
     headerImageUrl: a.headerImageUrl,
     tags: a.tags.join(', '),
+    placement: a.placement,
+    bannerTitle: a.bannerTitle,
+    bannerSubtitle: a.bannerSubtitle,
     published: a.published,
     publishedAt: a.publishedAt ? a.publishedAt.slice(0, 10) : '',
   };
@@ -72,6 +82,9 @@ function stateToInput(s: EditorState): ArticleInput {
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean),
+    placement: s.placement,
+    bannerTitle: s.bannerTitle,
+    bannerSubtitle: s.bannerSubtitle,
     published: s.published,
     publishedAt: s.publishedAt ? new Date(s.publishedAt).toISOString() : null,
   };
@@ -113,6 +126,7 @@ const labelClass = 'mb-0.5 block text-[10px] font-medium text-gray-700';
 
 export default function ArticlesEditor({
   initialArticles,
+  companies,
 }: ArticlesEditorProps) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [editing, setEditing] = useState<EditorState | null>(null);
@@ -341,6 +355,70 @@ export default function ArticlesEditor({
                 />
               </div>
             </div>
+
+            <div>
+              <label className={labelClass}>
+                Home placement{' '}
+                <span className="font-normal text-gray-400">
+                  (where it shows on the home page)
+                </span>
+              </label>
+              <select
+                value={editing.placement}
+                onChange={(e) => set('placement', e.target.value)}
+                className={inputClass}
+              >
+                <option value="">None — index only</option>
+                <option value="banner">Top banner (under the nav)</option>
+                {companies.map((c) => (
+                  <option key={c} value={c}>
+                    Cards under {c}
+                  </option>
+                ))}
+                {editing.placement &&
+                editing.placement !== 'banner' &&
+                !companies.includes(editing.placement) ? (
+                  <option value={editing.placement}>
+                    Cards under {editing.placement} (not in resume)
+                  </option>
+                ) : null}
+              </select>
+            </div>
+
+            {editing.placement === 'banner' ? (
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass}>
+                    Banner title{' '}
+                    <span className="font-normal text-gray-400">
+                      (defaults to the article title)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editing.bannerTitle}
+                    onChange={(e) => set('bannerTitle', e.target.value)}
+                    className={inputClass}
+                    placeholder="How this interactive resume actually works"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Banner subtitle{' '}
+                    <span className="font-normal text-gray-400">
+                      (small kicker, optional)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editing.bannerSubtitle}
+                    onChange={(e) => set('bannerSubtitle', e.target.value)}
+                    className={inputClass}
+                    placeholder="Behind the scenes"
+                  />
+                </div>
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 text-[10px] text-gray-700">

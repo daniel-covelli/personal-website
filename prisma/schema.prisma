@@ -134,6 +134,9 @@ model Article {
   body           String    @db.Text
   headerImageUrl String    @default("") @map("header_image_url")
   tags           String[]
+  placement      String    @default("")
+  bannerTitle    String    @default("") @map("banner_title")
+  bannerSubtitle String    @default("") @map("banner_subtitle")
   published      Boolean   @default(false)
   publishedAt    DateTime? @map("published_at")
   createdAt      DateTime  @default(now()) @map("created_at")

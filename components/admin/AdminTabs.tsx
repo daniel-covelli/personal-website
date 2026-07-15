@@ -47,6 +47,12 @@ export default function AdminTabs({
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('resume');
 
+  // Companies from the resume become the "cards under …" placement targets for
+  // articles (see the Writing tab's Home placement dropdown).
+  const companies = Array.from(
+    new Set(content.experience.map((e) => e.company).filter(Boolean))
+  );
+
   // Honor a #tab hash (e.g. /admin#writing from the "New article" link) after
   // mount — set post-hydration to avoid an SSR/client markup mismatch.
   useEffect(() => {
@@ -89,7 +95,7 @@ export default function AdminTabs({
         <ContentEditor initialContent={content} />
       </div>
       <div className={activeTab === 'writing' ? '' : 'hidden'}>
-        <ArticlesEditor initialArticles={articles} />
+        <ArticlesEditor initialArticles={articles} companies={companies} />
       </div>
       <div className={activeTab === 'config' ? '' : 'hidden'}>
         <ChatConfigEditor initialModels={chatModels} />
