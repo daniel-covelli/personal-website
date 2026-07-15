@@ -29,7 +29,7 @@ export default function FieldNoteCard({ article }: FieldNoteCardProps) {
       href={`/articles/${article.slug}`}
       className="group flex flex-col overflow-hidden rounded-lg border border-hair bg-panel shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
     >
-      <div className="relative h-28 w-full overflow-hidden bg-gradient-to-br from-brand/30 to-brand/10">
+      <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-brand/30 to-brand/10">
         <div
           aria-hidden
           className="absolute inset-0 bg-cover bg-center opacity-80 grayscale transition-transform duration-500 group-hover:scale-105"
@@ -40,28 +40,28 @@ export default function FieldNoteCard({ article }: FieldNoteCardProps) {
           className="absolute inset-0 bg-brand/20 mix-blend-multiply"
         />
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <div className="mb-1.5 flex items-center gap-2">
+      <div className="flex flex-1 flex-col p-3">
+        <div className="mb-1 flex items-center gap-1.5">
           <span
             aria-hidden
-            className="h-[6px] w-[6px] rotate-45 rounded-[1px] bg-brand/70"
+            className="h-[5px] w-[5px] rotate-45 rounded-[1px] bg-brand/70"
           />
-          <span className="font-data text-[11px] leading-none tracking-[0.02em] text-subtle">
+          <span className="font-data text-[10px] leading-none tracking-[0.02em] text-subtle">
             {readingTimeMinutes(article.body)} min read
           </span>
         </div>
-        <h4 className="text-sm font-bold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand">
+        <h4 className="text-xs font-bold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand">
           {article.title}
         </h4>
-        <p className="mt-1.5 line-clamp-2 flex-1 text-[13px] leading-relaxed text-body">
+        <p className="mt-1 line-clamp-2 flex-1 text-[11px] leading-relaxed text-body">
           {article.summary}
         </p>
         {article.tags.length ? (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {article.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded bg-chip px-1.5 py-0.5 text-[11px] font-medium leading-none text-chip-fg"
+                className="rounded bg-chip px-1.5 py-0.5 text-[10px] font-medium leading-none text-chip-fg"
               >
                 {tag}
               </span>
