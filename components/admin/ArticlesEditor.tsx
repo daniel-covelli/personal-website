@@ -108,8 +108,8 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500';
-const labelClass = 'mb-1 block text-xs font-medium text-gray-700';
+  'w-full rounded-lg border border-gray-300 px-2.5 py-1 text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500';
+const labelClass = 'mb-0.5 block text-xs font-medium text-gray-700';
 
 export default function ArticlesEditor({
   initialArticles,
@@ -199,11 +199,11 @@ export default function ArticlesEditor({
   const isNew = editing !== null && editing.id === null;
 
   return (
-    <section id="articles" className="mt-12">
-      <div className="mb-5 flex items-start justify-between gap-4">
+    <section id="articles" className="mt-6">
+      <div className="mb-3 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Articles</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-base font-semibold text-gray-900">Articles</h2>
+          <p className="text-xs text-gray-500">
             Markdown posts with code, images, and{' '}
             <code className="rounded bg-gray-100 px-1">```mermaid</code>{' '}
             diagrams. The assistant can read published articles on request.
@@ -211,7 +211,7 @@ export default function ArticlesEditor({
         </div>
         <button
           onClick={() => setEditing(emptyState())}
-          className="flex-none rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          className="flex-none rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700"
         >
           New article
         </button>
@@ -221,9 +221,9 @@ export default function ArticlesEditor({
           while spending vertical, not horizontal, space — so the edit/preview
           split below gets the full width. */}
       {(articles.length > 0 || isNew) && (
-        <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-4">
+        <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
           {isNew && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-medium text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-2.5 py-1 text-xs font-medium text-white">
               <span className="max-w-[14rem] truncate">
                 {editing.title.trim() || 'Untitled'}
               </span>
@@ -240,7 +240,7 @@ export default function ArticlesEditor({
                 type="button"
                 title={a.title || 'Untitled'}
                 onClick={() => setEditing(articleToState(a))}
-                className={`inline-flex max-w-[16rem] items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-colors ${
+                className={`inline-flex max-w-[16rem] items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors ${
                   active
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -263,15 +263,15 @@ export default function ArticlesEditor({
       )}
 
       {!editing ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500">
+        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-xs text-gray-500">
           {articles.length
             ? 'Select an article above, or create a new one.'
             : 'No articles yet — create your first one.'}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
           {/* ── Edit form ─────────────────────────────────────────── */}
-          <div className="min-w-0 space-y-3">
+          <div className="min-w-0 space-y-2">
             <div>
               <label className={labelClass}>Title</label>
               <input
@@ -314,7 +314,7 @@ export default function ArticlesEditor({
               />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               <div>
                 <label className={labelClass}>Header image URL</label>
                 <input
@@ -342,23 +342,23 @@ export default function ArticlesEditor({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6">
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-2 text-xs text-gray-700">
                 <input
                   type="checkbox"
                   checked={editing.published}
                   onChange={(e) => set('published', e.target.checked)}
-                  className="h-4 w-4"
+                  className="h-3.5 w-3.5"
                 />
                 Published
               </label>
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700">Publish date</label>
+                <label className="text-xs text-gray-700">Publish date</label>
                 <input
                   type="date"
                   value={editing.publishedAt}
                   onChange={(e) => set('publishedAt', e.target.value)}
-                  className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900"
+                  className="rounded-lg border border-gray-300 px-2.5 py-1 text-[13px] text-gray-900"
                 />
               </div>
             </div>
@@ -373,31 +373,31 @@ export default function ArticlesEditor({
               <textarea
                 value={editing.body}
                 onChange={(e) => set('body', e.target.value)}
-                rows={20}
-                className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 font-mono text-[13px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={16}
+                className="w-full resize-y rounded-lg border border-gray-300 px-2.5 py-1.5 font-mono text-xs leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder={
                   '# Heading\n\nProse, **bold**, `code`.\n\n```ts\nconst x = 1;\n```\n\n```mermaid\nflowchart LR\n  A --> B\n```\n\n![caption](https://image-url)'
                 }
               />
             </div>
 
-            <div className="flex items-center gap-4 border-t border-gray-200 pt-4">
+            <div className="flex items-center gap-3 border-t border-gray-200 pt-3">
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
               <button
                 onClick={handleDelete}
-                className="text-sm text-red-600 hover:text-red-700"
+                className="text-xs text-red-600 hover:text-red-700"
               >
                 {editing.id ? 'Delete' : 'Discard'}
               </button>
               {message ? (
                 <span
-                  className={`text-sm ${
+                  className={`text-xs ${
                     message === 'Saved' || message === 'Deleted'
                       ? 'text-green-600'
                       : 'text-red-600'
@@ -429,8 +429,10 @@ export default function ArticlesEditor({
                   </a>
                 ) : null}
               </div>
-              <div className="rounded-xl border border-gray-200 bg-surface px-5 py-6 shadow-sm lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
-                <div className="mx-auto max-w-3xl">
+              <div className="rounded-xl border border-gray-200 bg-surface px-4 py-4 shadow-sm lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
+                {/* zoom shows more of the (faithful) article at once; tweak or
+                    drop for a 1:1 preview */}
+                <div className="mx-auto max-w-3xl" style={{ zoom: 0.85 }}>
                   {previewArticle ? (
                     <ArticleView article={previewArticle} />
                   ) : null}
