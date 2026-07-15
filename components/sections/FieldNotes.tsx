@@ -9,7 +9,7 @@ interface FieldNotesProps {
 // Seconds of travel per note. Deriving the lap time from the note count keeps
 // the glide speed roughly constant no matter how much I've written — more notes
 // make a longer track *and* a proportionally longer lap.
-const SECONDS_PER_NOTE = 5;
+const SECONDS_PER_NOTE = 8;
 
 // Minimum notes in a single half-track so the stream fills wide viewports before
 // it loops. With only a handful of articles we repeat the list to reach this
@@ -73,7 +73,9 @@ function Note({ article, muted }: { article: Article; muted?: boolean }) {
  * client JavaScript. Renders nothing when there's no published writing.
  */
 export default function FieldNotes({ data }: FieldNotesProps) {
-  if (data.length === 0) return null;
+  // Needs a few notes before the stream earns its full-bleed band — below three
+  // it reads as a stub rather than a ticker, so we hide it entirely.
+  if (data.length < 3) return null;
 
   const repsPerHalf = Math.max(1, Math.ceil(MIN_PER_HALF / data.length));
   const half = Array.from({ length: repsPerHalf }, () => data).flat();
@@ -93,8 +95,14 @@ export default function FieldNotes({ data }: FieldNotesProps) {
         </div>
 
         {/* Streaming ticker. */}
+        {/* `w-0` gives this flex child a *definite* zero base width. Without it,
+            `flex-1`'s `flex-basis: 0%` resolves against an indefinite-width
+            container and falls back to the track's intrinsic `w-max` size
+            (~8000px), which propagates up and blows out the whole page width —
+            `min-w-0`/`overflow-hidden` alone don't stop that. `flex-1` then
+            grows it back to fill the row. */}
         <div
-          className="group relative min-w-0 flex-1 overflow-hidden py-[18px] pl-5 motion-reduce:overflow-x-auto"
+          className="group relative w-0 min-w-0 flex-1 overflow-hidden py-[18px] pl-5 motion-reduce:overflow-x-auto"
           style={{ maskImage: edgeFade, WebkitMaskImage: edgeFade }}
         >
           <div
@@ -119,6 +127,26 @@ export default function FieldNotes({ data }: FieldNotesProps) {
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* Fixed "See all" link pinned to the page's right edge. A lightweight
+            secondary text link — deliberately *quieter* than the channel label
+            (normal case, subtle color) rather than a boxed button — which is the
+            convention for "go to the full list" affordances. Its trailing arrow
+            plus the ticker's right-edge fade signal there's more beyond the row. */}
+        <div className="flex shrink-0 items-center py-[18px] pl-4 pr-6 sm:pr-8">
+          <Link
+            href="/articles"
+            className="group/all inline-flex items-center gap-1.5 rounded-sm text-xs font-medium leading-none tracking-[-0.01em] text-subtle outline-none transition-colors hover:text-brand focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
+          >
+            See all
+            <span
+              aria-hidden
+              className="transition-transform group-hover/all:translate-x-0.5"
+            >
+              →
+            </span>
+          </Link>
         </div>
       </div>
     </section>
