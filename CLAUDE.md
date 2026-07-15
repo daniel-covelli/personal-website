@@ -1,5 +1,9 @@
 # Claude Code Project Guide
 
+## Package Manager
+
+**This repo uses pnpm** (`pnpm-lock.yaml` + `pnpm-workspace.yaml` are committed). Use `pnpm add` / `pnpm install`, not npm — `npm install` will not update the pnpm lockfile and can error out. Set `PUPPETEER_SKIP_DOWNLOAD=1` when installing to skip the flaky Chromium download.
+
 ## Database (Prisma)
 
 **Local dev connects directly to production.** No staging environment.
