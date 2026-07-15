@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import { Article, ArticleInput } from '@/lib/types';
 import ArticleView, {
   ArticleViewData,
@@ -132,7 +131,6 @@ export default function ArticlesEditor({
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [editing, setEditing] = useState<EditorState | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
 
   const derivedSlug = useMemo(
@@ -187,28 +185,6 @@ export default function ArticlesEditor({
       flash('Error saving article');
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleUpload(file: File) {
-    setUploading(true);
-    try {
-      // Uploads straight from the browser to Vercel Blob; `/api/upload` only
-      // mints the (admin-gated) token. This sidesteps the 4.5 MB Function
-      // body limit that a server-proxied upload would hit. `multipart` splits
-      // larger files into parallel, retryable parts.
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        contentType: file.type,
-        multipart: true,
-      });
-      set('headerImageUrl', blob.url);
-      flash('Image uploaded');
-    } catch (err) {
-      flash(err instanceof Error ? err.message : 'Error uploading image');
-    } finally {
-      setUploading(false);
     }
   }
 
@@ -357,36 +333,16 @@ export default function ArticlesEditor({
                 <label className={labelClass}>
                   Header image{' '}
                   <span className="font-normal text-gray-400">
-                    (upload or paste a URL)
+                    (paste a URL — upload in the Assets tab)
                   </span>
                 </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="text"
-                    value={editing.headerImageUrl}
-                    onChange={(e) => set('headerImageUrl', e.target.value)}
-                    className={inputClass}
-                    placeholder="https://…"
-                  />
-                  <label
-                    className={`flex-none cursor-pointer rounded-lg border border-gray-300 px-2.5 py-1 text-[11px] text-gray-700 hover:bg-gray-50 ${
-                      uploading ? 'pointer-events-none opacity-50' : ''
-                    }`}
-                  >
-                    {uploading ? 'Uploading…' : 'Upload'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploading}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleUpload(file);
-                        e.target.value = '';
-                      }}
-                    />
-                  </label>
-                </div>
+                <input
+                  type="text"
+                  value={editing.headerImageUrl}
+                  onChange={(e) => set('headerImageUrl', e.target.value)}
+                  className={inputClass}
+                  placeholder="https://…"
+                />
               </div>
               <div>
                 <label className={labelClass}>
