@@ -438,9 +438,10 @@ export default function ChatModal({
         >
           {/* Header — panel (not surface), so the top of the window stays
               distinct from the page background, which is also surface. */}
-          <div className="flex items-center justify-between border-b border-hair bg-panel px-4 py-2">
-            <DialogPrimitive.Title className="font-semibold text-ink">
-              Interview me
+          <div className="flex items-center justify-end border-b border-hair bg-panel px-4 py-2">
+            {/* Title kept for accessibility (Radix requires it) but hidden. */}
+            <DialogPrimitive.Title className="sr-only">
+              Chat with Daniel&apos;s agent
             </DialogPrimitive.Title>
             <DialogPrimitive.Description className="sr-only">
               AI Assistant
