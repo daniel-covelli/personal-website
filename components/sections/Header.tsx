@@ -10,11 +10,11 @@ interface HeaderProps {
 // Full-field placement: dots cover the hero with a soft center vignette that
 // fades them out at the edges.
 const dotMask =
-  'radial-gradient(120% 125% at 50% 38%, #000 42%, transparent 88%)';
+  'radial-gradient(120% 140% at 50% 46%, #000 50%, transparent 96%)';
 
 export default function Header({ data }: HeaderProps) {
   return (
-    <header className="relative overflow-hidden px-4 py-24">
+    <header className="relative overflow-hidden px-4 py-32">
       <div
         className="pointer-events-none absolute inset-0"
         style={{ maskImage: dotMask, WebkitMaskImage: dotMask }}

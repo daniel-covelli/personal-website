@@ -5,6 +5,7 @@ import ChatModal from './ChatModal';
 import { RemoveScroll } from 'react-remove-scroll';
 import { MovingBorderButton } from '@/components/ui/moving-border-button';
 import { subscribeOpenChat } from '@/lib/chatLauncher';
+import { useBlinkingEyes } from '@/lib/useBlinkingEyes';
 
 interface ChatButtonProps {
   personName: string;
@@ -14,6 +15,7 @@ interface ChatButtonProps {
 export default function ChatButton({ personName, isAdmin }: ChatButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const eyesClosed = useBlinkingEyes();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Let the hero CTA (or anything) open the chat, optionally straight into the
@@ -42,9 +44,9 @@ export default function ChatButton({ personName, isAdmin }: ChatButtonProps) {
       >
         <span
           aria-hidden="true"
-          className="-translate-y-[0.07em] select-none text-xl font-bold leading-none text-white"
+          className="select-none font-mono text-[11px] font-semibold leading-none tracking-tight text-white"
         >
-          @
+          {eyesClosed ? '(-.-)' : '(@.@)'}
         </span>
       </MovingBorderButton>
 

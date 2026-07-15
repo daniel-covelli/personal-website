@@ -8,7 +8,7 @@ import BloomSpinner from './BloomSpinner';
 interface MessageProps {
   message: ChatMessage;
   isStreaming?: boolean;
-  /** Show the leading "@" agent mark beside assistant replies (expanded view only). */
+  /** Show the leading (@.@) agent mark beside assistant replies (expanded view only). */
   isExpanded?: boolean;
 }
 
@@ -38,10 +38,10 @@ export default function Message({ message, isExpanded = false }: MessageProps) {
           {isExpanded && (
             <span
               aria-hidden="true"
-              className="absolute right-full top-1 mr-2.5 flex h-7 w-7 select-none items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-sm font-bold text-white shadow-sm"
+              className="absolute right-full top-1 mr-2.5 flex h-8 w-8 select-none items-center justify-center rounded-full bg-[linear-gradient(125deg,#7c3aed_0%,#6366f1_55%,#4f46e5_100%)] font-mono text-[10px] font-semibold leading-none tracking-tight text-white shadow-sm dark:bg-[linear-gradient(125deg,#db2777_0%,#7c3aed_50%,#4f46e5_100%)]"
               style={{ textShadow: '0 1px 2px rgba(0,0,0,0.28)' }}
             >
-              <span className="-translate-y-[0.06em] leading-none">@</span>
+              (@.@)
             </span>
           )}
           <div className="max-w-[80%] rounded-2xl bg-chip px-4 py-2 text-sm text-ink">
