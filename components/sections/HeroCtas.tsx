@@ -18,16 +18,16 @@ export default function HeroCtas() {
     <div className="mt-7 flex flex-wrap items-center justify-center gap-4 md:justify-start">
       <MovingBorderButton
         onClick={() => openChat({ expanded: true })}
-        aria-label="Interview me"
+        aria-label="Chat with my agent"
         faceClassName="px-5 py-2.5 text-sm"
       >
         <span
           aria-hidden="true"
-          className="-translate-y-[0.07em] select-none text-lg font-semibold leading-none"
+          className="-translate-y-[0.02em] select-none font-mono text-[12.5px] font-semibold leading-none tracking-tight"
         >
-          @
+          (@.@)
         </span>
-        Interview me
+        chat with my agent
       </MovingBorderButton>
 
       <button

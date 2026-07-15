@@ -42,9 +42,9 @@ export default function ChatButton({ personName, isAdmin }: ChatButtonProps) {
       >
         <span
           aria-hidden="true"
-          className="-translate-y-[0.07em] select-none text-xl font-bold leading-none text-white"
+          className="select-none font-mono text-[11px] font-semibold leading-none tracking-tight text-white"
         >
-          @
+          (@.@)
         </span>
       </MovingBorderButton>
 
