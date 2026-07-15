@@ -2,11 +2,11 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
 import { getPublishedArticles } from '@/lib/articles';
-import { getAboutSiteNote, getNotesByCompany } from '@/lib/field-notes';
+import { getBannerNote, getNotesByCompany } from '@/lib/field-notes';
 
 export const dynamic = 'force-dynamic';
 import Header from '@/components/sections/Header';
-import AboutSiteBanner from '@/components/sections/AboutSiteBanner';
+import FeaturedBanner from '@/components/sections/FeaturedBanner';
 import Experience from '@/components/sections/Experience';
 import Education from '@/components/sections/Education';
 import Skills from '@/components/sections/Skills';
@@ -23,14 +23,14 @@ export default async function Home() {
     getPublishedArticles(),
   ]);
   const isAdmin = !!session;
-  const aboutNote = getAboutSiteNote(articles);
+  const bannerNote = getBannerNote(articles);
   const notesByCompany = getNotesByCompany(articles);
 
   return (
     <ThemeProvider>
       <main>
         <Nav name={content.header.name} />
-        <AboutSiteBanner note={aboutNote} />
+        <FeaturedBanner note={bannerNote} />
         <Header data={content.header} />
         <Experience data={content.experience} notesByCompany={notesByCompany} />
         <Education data={content.education} />
