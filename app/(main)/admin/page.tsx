@@ -54,12 +54,16 @@ export default async function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    // zoom scales the entire admin (header, tabs, editors, live preview) down
+    // uniformly so more fits on screen; adjust the factor to taste.
+    <div className="min-h-screen bg-gray-50" style={{ zoom: 0.8 }}>
       <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between px-4 py-2.5">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-base font-bold text-gray-900">
+              Admin Dashboard
+            </h1>
+            <p className="text-xs text-gray-500">
               Manage your resume content and chat assistant
             </p>
           </div>
@@ -76,7 +80,7 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto max-w-[1800px] px-4 py-5">
         <AdminTabs
           content={content}
           chatModels={config.models}

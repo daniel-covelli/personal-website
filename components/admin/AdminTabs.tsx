@@ -61,7 +61,7 @@ export default function AdminTabs({
       <div
         role="tablist"
         aria-label="Admin sections"
-        className="mb-6 flex gap-1 border-b border-gray-200"
+        className="mb-4 flex gap-1 border-b border-gray-200"
       >
         {TABS.map((tab) => {
           const active = activeTab === tab.id;
@@ -71,7 +71,7 @@ export default function AdminTabs({
               role="tab"
               aria-selected={active}
               onClick={() => setActiveTab(tab.id)}
-              className={`-mb-px border-b-2 px-5 py-2.5 text-sm font-medium transition-colors ${
+              className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 active
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
