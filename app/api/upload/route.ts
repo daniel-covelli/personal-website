@@ -5,10 +5,10 @@ import { authOptions } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-// Admin-only image upload backing the article header-image field (and any
-// Markdown image). Uses Vercel Blob *client uploads*: the browser streams the
-// file straight to Blob storage and this route only mints a short-lived,
-// admin-gated upload token.
+// Admin-only image upload backing the Assets tab (and thus any article header
+// or Markdown image, which reference the uploaded URLs). Uses Vercel Blob
+// *client uploads*: the browser streams the file straight to Blob storage and
+// this route only mints a short-lived, admin-gated upload token.
 //
 // Why not stream the file through this function? A route that read the file
 // itself (`request.formData()` + `put`) is capped by Vercel's 4.5 MB Function

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ResumeContent, Article } from '@/lib/types';
 import {
   SYSTEM_PROMPT_VARIABLES,
@@ -9,6 +9,7 @@ import {
 import ContentEditor from './ContentEditor';
 import ChatConfigEditor from './ChatConfigEditor';
 import ArticlesEditor from './ArticlesEditor';
+import AssetsManager from './AssetsManager';
 import PromptEditor from './PromptEditor';
 
 interface AdminTabsProps {
@@ -29,6 +30,7 @@ interface AdminTabsProps {
 const TABS = [
   { id: 'resume', label: 'Resume' },
   { id: 'writing', label: 'Writing' },
+  { id: 'assets', label: 'Assets' },
   { id: 'config', label: 'Config' },
 ] as const;
 
@@ -51,6 +53,15 @@ export default function AdminTabs({
   // articles (see the Writing tab's Home placement dropdown).
   const companies = Array.from(
     new Set(content.experience.map((e) => e.company).filter(Boolean))
+  );
+
+  // Best-effort "is this asset used?" haystack for the Assets tab: every
+  // article's header URL + Markdown body concatenated. Built from the
+  // server-loaded articles, so edits made in the Writing tab this session
+  // aren't reflected until reload — the Assets delete confirm is the real guard.
+  const articleText = useMemo(
+    () => articles.map((a) => `${a.headerImageUrl}\n${a.body}`).join('\n'),
+    [articles]
   );
 
   // Honor a #tab hash (e.g. /admin#writing from the "New article" link) after
@@ -89,13 +100,19 @@ export default function AdminTabs({
         })}
       </div>
 
-      {/* Both tabs stay mounted so unsaved edits survive tab switches; the
-          inactive one is hidden rather than unmounted. */}
+      {/* Every tab stays mounted so unsaved edits survive tab switches; the
+          inactive ones are hidden rather than unmounted. */}
       <div className={activeTab === 'resume' ? '' : 'hidden'}>
         <ContentEditor initialContent={content} />
       </div>
       <div className={activeTab === 'writing' ? '' : 'hidden'}>
         <ArticlesEditor initialArticles={articles} companies={companies} />
+      </div>
+      <div className={activeTab === 'assets' ? '' : 'hidden'}>
+        <AssetsManager
+          active={activeTab === 'assets'}
+          articleText={articleText}
+        />
       </div>
       <div className={activeTab === 'config' ? '' : 'hidden'}>
         <ChatConfigEditor initialModels={chatModels} />
