@@ -58,7 +58,7 @@ export default async function AdminPage() {
     // uniformly so more fits on screen; adjust the factor to taste.
     <div className="min-h-screen bg-gray-50" style={{ zoom: 0.8 }}>
       <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between px-4 py-2.5">
           <div>
             <h1 className="text-base font-bold text-gray-900">
               Admin Dashboard
@@ -80,7 +80,7 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-5">
+      <main className="mx-auto max-w-[1800px] px-4 py-5">
         <AdminTabs
           content={content}
           chatModels={config.models}
