@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { upload } from '@vercel/blob/client';
 import { Article, ArticleInput } from '@/lib/types';
 import ArticleView, {
   ArticleViewData,
@@ -192,19 +193,20 @@ export default function ArticlesEditor({
   async function handleUpload(file: File) {
     setUploading(true);
     try {
-      const body = new FormData();
-      body.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body });
-      if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: '' }));
-        flash(error || 'Upload failed');
-        return;
-      }
-      const { url } = await res.json();
-      set('headerImageUrl', url);
+      // Uploads straight from the browser to Vercel Blob; `/api/upload` only
+      // mints the (admin-gated) token. This sidesteps the 4.5 MB Function
+      // body limit that a server-proxied upload would hit. `multipart` splits
+      // larger files into parallel, retryable parts.
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        contentType: file.type,
+        multipart: true,
+      });
+      set('headerImageUrl', blob.url);
       flash('Image uploaded');
-    } catch {
-      flash('Error uploading image');
+    } catch (err) {
+      flash(err instanceof Error ? err.message : 'Error uploading image');
     } finally {
       setUploading(false);
     }
