@@ -108,8 +108,8 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1 text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500';
-const labelClass = 'mb-0.5 block text-xs font-medium text-gray-700';
+  'w-full rounded-lg border border-gray-300 px-2.5 py-1 text-[11px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500';
+const labelClass = 'mb-0.5 block text-[10px] font-medium text-gray-700';
 
 export default function ArticlesEditor({
   initialArticles,
@@ -343,7 +343,7 @@ export default function ArticlesEditor({
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
-              <label className="flex items-center gap-2 text-xs text-gray-700">
+              <label className="flex items-center gap-2 text-[10px] text-gray-700">
                 <input
                   type="checkbox"
                   checked={editing.published}
@@ -353,12 +353,14 @@ export default function ArticlesEditor({
                 Published
               </label>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-700">Publish date</label>
+                <label className="text-[10px] text-gray-700">
+                  Publish date
+                </label>
                 <input
                   type="date"
                   value={editing.publishedAt}
                   onChange={(e) => set('publishedAt', e.target.value)}
-                  className="rounded-lg border border-gray-300 px-2.5 py-1 text-[13px] text-gray-900"
+                  className="rounded-lg border border-gray-300 px-2.5 py-1 text-[11px] text-gray-900"
                 />
               </div>
             </div>
@@ -374,7 +376,7 @@ export default function ArticlesEditor({
                 value={editing.body}
                 onChange={(e) => set('body', e.target.value)}
                 rows={16}
-                className="w-full resize-y rounded-lg border border-gray-300 px-2.5 py-1.5 font-mono text-xs leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="min-h-[90vh] w-full resize-y rounded-lg border border-gray-300 px-2.5 py-1.5 font-mono text-[11px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder={
                   '# Heading\n\nProse, **bold**, `code`.\n\n```ts\nconst x = 1;\n```\n\n```mermaid\nflowchart LR\n  A --> B\n```\n\n![caption](https://image-url)'
                 }
@@ -385,19 +387,19 @@ export default function ArticlesEditor({
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
               <button
                 onClick={handleDelete}
-                className="text-xs text-red-600 hover:text-red-700"
+                className="text-[10px] text-red-600 hover:text-red-700"
               >
                 {editing.id ? 'Delete' : 'Discard'}
               </button>
               {message ? (
                 <span
-                  className={`text-xs ${
+                  className={`text-[10px] ${
                     message === 'Saved' || message === 'Deleted'
                       ? 'text-green-600'
                       : 'text-red-600'
