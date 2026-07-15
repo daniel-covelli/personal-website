@@ -8,11 +8,15 @@ interface FeaturedBannerProps {
 /**
  * A slim announcement bar pinned just under the nav that promotes whichever
  * published article is assigned the "banner" placement (see lib/field-notes.ts).
- * Shows that article's title; the whole bar is one link. Renders nothing when no
- * article is assigned, so the layout is unaffected.
+ * Uses the article's optional `bannerTitle` / `bannerSubtitle` override copy when
+ * set (subtitle renders as a small kicker), otherwise falls back to the article
+ * title. The whole bar is one link; renders nothing when no article is assigned.
  */
 export default function FeaturedBanner({ note }: FeaturedBannerProps) {
   if (!note) return null;
+
+  const heading = note.bannerTitle || note.title;
+  const eyebrow = note.bannerSubtitle;
 
   return (
     <Link
@@ -24,8 +28,17 @@ export default function FeaturedBanner({ note }: FeaturedBannerProps) {
           aria-hidden
           className="h-[7px] w-[7px] shrink-0 rotate-45 rounded-[1.5px] bg-brand/80"
         />
-        <span className="min-w-0 truncate text-sm font-medium leading-none text-ink">
-          {note.title}
+        {eyebrow ? (
+          <span className="hidden shrink-0 text-[11px] font-bold uppercase leading-none tracking-[0.18em] text-brand sm:inline">
+            {eyebrow}
+          </span>
+        ) : null}
+        <span
+          className={`min-w-0 truncate text-sm leading-none ${
+            eyebrow ? 'text-body' : 'font-medium text-ink'
+          }`}
+        >
+          {heading}
         </span>
         <span
           aria-hidden

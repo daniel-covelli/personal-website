@@ -81,6 +81,8 @@ export interface Article {
   headerImageUrl: string;
   tags: string[];
   placement: string;
+  bannerTitle: string;
+  bannerSubtitle: string;
   published: boolean;
   publishedAt: string | null;
   createdAt: string;
@@ -109,6 +111,8 @@ export interface ArticleInput {
   headerImageUrl: string;
   tags: string[];
   placement?: string;
+  bannerTitle?: string;
+  bannerSubtitle?: string;
   published: boolean;
   publishedAt: string | null;
 }

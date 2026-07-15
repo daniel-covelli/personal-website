@@ -20,6 +20,8 @@ interface EditorState {
   headerImageUrl: string;
   tags: string; // comma-separated in the input
   placement: string; // '' | 'banner' | an exact resume company
+  bannerTitle: string; // banner override headline (banner placement only)
+  bannerSubtitle: string; // small kicker shown before the banner headline
   published: boolean;
   publishedAt: string; // 'YYYY-MM-DD' or ''
 }
@@ -45,6 +47,8 @@ function emptyState(): EditorState {
     headerImageUrl: '',
     tags: '',
     placement: '',
+    bannerTitle: '',
+    bannerSubtitle: '',
     published: false,
     publishedAt: '',
   };
@@ -60,6 +64,8 @@ function articleToState(a: Article): EditorState {
     headerImageUrl: a.headerImageUrl,
     tags: a.tags.join(', '),
     placement: a.placement,
+    bannerTitle: a.bannerTitle,
+    bannerSubtitle: a.bannerSubtitle,
     published: a.published,
     publishedAt: a.publishedAt ? a.publishedAt.slice(0, 10) : '',
   };
@@ -77,6 +83,8 @@ function stateToInput(s: EditorState): ArticleInput {
       .map((t) => t.trim())
       .filter(Boolean),
     placement: s.placement,
+    bannerTitle: s.bannerTitle,
+    bannerSubtitle: s.bannerSubtitle,
     published: s.published,
     publishedAt: s.publishedAt ? new Date(s.publishedAt).toISOString() : null,
   };
@@ -376,6 +384,41 @@ export default function ArticlesEditor({
                 ) : null}
               </select>
             </div>
+
+            {editing.placement === 'banner' ? (
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass}>
+                    Banner title{' '}
+                    <span className="font-normal text-gray-400">
+                      (defaults to the article title)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editing.bannerTitle}
+                    onChange={(e) => set('bannerTitle', e.target.value)}
+                    className={inputClass}
+                    placeholder="How this interactive resume actually works"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Banner subtitle{' '}
+                    <span className="font-normal text-gray-400">
+                      (small kicker, optional)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editing.bannerSubtitle}
+                    onChange={(e) => set('bannerSubtitle', e.target.value)}
+                    className={inputClass}
+                    placeholder="Behind the scenes"
+                  />
+                </div>
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 text-[10px] text-gray-700">
