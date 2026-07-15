@@ -32,7 +32,7 @@ export default function FieldNoteCard({ article }: FieldNoteCardProps) {
       <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-brand/30 to-brand/10">
         <div
           aria-hidden
-          className="absolute inset-0 bg-cover bg-center opacity-80 grayscale transition-transform duration-500 group-hover:scale-105"
+          className="absolute inset-0 bg-cover bg-center opacity-80 grayscale"
           style={{ backgroundImage: `url(${coverUrl(article)})` }}
         />
         <span
