@@ -131,6 +131,7 @@ export default function ArticlesEditor({
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [editing, setEditing] = useState<EditorState | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
 
   const derivedSlug = useMemo(
@@ -185,6 +186,27 @@ export default function ArticlesEditor({
       flash('Error saving article');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleUpload(file: File) {
+    setUploading(true);
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body });
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: '' }));
+        flash(error || 'Upload failed');
+        return;
+      }
+      const { url } = await res.json();
+      set('headerImageUrl', url);
+      flash('Image uploaded');
+    } catch {
+      flash('Error uploading image');
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -330,14 +352,39 @@ export default function ArticlesEditor({
 
             <div className="grid gap-2.5 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Header image URL</label>
-                <input
-                  type="text"
-                  value={editing.headerImageUrl}
-                  onChange={(e) => set('headerImageUrl', e.target.value)}
-                  className={inputClass}
-                  placeholder="https://…"
-                />
+                <label className={labelClass}>
+                  Header image{' '}
+                  <span className="font-normal text-gray-400">
+                    (upload or paste a URL)
+                  </span>
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={editing.headerImageUrl}
+                    onChange={(e) => set('headerImageUrl', e.target.value)}
+                    className={inputClass}
+                    placeholder="https://…"
+                  />
+                  <label
+                    className={`flex-none cursor-pointer rounded-lg border border-gray-300 px-2.5 py-1 text-[11px] text-gray-700 hover:bg-gray-50 ${
+                      uploading ? 'pointer-events-none opacity-50' : ''
+                    }`}
+                  >
+                    {uploading ? 'Uploading…' : 'Upload'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleUpload(file);
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
               <div>
                 <label className={labelClass}>

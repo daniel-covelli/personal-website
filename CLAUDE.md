@@ -1,5 +1,9 @@
 # Claude Code Project Guide
 
+## Package Manager
+
+**This repo uses pnpm** (`pnpm-lock.yaml` + `pnpm-workspace.yaml` are committed). Use `pnpm add` / `pnpm install`, not npm — `npm install` will not update the pnpm lockfile and can error out. Set `PUPPETEER_SKIP_DOWNLOAD=1` when installing to skip the flaky Chromium download.
+
 ## Database (Prisma)
 
 **Local dev connects directly to production.** No staging environment.
@@ -62,6 +66,6 @@ Long-form Markdown posts. Pages: `/articles` (index) and `/articles/[slug]`.
 | Code highlight theme | `.article-prose` rules in `app/globals.css` (light + dark) |
 | Admin CRUD | `components/admin/ArticlesEditor.tsx` + `app/api/articles/` (writes need admin session) |
 
-- **Images are URL-based** (no upload infra) — same pattern as `header.imageUrl`. `data:` URIs are stripped by react-markdown's sanitizer; use `https://`.
+- **Images are URL-based**, but header images can also be **uploaded**: the Writing tab's "Upload" button POSTs to `app/api/upload/route.ts` (admin-gated, Vercel Blob, needs `BLOB_READ_WRITE_TOKEN`) and drops the returned public URL into `headerImageUrl`. Body/inline images are still paste-a-URL (`header.imageUrl` follows the same paste pattern). `data:` URIs are stripped by react-markdown's sanitizer; use `https://`.
 - **Agent drill-down:** the chat carries a lightweight index of *published* articles in its system prompt (`buildSystemPrompt` in `lib/chat.ts`) and pulls a full body on demand via the `read_article` tool — a streaming tool-use loop in `app/api/chat/route.ts`. Drafts are never exposed to the chat or the public site.
 - On the home page, each published article can be assigned a **`placement`** (an `Article` column, set in the Writing tab of `/admin`; logic in `lib/field-notes.ts`): `banner` promotes it to the announcement bar under the nav (`components/sections/FeaturedBanner.tsx`, with optional `bannerTitle`/`bannerSubtitle` override copy), or an exact resume **company** renders it as cards under that experience (`components/sections/ExperienceFieldNotes.tsx` → `components/articles/FieldNoteCard.tsx`). Empty = home-page index only.
