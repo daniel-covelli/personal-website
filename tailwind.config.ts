@@ -84,6 +84,31 @@ const config: Config = {
         // Aurora: a soft, layered card lift (larger + gentler than shadow-sm).
         soft: '0 1px 2px rgb(20 30 50 / 0.05), 0 18px 36px -22px rgb(30 50 80 / 0.28)',
       },
+      fontFamily: {
+        // The "field data" face: Geist Mono (loaded in app/layout.tsx, exposed
+        // as --font-geist-mono). Used for logged metadata like the Field Notes
+        // ticker. Kept separate from `font-mono` so code blocks stay untouched.
+        data: [
+          'var(--font-geist-mono)',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'monospace',
+        ],
+      },
+      keyframes: {
+        // Field Notes marquee: the track holds two identical halves, so sliding
+        // it exactly -50% lands seamlessly back at the start.
+        'field-notes': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        // Lap time is set per-instance via the --fn-duration custom property so
+        // the glide speed stays constant as the number of notes changes.
+        'field-notes': 'field-notes var(--fn-duration, 42s) linear infinite',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

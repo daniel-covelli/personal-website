@@ -1,9 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
+import { getPublishedArticles } from '@/lib/articles';
 
 export const dynamic = 'force-dynamic';
 import Header from '@/components/sections/Header';
+import FieldNotes from '@/components/sections/FieldNotes';
 import Experience from '@/components/sections/Experience';
 import Education from '@/components/sections/Education';
 import Skills from '@/components/sections/Skills';
@@ -14,9 +16,10 @@ import ChatButton from '@/components/chat/ChatButton';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export default async function Home() {
-  const [content, session] = await Promise.all([
+  const [content, session, articles] = await Promise.all([
     getContent(),
     getServerSession(authOptions),
+    getPublishedArticles(),
   ]);
   const isAdmin = !!session;
 
@@ -25,6 +28,7 @@ export default async function Home() {
       <main>
         <Nav name={content.header.name} />
         <Header data={content.header} />
+        <FieldNotes data={articles} />
         <Experience data={content.experience} />
         <Education data={content.education} />
         <Skills data={content.skills} />
