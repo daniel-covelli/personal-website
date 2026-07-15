@@ -54,7 +54,9 @@ export default async function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    // zoom scales the entire admin (header, tabs, editors, live preview) down
+    // uniformly so more fits on screen; adjust the factor to taste.
+    <div className="min-h-screen bg-gray-50" style={{ zoom: 0.8 }}>
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5">
           <div>
