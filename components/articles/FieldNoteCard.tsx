@@ -20,15 +20,10 @@ interface FieldNoteCardProps {
 /**
  * Compact teaser for a "field note" shown under a work experience. Cover art is
  * desaturated and washed with the brand denim so a grid of otherwise-mismatched
- * stock shots still reads as one set. "Coming soon" notes swap the reading time
- * for a small status chip.
+ * stock shots still reads as one set. Meta shows the reading time and the note's
+ * own tags.
  */
 export default function FieldNoteCard({ article }: FieldNoteCardProps) {
-  const comingSoon = /coming soon/i.test(article.summary);
-  const summary = article.summary
-    .replace(/\s*\(coming soon\.?\)\s*/i, ' ')
-    .trim();
-
   return (
     <Link
       href={`/articles/${article.slug}`}
@@ -51,22 +46,28 @@ export default function FieldNoteCard({ article }: FieldNoteCardProps) {
             aria-hidden
             className="h-[6px] w-[6px] rotate-45 rounded-[1px] bg-brand/70"
           />
-          {comingSoon ? (
-            <span className="font-data text-[10px] font-medium uppercase leading-none tracking-[0.14em] text-brand">
-              Coming soon
-            </span>
-          ) : (
-            <span className="font-data text-[11px] leading-none tracking-[0.02em] text-subtle">
-              {readingTimeMinutes(article.body)} min read
-            </span>
-          )}
+          <span className="font-data text-[11px] leading-none tracking-[0.02em] text-subtle">
+            {readingTimeMinutes(article.body)} min read
+          </span>
         </div>
         <h4 className="text-sm font-bold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand">
           {article.title}
         </h4>
-        <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-body">
-          {summary}
+        <p className="mt-1.5 line-clamp-2 flex-1 text-[13px] leading-relaxed text-body">
+          {article.summary}
         </p>
+        {article.tags.length ? (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {article.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded bg-chip px-1.5 py-0.5 text-[11px] font-medium leading-none text-chip-fg"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </Link>
   );
