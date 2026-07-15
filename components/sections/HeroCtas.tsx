@@ -27,7 +27,7 @@ export default function HeroCtas() {
         >
           (@.@)
         </span>
-        chat with my agent
+        Chat with my agent
       </MovingBorderButton>
 
       <button
