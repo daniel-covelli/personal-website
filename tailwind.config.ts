@@ -96,19 +96,6 @@ const config: Config = {
           'monospace',
         ],
       },
-      keyframes: {
-        // Field Notes marquee: the track holds two identical halves, so sliding
-        // it exactly -50% lands seamlessly back at the start.
-        'field-notes': {
-          from: { transform: 'translateX(0)' },
-          to: { transform: 'translateX(-50%)' },
-        },
-      },
-      animation: {
-        // Lap time is set per-instance via the --fn-duration custom property so
-        // the glide speed stays constant as the number of notes changes.
-        'field-notes': 'field-notes var(--fn-duration, 42s) linear infinite',
-      },
     },
   },
   plugins: [require('tailwindcss-animate')],
