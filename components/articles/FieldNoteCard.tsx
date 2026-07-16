@@ -19,9 +19,8 @@ interface FieldNoteCardProps {
 
 /**
  * Compact teaser for a "field note" shown under a work experience. Cover art is
- * desaturated and washed with the brand denim so a grid of otherwise-mismatched
- * stock shots still reads as one set. Meta shows the reading time and the note's
- * own tags.
+ * shown at full color over a brand-denim gradient (which shows through any
+ * transparent/failed art). Meta shows the reading time and the note's own tags.
  */
 export default function FieldNoteCard({ article }: FieldNoteCardProps) {
   return (
@@ -32,12 +31,8 @@ export default function FieldNoteCard({ article }: FieldNoteCardProps) {
       <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-brand/30 to-brand/10">
         <div
           aria-hidden
-          className="absolute inset-0 bg-cover bg-center opacity-80 grayscale"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${coverUrl(article)})` }}
-        />
-        <span
-          aria-hidden
-          className="absolute inset-0 bg-brand/20 mix-blend-multiply"
         />
       </div>
       <div className="flex flex-1 flex-col p-3">
