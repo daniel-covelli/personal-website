@@ -79,11 +79,6 @@ export default function ArticleView({ article }: { article: ArticleViewData }) {
       </header>
 
       <ArticleMarkdown>{article.body}</ArticleMarkdown>
-
-      <div className="mt-16 rounded-lg border border-hair bg-panel p-5 text-sm text-subtle">
-        Want to go deeper on this piece? Tap the assistant in the corner — it
-        can pull up this article and talk through the details with you.
-      </div>
     </>
   );
 }
