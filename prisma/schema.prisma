@@ -165,3 +165,51 @@ model ChatConfig {
 
   @@map("chat_config")
 }
+
+// ============================================
+// First-party analytics (see lib/analytics.ts)
+// ============================================
+
+// One tracked pageview, written by POST /api/track (production only; see
+// lib/capture.ts). referrer/utm_source/user_agent are stored RAW: traffic-source
+// and bot classification happen at read time (lib/traffic-sources.ts) so those
+// lists can evolve and old rows reclassify for free. Deliberately anonymous —
+// no IP is ever stored; geo comes from Vercel's edge headers. session_id is the
+// same chat_session_id cookie the chat uses, which is what lets the admin
+// dashboard join a visitor's pageviews to their conversation. Never purged by
+// the cleanup cron: rows are small and per-day history should be unlimited.
+model PageView {
+  id        String   @id @default(cuid())
+  sessionId String   @map("session_id")
+  path      String
+  referrer  String   @default("")
+  utmSource String   @default("") @map("utm_source")
+  country   String   @default("")
+  region    String   @default("")
+  city      String   @default("")
+  device    String   @default("")
+  userAgent String   @default("") @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([sessionId])
+  @@map("page_views")
+}
+
+// Non-pageview visitor events — currently only 'resume_download', written by
+// /api/pdf. Generic type column so future events are additive data, not DDL.
+// Carries its own country/user_agent so a download-only session (someone
+// hitting /api/pdf from an emailed link) still renders a journey with
+// geo/device in the admin dashboard.
+model SiteEvent {
+  id        String   @id @default(cuid())
+  sessionId String   @map("session_id")
+  type      String
+  country   String   @default("")
+  userAgent String   @default("") @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([sessionId])
+  @@map("site_events")
+}
