@@ -3,7 +3,7 @@
 import { ArrowRight, Download } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { openChat } from '@/lib/chatLauncher';
-import { useBlinkingEyes } from '@/lib/useBlinkingEyes';
+import { useAgentFace } from '@/lib/useAgentFace';
 import { useResumeDownload } from '@/lib/useResumeDownload';
 
 /**
@@ -18,13 +18,14 @@ import { useResumeDownload } from '@/lib/useResumeDownload';
  */
 export default function HeroCtas() {
   const { download, isDownloading } = useResumeDownload();
-  const eyesClosed = useBlinkingEyes();
+  const { face, wink } = useAgentFace();
 
   return (
     <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4 md:justify-start">
       <button
         type="button"
         onClick={() => openChat({ expanded: true })}
+        onMouseEnter={wink}
         aria-label="Chat with Daniel's agent"
         className="group flex h-11 w-full max-w-sm rounded-2xl bg-[linear-gradient(125deg,#7c3aed_0%,#6366f1_55%,#4f46e5_100%)] p-0.5 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface dark:bg-[linear-gradient(125deg,#db2777_0%,#7c3aed_50%,#4f46e5_100%)] sm:w-auto sm:min-w-[340px]"
       >
@@ -33,7 +34,7 @@ export default function HeroCtas() {
             aria-hidden="true"
             className="select-none font-mono text-[15px] font-semibold leading-none tracking-tight text-ink"
           >
-            {eyesClosed ? '(-.-)' : '(@.@)'}
+            {face}
           </span>
           <span className="flex-1 text-[15px] text-subtle">
             Ask Daniel&apos;s agent…
