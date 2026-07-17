@@ -96,6 +96,36 @@ export async function addMessage(
   };
 }
 
+// Admin analytics: fetch a specific conversation transcript by id (the
+// session-scoped getters above only ever return the caller's own).
+export async function getConversationById(
+  id: string
+): Promise<ConversationWithMessages | null> {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id },
+    include: {
+      messages: {
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+  });
+
+  if (!conversation) return null;
+
+  return {
+    id: conversation.id,
+    sessionId: conversation.sessionId,
+    createdAt: conversation.createdAt,
+    updatedAt: conversation.updatedAt,
+    messages: conversation.messages.map((m) => ({
+      id: m.id,
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+      createdAt: m.createdAt,
+    })),
+  };
+}
+
 export async function deleteConversationBySessionId(
   sessionId: string
 ): Promise<boolean> {
