@@ -11,6 +11,7 @@ import ChatConfigEditor from './ChatConfigEditor';
 import ArticlesEditor from './ArticlesEditor';
 import AssetsManager from './AssetsManager';
 import PromptEditor from './PromptEditor';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 interface AdminTabsProps {
   content: ResumeContent;
@@ -30,6 +31,7 @@ interface AdminTabsProps {
 const TABS = [
   { id: 'resume', label: 'Resume' },
   { id: 'writing', label: 'Writing' },
+  { id: 'analytics', label: 'Analytics' },
   { id: 'assets', label: 'Assets' },
   { id: 'config', label: 'Config' },
 ] as const;
@@ -107,6 +109,9 @@ export default function AdminTabs({
       </div>
       <div className={activeTab === 'writing' ? '' : 'hidden'}>
         <ArticlesEditor initialArticles={articles} companies={companies} />
+      </div>
+      <div className={activeTab === 'analytics' ? '' : 'hidden'}>
+        <AnalyticsDashboard active={activeTab === 'analytics'} />
       </div>
       <div className={activeTab === 'assets' ? '' : 'hidden'}>
         <AssetsManager
