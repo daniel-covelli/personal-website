@@ -33,7 +33,7 @@ export function useAgentFace(): { face: string; wink: () => void } {
     lastWinkAt.current = Date.now();
     setWinking(true);
     clearTimeout(winkTimer.current);
-    winkTimer.current = setTimeout(() => setWinking(false), 400);
+    winkTimer.current = setTimeout(() => setWinking(false), 300);
   };
 
   const face = winking ? '(@.-)' : eyesClosed ? '(-.-)' : '(@.@)';
