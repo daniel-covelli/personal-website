@@ -69,3 +69,21 @@ Long-form Markdown posts. Pages: `/articles` (index) and `/articles/[slug]`.
 - **Images are URL-based**, but header images can also be **uploaded**: the Writing tab's "Upload" button POSTs to `app/api/upload/route.ts` (admin-gated, Vercel Blob, needs `BLOB_READ_WRITE_TOKEN`) and drops the returned public URL into `headerImageUrl`. Body/inline images are still paste-a-URL (`header.imageUrl` follows the same paste pattern). `data:` URIs are stripped by react-markdown's sanitizer; use `https://`.
 - **Agent drill-down:** the chat carries a lightweight index of *published* articles in its system prompt (`buildSystemPrompt` in `lib/chat.ts`) and pulls a full body on demand via the `read_article` tool — a streaming tool-use loop in `app/api/chat/route.ts`. Drafts are never exposed to the chat or the public site.
 - On the home page, each published article can be assigned a **`placement`** (an `Article` column, set in the Writing tab of `/admin`; logic in `lib/field-notes.ts`): `banner` promotes it to the announcement bar under the nav (`components/sections/FeaturedBanner.tsx`, with optional `bannerTitle`/`bannerSubtitle` override copy), or an exact resume **company** renders it as cards under that experience (`components/sections/ExperienceFieldNotes.tsx` → `components/articles/FieldNoteCard.tsx`). Empty = home-page index only.
+
+---
+
+## Analytics
+
+First-party, no external services. Viewed in the **Analytics tab of `/admin`**: per-day visitors, traffic sources (including LLM referrals: ChatGPT/Claude/Perplexity/…), visitor journeys, resume downloads, and chat transcripts.
+
+| Concern | Location |
+|---------|----------|
+| Capture | `components/AnalyticsBeacon.tsx` → `app/api/track/route.ts` (pageviews); `app/api/pdf/route.ts` records `resume_download` site events |
+| Policy | `lib/capture.ts` — records ONLY in production (`VERCEL_ENV`) and never for a logged-in admin. Dev/preview dry-run with `[track] (noop)` console logs. `ANALYTICS_FORCE=1` overrides — writes real prod rows (see `.env.example`) |
+| Classification | `lib/traffic-sources.ts` — read-time referrer/utm_source classification (`llm`/`search`/`social`/`referral`/`internal`/`direct`) + bot-UA heuristic. Add new LLM hostnames here; stored rows are raw, so history reclassifies automatically |
+| Queries | `lib/analytics.ts` (`getDayAnalytics`); admin-gated APIs under `app/api/analytics/` |
+| UI | `components/admin/AnalyticsDashboard.tsx` + `components/admin/TranscriptDialog.tsx` |
+
+- `page_views` / `site_events` are **never purged** (rows are anonymous — no IPs; geo from Vercel headers). Conversations keep their 30-day cron cleanup, so older journeys lose their transcripts but not their pageviews.
+- Visitors join to chat conversations via the shared `chat_session_id` cookie (`lib/session.ts`).
+- `/api/pdf` download responses are intentionally **not CDN-cached** — a cached response would bypass the function and undercount downloads. Only `?preview=1` (inline preview) keeps the CDN cache.
