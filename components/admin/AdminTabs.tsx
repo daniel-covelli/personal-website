@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ResumeContent, Article } from '@/lib/types';
 import {
   SYSTEM_PROMPT_VARIABLES,
@@ -14,6 +15,8 @@ import PromptEditor from './PromptEditor';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
 interface AdminTabsProps {
+  // Tab resolved server-side from the /admin/[[...tab]] URL segment.
+  initialTab: TabId;
   content: ResumeContent;
   chatModels: string[];
   articles: Article[];
@@ -36,9 +39,14 @@ const TABS = [
   { id: 'config', label: 'Config' },
 ] as const;
 
-type TabId = (typeof TABS)[number]['id'];
+export type TabId = (typeof TABS)[number]['id'];
+
+export function isTabId(value: string): value is TabId {
+  return TABS.some((t) => t.id === value);
+}
 
 export default function AdminTabs({
+  initialTab,
   content,
   chatModels,
   articles,
@@ -49,7 +57,8 @@ export default function AdminTabs({
   defaultGreetingPrompt,
   initialRenderedGreeting,
 }: AdminTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabId>('resume');
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const pathname = usePathname();
 
   // Companies from the resume become the "cards under …" placement targets for
   // articles (see the Writing tab's Home placement dropdown).
@@ -66,14 +75,33 @@ export default function AdminTabs({
     [articles]
   );
 
-  // Honor a #tab hash (e.g. /admin#writing from the "New article" link) after
-  // mount — set post-hydration to avoid an SSR/client markup mismatch.
+  // Tab switches update the URL via history.pushState (Next syncs usePathname)
+  // instead of router navigation, so every tab stays mounted and unsaved edits
+  // survive. This effect is the reverse direction: back/forward (or any router
+  // navigation to another /admin/<tab> URL) re-syncs the active tab.
+  useEffect(() => {
+    const segment = pathname.split('/')[2] ?? '';
+    if (isTabId(segment)) {
+      setActiveTab(segment);
+    } else if (pathname === '/admin') {
+      setActiveTab('resume');
+    }
+  }, [pathname]);
+
+  // Legacy #tab hash support (old /admin#writing links and bookmarks): upgrade
+  // the hash to its canonical route after mount.
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (TABS.some((t) => t.id === hash)) {
-      setActiveTab(hash as TabId);
+    if (isTabId(hash)) {
+      setActiveTab(hash);
+      window.history.replaceState(null, '', `/admin/${hash}`);
     }
   }, []);
+
+  const selectTab = (id: TabId) => {
+    setActiveTab(id);
+    window.history.pushState(null, '', `/admin/${id}`);
+  };
 
   return (
     <div>
@@ -89,7 +117,7 @@ export default function AdminTabs({
               key={tab.id}
               role="tab"
               aria-selected={active}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => selectTab(tab.id)}
               className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 active
                   ? 'border-blue-600 text-blue-600'

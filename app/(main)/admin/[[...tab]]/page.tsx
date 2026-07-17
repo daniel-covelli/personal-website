@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getContent } from '@/lib/content';
 import { getChatConfig } from '@/lib/chat-config';
@@ -9,16 +9,31 @@ import {
   DEFAULT_GREETING_PROMPT_TEMPLATE,
 } from '@/lib/chat-template';
 import { buildSystemPrompt, buildGreetingPrompt } from '@/lib/chat';
-import AdminTabs from '@/components/admin/AdminTabs';
-import LogoutButton from './LogoutButton';
+import AdminTabs, { isTabId, type TabId } from '@/components/admin/AdminTabs';
+import LogoutButton from '../LogoutButton';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPage() {
+interface AdminPageProps {
+  // Optional catch-all: /admin (resume tab) or /admin/<tab>.
+  params: { tab?: string[] };
+}
+
+export default async function AdminPage({ params }: AdminPageProps) {
+  const segments = params.tab ?? [];
+  if (segments.length > 1 || (segments.length === 1 && !isTabId(segments[0]))) {
+    notFound();
+  }
+  const initialTab: TabId = segments.length ? (segments[0] as TabId) : 'resume';
+
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/login?callbackUrl=/admin');
+    redirect(
+      `/login?callbackUrl=${encodeURIComponent(
+        segments.length ? `/admin/${initialTab}` : '/admin'
+      )}`
+    );
   }
 
   const [content, config, articles] = await Promise.all([
@@ -82,6 +97,7 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-[1800px] px-4 py-5">
         <AdminTabs
+          initialTab={initialTab}
           content={content}
           chatModels={config.models}
           articles={articles}
