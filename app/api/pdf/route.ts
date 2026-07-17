@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import puppeteerCore, { Browser } from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
+import { prisma } from '@/lib/db';
+import { getOrCreateSessionId } from '@/lib/session';
+import { captureDecision, geoFromRequest } from '@/lib/capture';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -58,7 +61,38 @@ export async function GET(request: Request) {
     // Check if this is a preview request (display inline) or download
     const isPreview = url.searchParams.get('preview') === '1';
 
-    // Return PDF
+    // Record the download for the admin analytics dashboard — server-side so
+    // both the site's download buttons and direct /api/pdf links are counted.
+    // Preview renders are not downloads. Only after successful generation, and
+    // never allowed to break the response (own try/catch).
+    if (!isPreview) {
+      try {
+        const decision = await captureDecision();
+        if (decision.record || decision.dryRun) {
+          const event = {
+            sessionId: await getOrCreateSessionId(),
+            type: 'resume_download',
+            country: geoFromRequest(request).country,
+            userAgent: (request.headers.get('user-agent') ?? '').slice(0, 400),
+          };
+          if (decision.dryRun) {
+            console.log(
+              `[track] (noop${decision.isAdmin ? ', would skip: admin session' : ''})`,
+              event
+            );
+          } else {
+            await prisma.siteEvent.create({ data: event });
+          }
+        }
+      } catch (trackError) {
+        console.error('Resume download tracking error:', trackError);
+      }
+    }
+
+    // Return PDF. Downloads are deliberately not CDN-cacheable: a cached
+    // response would be served without invoking this function, silently
+    // undercounting downloads (and Set-Cookie responses aren't cacheable
+    // anyway). Only the inline preview keeps the CDN cache.
     return new NextResponse(Buffer.from(pdf), {
       status: 200,
       headers: {
@@ -66,7 +100,9 @@ export async function GET(request: Request) {
         'Content-Disposition': isPreview
           ? 'inline'
           : 'attachment; filename="resume.pdf"',
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+        'Cache-Control': isPreview
+          ? 'public, s-maxage=3600, stale-while-revalidate=86400'
+          : 'private, no-store',
       },
     });
   } catch (error) {
