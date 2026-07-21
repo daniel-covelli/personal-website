@@ -163,7 +163,20 @@ export default function ChatModal({
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  // On mobile there is no docked/expanded duality — the chat is a single
+  // fullscreen view, so the fly-out-from-button geometry doesn't apply.
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 640
+  );
   const contentRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   const getInitialGreeting = useCallback(async () => {
     const assistantId = `assistant-${Date.now()}`;
@@ -260,25 +273,22 @@ export default function ChatModal({
   }, [getInitialGreeting]);
 
   useLayoutEffect(() => {
+    if (isMobile) {
+      // Fullscreen — just fade/slide in, no geometry to compute.
+      const raf = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setIsAnimating(false))
+      );
+      return () => cancelAnimationFrame(raf);
+    }
+
     if (!buttonElement) return;
 
     const buttonRect = buttonElement.getBoundingClientRect();
     const spacing = 16; // space between button and modal
-    const isMobile = window.innerWidth < 640;
 
-    // Calculate final position: above the button
-    let finalBottom: number;
-    let finalRight: number;
-
-    if (isMobile) {
-      // On mobile, position above button, centered horizontally with padding
-      finalBottom = window.innerHeight - buttonRect.top + spacing;
-      finalRight = 16; // p-4 = 16px padding
-    } else {
-      // On desktop, position above button aligned to right
-      finalBottom = window.innerHeight - buttonRect.top + spacing;
-      finalRight = window.innerWidth - buttonRect.right;
-    }
+    // Final position: above the button, aligned to its right edge
+    const finalBottom = window.innerHeight - buttonRect.top + spacing;
+    const finalRight = window.innerWidth - buttonRect.right;
 
     // Set initial position (at button location, centered on button)
     const initialBottom = window.innerHeight - buttonRect.bottom;
@@ -296,7 +306,7 @@ export default function ChatModal({
         setIsAnimating(false);
       });
     });
-  }, [buttonElement]);
+  }, [buttonElement, isMobile]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -387,11 +397,28 @@ export default function ChatModal({
         {/* Chat window */}
         <DialogPrimitive.Content
           ref={contentRef}
-          className={`fixed z-[70] flex flex-col overflow-hidden rounded-2xl border border-hair bg-panel shadow-soft outline-none transition-all [transition-duration:350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
-            isExpanded ? '' : 'h-[600px] max-h-[80vh] w-full max-w-md'
+          className={`fixed z-[70] flex flex-col overflow-hidden bg-panel outline-none transition-all [transition-duration:350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+            isMobile
+              ? ''
+              : `rounded-2xl border border-hair shadow-soft ${
+                  isExpanded ? '' : 'h-[600px] max-h-[80vh] w-full max-w-md'
+                }`
           }`}
           style={
-            isExpanded
+            isMobile
+              ? {
+                  // Single fullscreen view on mobile — covers the whole
+                  // viewport (dvh so the on-screen keyboard resizes it).
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: '100vw',
+                  height: '100dvh',
+                  transform: isAnimating ? 'translateY(16px)' : 'translateY(0)',
+                  opacity: isAnimating ? 0 : 1,
+                }
+              : isExpanded
               ? {
                   // Large centered panel floating over the blurred page. Kept off
                   // the edges (capped size + centered) so a margin of blurred
@@ -423,8 +450,9 @@ export default function ChatModal({
           }
           onEscapeKeyDown={(e) => {
             // When expanded, Escape collapses back to the docked panel instead
-            // of closing the whole chat.
-            if (isExpanded) {
+            // of closing the whole chat. On mobile there is no docked panel,
+            // so Escape closes.
+            if (isExpanded && !isMobile) {
               e.preventDefault();
               onExpandedChange(false);
             }
@@ -450,7 +478,7 @@ export default function ChatModal({
               {isAdmin && messages.length > 0 && (
                 <button
                   onClick={handleDeleteConversation}
-                  className="p-1 text-subtle transition-colors hover:text-red-500"
+                  className="hidden p-1 text-subtle transition-colors hover:text-red-500 sm:block"
                   aria-label="Delete conversation"
                   title="Delete conversation"
                 >
@@ -472,7 +500,7 @@ export default function ChatModal({
               )}
               <button
                 onClick={() => onExpandedChange(!isExpanded)}
-                className="p-1 text-subtle transition-colors hover:text-ink"
+                className="hidden p-1 text-subtle transition-colors hover:text-ink sm:block"
                 aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
                 title={isExpanded ? 'Collapse' : 'Expand'}
               >
