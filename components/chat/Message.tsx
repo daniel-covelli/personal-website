@@ -38,7 +38,7 @@ export default function Message({ message, isExpanded = false }: MessageProps) {
           {isExpanded && (
             <span
               aria-hidden="true"
-              className="absolute right-full top-1 mr-2.5 flex h-8 w-8 select-none items-center justify-center rounded-full bg-[linear-gradient(125deg,#7c3aed_0%,#6366f1_55%,#4f46e5_100%)] font-mono text-[10px] font-semibold leading-none tracking-tight text-white shadow-sm dark:bg-[linear-gradient(125deg,#db2777_0%,#7c3aed_50%,#4f46e5_100%)]"
+              className="absolute right-full top-1 mr-2.5 hidden h-8 w-8 select-none items-center justify-center rounded-full bg-[linear-gradient(125deg,#7c3aed_0%,#6366f1_55%,#4f46e5_100%)] font-mono text-[10px] font-semibold leading-none tracking-tight text-white shadow-sm dark:bg-[linear-gradient(125deg,#db2777_0%,#7c3aed_50%,#4f46e5_100%)] lg:flex"
               style={{ textShadow: '0 1px 2px rgba(0,0,0,0.28)' }}
             >
               (@.@)
