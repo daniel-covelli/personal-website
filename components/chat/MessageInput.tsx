@@ -52,7 +52,7 @@ export default function MessageInput({
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             rows={1}
-            className="min-h-[36px] flex-1 resize-none overflow-hidden rounded-xl border border-hair bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-subtle focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-[36px] flex-1 resize-none overflow-hidden rounded-xl border border-hair bg-surface px-4 py-1.5 text-base text-ink placeholder:text-subtle focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
             disabled={isLoading || disabled}
           />
           <button
