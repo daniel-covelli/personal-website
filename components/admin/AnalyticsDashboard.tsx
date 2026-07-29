@@ -74,13 +74,13 @@ function Trail({ journey }: { journey: Journey }) {
     <div className="flex flex-wrap items-center gap-1">
       {journey.timeline.map((item, i) => (
         <span key={i} className="flex items-center gap-1">
-          {i > 0 && <span className="text-[10px] text-gray-300">→</span>}
+          {i > 0 && <span className="text-[10px] text-subtle">→</span>}
           {item.kind === 'pageview' ? (
-            <span className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[11px] text-gray-700">
+            <span className="rounded bg-chip px-1.5 py-0.5 font-mono text-[11px] text-body">
               {item.path}
             </span>
           ) : (
-            <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700">
+            <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
               ↓ Downloaded resume
             </span>
           )}
@@ -103,13 +103,13 @@ function Stat({
 }) {
   return (
     <div className="px-4 py-3">
-      <div className="text-[11px] text-gray-500">{label}</div>
+      <div className="text-[11px] text-subtle">{label}</div>
       <div
-        className={`text-2xl font-semibold ${accent ? 'text-purple-700' : 'text-gray-900'}`}
+        className={`text-2xl font-semibold ${accent ? 'text-purple-700 dark:text-purple-300' : 'text-ink'}`}
       >
         {value}
         {aside && (
-          <span className="ml-1.5 text-[11px] font-normal text-gray-400">
+          <span className="ml-1.5 text-[11px] font-normal text-subtle">
             {aside}
           </span>
         )}
@@ -126,12 +126,12 @@ function TopList({
   rows: { key: React.ReactNode; count: number }[];
 }) {
   return (
-    <div className="rounded-lg border border-gray-100 bg-white shadow-sm">
-      <div className="px-3 pb-1 pt-3 text-xs font-semibold text-gray-700">
+    <div className="rounded-lg border border-hair bg-panel shadow-sm">
+      <div className="px-3 pb-1 pt-3 text-xs font-semibold text-body">
         {title}
       </div>
       {rows.length === 0 ? (
-        <p className="px-3 pb-3 text-xs text-gray-400">—</p>
+        <p className="px-3 pb-3 text-xs text-subtle">—</p>
       ) : (
         <ul className="pb-2">
           {rows.map((row, i) => (
@@ -139,8 +139,8 @@ function TopList({
               key={i}
               className="flex items-center justify-between gap-2 px-3 py-1.5 text-xs"
             >
-              <span className="min-w-0 truncate text-gray-700">{row.key}</span>
-              <span className="text-gray-500 [font-variant-numeric:tabular-nums]">
+              <span className="min-w-0 truncate text-body">{row.key}</span>
+              <span className="text-subtle [font-variant-numeric:tabular-nums]">
                 {row.count}
               </span>
             </li>
@@ -217,18 +217,18 @@ export default function AnalyticsDashboard({
       <div className="flex flex-wrap items-center gap-2.5">
         <button
           onClick={() => setDay((d) => addDays(d, -1))}
-          className="h-8 w-8 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50"
+          className="h-8 w-8 rounded-lg border border-hair bg-panel text-sm text-body hover:bg-surface"
           aria-label="Previous day"
         >
           ←
         </button>
-        <span className="text-sm font-semibold text-gray-900">
+        <span className="text-sm font-semibold text-ink">
           {dayLabel(day)}
         </span>
         <button
           onClick={() => setDay((d) => addDays(d, 1))}
           disabled={isToday(day)}
-          className="h-8 w-8 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-300 disabled:hover:bg-white"
+          className="h-8 w-8 rounded-lg border border-hair bg-panel text-sm text-body hover:bg-surface disabled:cursor-default disabled:text-subtle disabled:hover:bg-panel"
           aria-label="Next day"
         >
           →
@@ -238,21 +238,21 @@ export default function AnalyticsDashboard({
           value={dayKey(day)}
           max={dayKey(startOfToday())}
           onChange={(e) => onDateInput(e.target.value)}
-          className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600"
+          className="rounded-lg border border-hair bg-panel px-2 py-1 text-xs text-ink"
         />
         {!isToday(day) && (
           <button
             onClick={() => setDay(startOfToday())}
-            className="px-1.5 py-1 text-xs text-blue-600 hover:underline"
+            className="px-1.5 py-1 text-xs text-brand hover:underline"
           >
             Today
           </button>
         )}
-        {loading && <Spinner className="h-4 w-4 text-gray-400" />}
+        {loading && <Spinner className="h-4 w-4 text-subtle" />}
       </div>
 
       {error && (
-        <div className="mt-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
           {error}{' '}
           <button
             onClick={() => void load(day)}
@@ -266,8 +266,8 @@ export default function AnalyticsDashboard({
       {summary && (
         <>
           {/* Stat strip */}
-          <section className="mt-4 rounded-lg border border-gray-100 bg-white shadow-sm">
-            <div className="grid grid-cols-2 divide-x divide-gray-100 sm:grid-cols-3 lg:grid-cols-6">
+          <section className="mt-4 rounded-lg border border-hair bg-panel shadow-sm">
+            <div className="grid grid-cols-2 divide-x divide-hair sm:grid-cols-3 lg:grid-cols-6">
               <Stat label="Pageviews" value={summary.pageviews} />
               <Stat label="Visitors" value={summary.uniqueSessions} />
               <Stat label="LLM referrals" value={summary.llmSessions} accent />
@@ -286,15 +286,15 @@ export default function AnalyticsDashboard({
           </section>
 
           {/* Journeys: one row per visitor */}
-          <section className="mt-4 overflow-x-auto rounded-lg border border-gray-100 bg-white shadow-sm">
+          <section className="mt-4 overflow-x-auto rounded-lg border border-hair bg-panel shadow-sm">
             {data.journeys.length === 0 ? (
-              <p className="py-10 text-center text-sm text-gray-400">
+              <p className="py-10 text-center text-sm text-subtle">
                 No visits recorded on {dayLabel(day)}.
               </p>
             ) : (
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-[10px] uppercase tracking-wide text-gray-500">
+                  <tr className="bg-surface text-[10px] uppercase tracking-wide text-subtle">
                     <th className="px-3 py-2 font-medium">Time</th>
                     <th className="px-3 py-2 font-medium">Visitor</th>
                     <th className="px-3 py-2 font-medium">Source</th>
@@ -309,16 +309,16 @@ export default function AnalyticsDashboard({
                     return (
                       <tr
                         key={j.sessionId}
-                        className="border-b border-gray-100 align-top last:border-b-0 hover:bg-gray-50"
+                        className="border-b border-hair align-top last:border-b-0 hover:bg-surface"
                       >
-                        <td className="whitespace-nowrap px-3 py-2.5 text-xs text-gray-500 [font-variant-numeric:tabular-nums]">
+                        <td className="whitespace-nowrap px-3 py-2.5 text-xs text-subtle [font-variant-numeric:tabular-nums]">
                           {fmtTime(j.firstSeenAt)}
                         </td>
                         <td className="px-3 py-2.5">
-                          <div className="text-[13px] font-medium text-gray-900">
+                          <div className="text-[13px] font-medium text-ink">
                             {location}
                           </div>
-                          <div className="text-[11px] text-gray-400">
+                          <div className="text-[11px] text-subtle">
                             {j.device}
                           </div>
                         </td>
@@ -326,7 +326,7 @@ export default function AnalyticsDashboard({
                           <div className="flex flex-wrap gap-1">
                             <SourcePill source={j.source} />
                             {j.botLike && (
-                              <span className="inline-flex whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+                              <span className="inline-flex whitespace-nowrap rounded-full bg-chip px-2 py-0.5 text-[10px] font-medium text-body">
                                 Likely bot
                               </span>
                             )}
@@ -345,12 +345,12 @@ export default function AnalyticsDashboard({
                                     context: `${location} · ${fmtTime(j.firstSeenAt)} · ${j.conversation!.messageCount} messages`,
                                   })
                                 }
-                                className="inline-flex whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 hover:bg-blue-200"
+                                className="inline-flex whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:bg-blue-900/60"
                               >
                                 Chatted · {j.conversation.messageCount} msgs
                               </button>
                             ) : (
-                              <span className="inline-flex whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                              <span className="inline-flex whitespace-nowrap rounded-full bg-chip px-2 py-0.5 text-[10px] font-medium text-subtle">
                                 Opened chat
                               </span>
                             ))}
@@ -401,7 +401,7 @@ export default function AnalyticsDashboard({
             />
           </div>
 
-          <p className="mt-4 text-[11px] text-gray-400">
+          <p className="mt-4 text-[11px] text-subtle">
             Chat transcripts and chat stats are retained for 30 days. Pageviews
             and downloads are kept forever. Your own logged-in visits are never
             counted.
@@ -410,7 +410,7 @@ export default function AnalyticsDashboard({
       )}
 
       {!summary && !error && !loading && (
-        <p className="mt-8 text-sm text-gray-400">
+        <p className="mt-8 text-sm text-subtle">
           Open this tab to load analytics.
         </p>
       )}

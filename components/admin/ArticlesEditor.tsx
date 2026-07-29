@@ -121,8 +121,8 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1 text-[11px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500';
-const labelClass = 'mb-0.5 block text-[10px] font-medium text-gray-700';
+  'w-full rounded-lg border border-hair bg-panel px-2.5 py-1 text-[11px] text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand';
+const labelClass = 'mb-0.5 block text-[10px] font-medium text-body';
 
 export default function ArticlesEditor({
   initialArticles,
@@ -216,16 +216,16 @@ export default function ArticlesEditor({
     <section id="articles" className="mt-6">
       <div className="mb-3 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Articles</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-base font-semibold text-ink">Articles</h2>
+          <p className="text-xs text-subtle">
             Markdown posts with code, images, and{' '}
-            <code className="rounded bg-gray-100 px-1">```mermaid</code>{' '}
+            <code className="rounded bg-chip px-1">```mermaid</code>{' '}
             diagrams. The assistant can read published articles on request.
           </p>
         </div>
         <button
           onClick={() => setEditing(emptyState())}
-          className="flex-none rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700"
+          className="flex-none rounded-lg bg-brand-solid px-3 py-1.5 text-xs text-white hover:bg-brand-solid-hover"
         >
           New article
         </button>
@@ -235,9 +235,9 @@ export default function ArticlesEditor({
           while spending vertical, not horizontal, space — so the edit/preview
           split below gets the full width. */}
       {(articles.length > 0 || isNew) && (
-        <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
+        <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-hair pb-3">
           {isNew && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-2.5 py-1 text-xs font-medium text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-solid px-2.5 py-1 text-xs font-medium text-white">
               <span className="max-w-[14rem] truncate">
                 {editing.title.trim() || 'Untitled'}
               </span>
@@ -256,15 +256,15 @@ export default function ArticlesEditor({
                 onClick={() => setEditing(articleToState(a))}
                 className={`inline-flex max-w-[16rem] items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors ${
                   active
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-brand-solid text-white'
+                    : 'bg-chip text-body hover:bg-hair'
                 }`}
               >
                 <span className="truncate">{a.title || 'Untitled'}</span>
                 {!a.published ? (
                   <span
                     className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${
-                      active ? 'bg-white/20' : 'bg-gray-200 text-gray-600'
+                      active ? 'bg-white/20' : 'bg-hair text-body'
                     }`}
                   >
                     Draft
@@ -277,7 +277,7 @@ export default function ArticlesEditor({
       )}
 
       {!editing ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-xs text-gray-500">
+        <div className="rounded-lg border border-dashed border-hair p-8 text-center text-xs text-subtle">
           {articles.length
             ? 'Select an article above, or create a new one.'
             : 'No articles yet — create your first one.'}
@@ -300,7 +300,7 @@ export default function ArticlesEditor({
             <div>
               <label className={labelClass}>
                 Slug{' '}
-                <span className="font-normal text-gray-400">
+                <span className="font-normal text-subtle">
                   (URL: /articles/{derivedSlug || 'your-slug'})
                 </span>
               </label>
@@ -316,7 +316,7 @@ export default function ArticlesEditor({
             <div>
               <label className={labelClass}>
                 Summary{' '}
-                <span className="font-normal text-gray-400">
+                <span className="font-normal text-subtle">
                   (shown on cards + given to the assistant)
                 </span>
               </label>
@@ -332,7 +332,7 @@ export default function ArticlesEditor({
               <div>
                 <label className={labelClass}>
                   Header image{' '}
-                  <span className="font-normal text-gray-400">
+                  <span className="font-normal text-subtle">
                     (paste a URL — upload in the Assets tab)
                   </span>
                 </label>
@@ -347,7 +347,7 @@ export default function ArticlesEditor({
               <div>
                 <label className={labelClass}>
                   Tags{' '}
-                  <span className="font-normal text-gray-400">
+                  <span className="font-normal text-subtle">
                     (comma-separated)
                   </span>
                 </label>
@@ -364,7 +364,7 @@ export default function ArticlesEditor({
             <div>
               <label className={labelClass}>
                 Home placement{' '}
-                <span className="font-normal text-gray-400">
+                <span className="font-normal text-subtle">
                   (where it shows on the home page)
                 </span>
               </label>
@@ -395,7 +395,7 @@ export default function ArticlesEditor({
                 <div>
                   <label className={labelClass}>
                     Banner title{' '}
-                    <span className="font-normal text-gray-400">
+                    <span className="font-normal text-subtle">
                       (defaults to the article title)
                     </span>
                   </label>
@@ -410,7 +410,7 @@ export default function ArticlesEditor({
                 <div>
                   <label className={labelClass}>
                     Banner subtitle{' '}
-                    <span className="font-normal text-gray-400">
+                    <span className="font-normal text-subtle">
                       (small kicker, optional)
                     </span>
                   </label>
@@ -426,7 +426,7 @@ export default function ArticlesEditor({
             ) : null}
 
             <div className="flex flex-wrap items-center gap-4">
-              <label className="flex items-center gap-2 text-[10px] text-gray-700">
+              <label className="flex items-center gap-2 text-[10px] text-body">
                 <input
                   type="checkbox"
                   checked={editing.published}
@@ -436,14 +436,14 @@ export default function ArticlesEditor({
                 Published
               </label>
               <div className="flex items-center gap-2">
-                <label className="text-[10px] text-gray-700">
+                <label className="text-[10px] text-body">
                   Publish date
                 </label>
                 <input
                   type="date"
                   value={editing.publishedAt}
                   onChange={(e) => set('publishedAt', e.target.value)}
-                  className="rounded-lg border border-gray-300 px-2.5 py-1 text-[11px] text-gray-900"
+                  className="rounded-lg border border-hair bg-panel px-2.5 py-1 text-[11px] text-ink"
                 />
               </div>
             </div>
@@ -451,7 +451,7 @@ export default function ArticlesEditor({
             <div>
               <label className={labelClass}>
                 Body{' '}
-                <span className="font-normal text-gray-400">
+                <span className="font-normal text-subtle">
                   (Markdown — code, images, and ```mermaid diagrams)
                 </span>
               </label>
@@ -459,24 +459,24 @@ export default function ArticlesEditor({
                 value={editing.body}
                 onChange={(e) => set('body', e.target.value)}
                 rows={16}
-                className="min-h-[90vh] w-full resize-y rounded-lg border border-gray-300 px-2.5 py-1.5 font-mono text-[11px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="min-h-[90vh] w-full resize-y rounded-lg border border-hair bg-panel px-2.5 py-1.5 font-mono text-[11px] leading-relaxed text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand"
                 placeholder={
                   '# Heading\n\nProse, **bold**, `code`.\n\n```ts\nconst x = 1;\n```\n\n```mermaid\nflowchart LR\n  A --> B\n```\n\n![caption](https://image-url)'
                 }
               />
             </div>
 
-            <div className="flex items-center gap-3 border-t border-gray-200 pt-3">
+            <div className="flex items-center gap-3 border-t border-hair pt-3">
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-lg bg-brand-solid px-4 py-1.5 text-xs text-white hover:bg-brand-solid-hover disabled:opacity-50"
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
               <button
                 onClick={handleDelete}
-                className="text-[10px] text-red-600 hover:text-red-700"
+                className="text-[10px] text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
               >
                 {editing.id ? 'Delete' : 'Discard'}
               </button>
@@ -484,8 +484,8 @@ export default function ArticlesEditor({
                 <span
                   className={`text-[10px] ${
                     message === 'Saved' || message === 'Deleted'
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
                   }`}
                 >
                   {message}
@@ -500,7 +500,7 @@ export default function ArticlesEditor({
           <div className="min-w-0">
             <div className="lg:sticky lg:top-4">
               <div className="mb-1.5 flex items-center justify-between px-0.5">
-                <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                <span className="text-xs font-medium uppercase tracking-wide text-subtle">
                   Live preview
                 </span>
                 {editing.id ? (
@@ -508,13 +508,13 @@ export default function ArticlesEditor({
                     href={`/articles/${editing.slug || derivedSlug}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-brand hover:underline"
                   >
                     Open page ↗
                   </a>
                 ) : null}
               </div>
-              <div className="rounded-xl border border-gray-200 bg-surface px-4 py-4 shadow-sm lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
+              <div className="rounded-xl border border-hair bg-surface px-4 py-4 shadow-sm lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
                 {/* zoom shows more of the (faithful) article at once; tweak or
                     drop for a 1:1 preview */}
                 <div className="mx-auto max-w-3xl" style={{ zoom: 0.85 }}>

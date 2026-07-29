@@ -401,8 +401,8 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                 onClick={() => setActiveSection(section)}
                 className={`w-full whitespace-nowrap rounded-lg px-4 py-2 text-left capitalize transition-colors ${
                   activeSection === section
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-brand-solid text-white'
+                    : 'bg-chip text-body hover:bg-hair'
                 }`}
               >
                 {section}
@@ -413,52 +413,52 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
       </nav>
 
       {/* Content Area */}
-      <div className="flex-1 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="flex-1 rounded-lg border border-hair bg-panel p-6 shadow-sm">
         {activeSection === 'header' && (
           <div className="space-y-4">
             <h3 className="mb-4 text-lg font-semibold">Header / Bio</h3>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Name
               </label>
               <input
                 type="text"
                 value={content.header.name}
                 onChange={(e) => updateHeader('name', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2 focus:ring-2 focus:ring-brand"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Title
               </label>
               <input
                 type="text"
                 value={content.header.title}
                 onChange={(e) => updateHeader('title', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2 focus:ring-2 focus:ring-brand"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Bio
               </label>
               <textarea
                 value={content.header.bio}
                 onChange={(e) => updateHeader('bio', e.target.value)}
                 rows={4}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2 focus:ring-2 focus:ring-brand"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Profile Image URL
               </label>
               <input
                 type="text"
                 value={content.header.imageUrl}
                 onChange={(e) => updateHeader('imageUrl', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2 focus:ring-2 focus:ring-brand"
                 placeholder="https://example.com/image.jpg"
               />
             </div>
@@ -471,7 +471,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
               <h3 className="text-lg font-semibold">Experience</h3>
               <button
                 onClick={addExperience}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                className="rounded-lg bg-brand-solid px-4 py-2 text-sm text-white hover:bg-brand-solid-hover"
               >
                 Add Experience
               </button>
@@ -479,18 +479,18 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
             {content.experience.map((exp, index) => (
               <div
                 key={exp.id}
-                className="space-y-3 rounded-lg border border-gray-200 p-4"
+                className="space-y-3 rounded-lg border border-hair p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-subtle">
                       Experience {index + 1}
                     </span>
                     <div className="flex gap-1">
                       <button
                         onClick={() => moveExperience(index, 'up')}
                         disabled={index === 0}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move up"
                       >
                         ↑
@@ -498,7 +498,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveExperience(index, 'down')}
                         disabled={index === content.experience.length - 1}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move down"
                       >
                         ↓
@@ -507,7 +507,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   </div>
                   <button
                     onClick={() => removeExperience(index)}
-                    className="text-sm text-red-600 hover:text-red-700"
+                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Remove
                   </button>
@@ -519,7 +519,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   onChange={(e) =>
                     updateExperience(index, 'jobTitle', e.target.value)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <input
                   type="text"
@@ -528,7 +528,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   onChange={(e) =>
                     updateExperience(index, 'company', e.target.value)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <input
@@ -538,7 +538,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     onChange={(e) =>
                       updateExperience(index, 'startDate', e.target.value)
                     }
-                    className="rounded-lg border border-gray-300 px-3 py-2"
+                    className="rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                   />
                   <input
                     type="text"
@@ -547,7 +547,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     onChange={(e) =>
                       updateExperience(index, 'endDate', e.target.value)
                     }
-                    className="rounded-lg border border-gray-300 px-3 py-2"
+                    className="rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                   />
                 </div>
                 <textarea
@@ -557,10 +557,10 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     updateExperience(index, 'description', e.target.value)
                   }
                   rows={2}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-body">
                     Bullet Points
                   </label>
                   {(exp.bullets || []).map((bullet, bulletIndex) => (
@@ -576,7 +576,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           )
                         }
                         rows={2}
-                        className="flex-1 resize-y rounded-lg border border-gray-300 px-3 py-2"
+                        className="flex-1 resize-y rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                       />
                       <div className="flex flex-col gap-1 self-start">
                         <button
@@ -584,7 +584,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                             moveExperienceBullet(index, bulletIndex, 'up')
                           }
                           disabled={bulletIndex === 0}
-                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                           title="Move up"
                         >
                           ↑
@@ -596,7 +596,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           disabled={
                             bulletIndex === (exp.bullets || []).length - 1
                           }
-                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                           title="Move down"
                         >
                           ↓
@@ -605,7 +605,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           onClick={() =>
                             removeExperienceBullet(index, bulletIndex)
                           }
-                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
                           title="Remove"
                         >
                           ×
@@ -615,7 +615,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   ))}
                   <button
                     onClick={() => addExperienceBullet(index)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm text-brand hover:text-brand-strong"
                   >
                     + Add bullet
                   </button>
@@ -631,7 +631,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
               <h3 className="text-lg font-semibold">Education</h3>
               <button
                 onClick={addEducation}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                className="rounded-lg bg-brand-solid px-4 py-2 text-sm text-white hover:bg-brand-solid-hover"
               >
                 Add Education
               </button>
@@ -639,15 +639,15 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
             {content.education.map((edu, index) => (
               <div
                 key={edu.id}
-                className="space-y-3 rounded-lg border border-gray-200 p-4"
+                className="space-y-3 rounded-lg border border-hair p-4"
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-subtle">
                     Education {index + 1}
                   </span>
                   <button
                     onClick={() => removeEducation(index)}
-                    className="text-sm text-red-600 hover:text-red-700"
+                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Remove
                   </button>
@@ -659,7 +659,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   onChange={(e) =>
                     updateEducation(index, 'degree', e.target.value)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <input
                   type="text"
@@ -668,7 +668,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   onChange={(e) =>
                     updateEducation(index, 'institution', e.target.value)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <input
@@ -678,7 +678,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     onChange={(e) =>
                       updateEducation(index, 'startDate', e.target.value)
                     }
-                    className="rounded-lg border border-gray-300 px-3 py-2"
+                    className="rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                   />
                   <input
                     type="text"
@@ -687,7 +687,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     onChange={(e) =>
                       updateEducation(index, 'endDate', e.target.value)
                     }
-                    className="rounded-lg border border-gray-300 px-3 py-2"
+                    className="rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                   />
                 </div>
                 <textarea
@@ -697,10 +697,10 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     updateEducation(index, 'description', e.target.value)
                   }
                   rows={2}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-body">
                     Bullet Points
                   </label>
                   {(edu.bullets || []).map((bullet, bulletIndex) => (
@@ -716,7 +716,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           )
                         }
                         rows={2}
-                        className="flex-1 resize-y rounded-lg border border-gray-300 px-3 py-2"
+                        className="flex-1 resize-y rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                       />
                       <div className="flex flex-col gap-1 self-start">
                         <button
@@ -724,7 +724,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                             moveEducationBullet(index, bulletIndex, 'up')
                           }
                           disabled={bulletIndex === 0}
-                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                           title="Move up"
                         >
                           ↑
@@ -736,7 +736,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           disabled={
                             bulletIndex === (edu.bullets || []).length - 1
                           }
-                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                           title="Move down"
                         >
                           ↓
@@ -745,7 +745,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           onClick={() =>
                             removeEducationBullet(index, bulletIndex)
                           }
-                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
                           title="Remove"
                         >
                           ×
@@ -755,7 +755,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   ))}
                   <button
                     onClick={() => addEducationBullet(index)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm text-brand hover:text-brand-strong"
                   >
                     + Add bullet
                   </button>
@@ -771,7 +771,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
               <h3 className="text-lg font-semibold">Skills</h3>
               <button
                 onClick={addSkillCategory}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                className="rounded-lg bg-brand-solid px-4 py-2 text-sm text-white hover:bg-brand-solid-hover"
               >
                 Add Category
               </button>
@@ -779,18 +779,18 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
             {content.skills.categories.map((category, index) => (
               <div
                 key={category.id}
-                className="space-y-3 rounded-lg border border-gray-200 p-4"
+                className="space-y-3 rounded-lg border border-hair p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-subtle">
                       Category {index + 1}
                     </span>
                     <div className="flex gap-1">
                       <button
                         onClick={() => moveSkillCategory(index, 'up')}
                         disabled={index === 0}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move up"
                       >
                         ↑
@@ -800,7 +800,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                         disabled={
                           index === content.skills.categories.length - 1
                         }
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move down"
                       >
                         ↓
@@ -809,7 +809,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   </div>
                   <button
                     onClick={() => removeSkillCategory(index)}
-                    className="text-sm text-red-600 hover:text-red-700"
+                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Remove
                   </button>
@@ -821,10 +821,10 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   onChange={(e) =>
                     updateSkillCategory(index, 'name', e.target.value)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-body">
                     Skills
                   </label>
                   {(category.items || []).map((item, itemIndex) => (
@@ -836,11 +836,11 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                         onChange={(e) =>
                           updateSkillItem(index, itemIndex, e.target.value)
                         }
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
+                        className="flex-1 rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                       />
                       <button
                         onClick={() => removeSkillItem(index, itemIndex)}
-                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
                       >
                         ×
                       </button>
@@ -848,7 +848,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   ))}
                   <button
                     onClick={() => addSkillItem(index)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm text-brand hover:text-brand-strong"
                   >
                     + Add skill
                   </button>
@@ -864,7 +864,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
               <h3 className="text-lg font-semibold">Projects</h3>
               <button
                 onClick={addProject}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                className="rounded-lg bg-brand-solid px-4 py-2 text-sm text-white hover:bg-brand-solid-hover"
               >
                 Add Project
               </button>
@@ -872,18 +872,18 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
             {content.projects.map((project, index) => (
               <div
                 key={project.id}
-                className="space-y-3 rounded-lg border border-gray-200 p-4"
+                className="space-y-3 rounded-lg border border-hair p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-subtle">
                       Project {index + 1}
                     </span>
                     <div className="flex gap-1">
                       <button
                         onClick={() => moveProject(index, 'up')}
                         disabled={index === 0}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move up"
                       >
                         ↑
@@ -891,7 +891,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       <button
                         onClick={() => moveProject(index, 'down')}
                         disabled={index === content.projects.length - 1}
-                        className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                         title="Move down"
                       >
                         ↓
@@ -900,7 +900,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   </div>
                   <button
                     onClick={() => removeProject(index)}
-                    className="text-sm text-red-600 hover:text-red-700"
+                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Remove
                   </button>
@@ -910,7 +910,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   placeholder="Project Name"
                   value={project.name}
                   onChange={(e) => updateProject(index, 'name', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <textarea
                   placeholder="Description (optional paragraph above bullets)"
@@ -919,10 +919,10 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                     updateProject(index, 'description', e.target.value)
                   }
                   rows={2}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-body">
                     Bullet Points
                   </label>
                   {(project.bullets || []).map((bullet, bulletIndex) => (
@@ -938,7 +938,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           )
                         }
                         rows={2}
-                        className="flex-1 resize-y rounded-lg border border-gray-300 px-3 py-2"
+                        className="flex-1 resize-y rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                       />
                       <div className="flex flex-col gap-1 self-start">
                         <button
@@ -946,7 +946,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                             moveProjectBullet(index, bulletIndex, 'up')
                           }
                           disabled={bulletIndex === 0}
-                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                           title="Move up"
                         >
                           ↑
@@ -958,7 +958,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           disabled={
                             bulletIndex === (project.bullets || []).length - 1
                           }
-                          className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="rounded px-2 py-1 text-body hover:bg-chip disabled:cursor-not-allowed disabled:opacity-30"
                           title="Move down"
                         >
                           ↓
@@ -967,7 +967,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                           onClick={() =>
                             removeProjectBullet(index, bulletIndex)
                           }
-                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          className="rounded px-2 py-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
                           title="Remove"
                         >
                           ×
@@ -977,7 +977,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                   ))}
                   <button
                     onClick={() => addProjectBullet(index)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm text-brand hover:text-brand-strong"
                   >
                     + Add bullet
                   </button>
@@ -992,7 +992,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       github: e.target.value,
                     })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
                 <input
                   type="text"
@@ -1004,7 +1004,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                       live: e.target.value,
                     })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                  className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
                 />
               </div>
             ))}
@@ -1015,7 +1015,7 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
           <div className="space-y-4">
             <h3 className="mb-4 text-lg font-semibold">Contact Information</h3>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Phone
               </label>
               <input
@@ -1023,11 +1023,11 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                 value={content.contact.phone}
                 onChange={(e) => updateContact('phone', e.target.value)}
                 placeholder="555-123-4567"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Location (City, State)
               </label>
               <input
@@ -1035,74 +1035,74 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
                 value={content.contact.location}
                 onChange={(e) => updateContact('location', e.target.value)}
                 placeholder="San Francisco, CA"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Email
               </label>
               <input
                 type="email"
                 value={content.contact.email}
                 onChange={(e) => updateContact('email', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 LinkedIn URL
               </label>
               <input
                 type="text"
                 value={content.contact.linkedin}
                 onChange={(e) => updateContact('linkedin', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 GitHub URL
               </label>
               <input
                 type="text"
                 value={content.contact.github}
                 onChange={(e) => updateContact('github', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Twitter URL
               </label>
               <input
                 type="text"
                 value={content.contact.twitter}
                 onChange={(e) => updateContact('twitter', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-body">
                 Personal Website
               </label>
               <input
                 type="text"
                 value={content.contact.website}
                 onChange={(e) => updateContact('website', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                className="w-full rounded-lg border border-hair bg-panel text-ink placeholder:text-subtle px-3 py-2"
               />
             </div>
           </div>
         )}
 
         {/* Save Button */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
+        <div className="mt-8 border-t border-hair pt-6">
           <div className="flex items-center gap-4">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-solid px-6 py-2 text-white hover:bg-brand-solid-hover disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -1110,8 +1110,8 @@ export default function ContentEditor({ initialContent }: ContentEditorProps) {
               <span
                 className={`text-sm ${
                   message.includes('success')
-                    ? 'text-green-600'
-                    : 'text-red-600'
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
                 }`}
               >
                 {message}

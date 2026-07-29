@@ -21,16 +21,16 @@ export const metadata: Metadata = {
 };
 
 // Runs before first paint to set the theme class on <html>, so returning
-// visitors never flash the wrong theme. The home page and article pages are
-// themed — the print/PDF routes and admin pages stay light. An explicit toggle
-// (`theme`) wins; otherwise we use the last sun-based result (`theme-auto`),
-// falling back to a local-time guess that ThemeProvider later refines via
-// geolocation.
+// visitors never flash the wrong theme. Every page is themed except the
+// print/PDF routes under /resume, which must stay light (they render the
+// paper resume). An explicit toggle (`theme`) wins; otherwise we use the last
+// sun-based result (`theme-auto`), falling back to a local-time guess that
+// ThemeProvider later refines via geolocation.
 const themeScript = `
 (function () {
   try {
     var p = location.pathname;
-    if (p !== '/' && p.indexOf('/articles') !== 0) return;
+    if (p.indexOf('/resume') === 0) return;
     var override = localStorage.getItem('theme');
     var theme;
     if (override === 'light' || override === 'dark') {

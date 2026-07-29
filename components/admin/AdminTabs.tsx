@@ -108,7 +108,7 @@ export default function AdminTabs({
       <div
         role="tablist"
         aria-label="Admin sections"
-        className="mb-4 flex gap-1 border-b border-gray-200"
+        className="mb-4 flex gap-1 border-b border-hair"
       >
         {TABS.map((tab) => {
           const active = activeTab === tab.id;
@@ -120,8 +120,8 @@ export default function AdminTabs({
               onClick={() => selectTab(tab.id)}
               className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 active
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  ? 'border-brand text-brand'
+                  : 'border-transparent text-subtle hover:border-rail hover:text-body'
               }`}
             >
               {tab.label}
@@ -158,13 +158,13 @@ export default function AdminTabs({
                 href="https://liquidjs.com/tutorials/intro-to-liquid.html"
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-brand hover:underline"
               >
                 Liquid
               </a>{' '}
               template — your resume is injected as variables when the assistant
               runs, so it always reflects the latest Resume tab content. Drop in{' '}
-              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">
+              <code className="rounded bg-chip px-1 py-0.5 font-mono text-xs">
                 {'{{ resume }}'}
               </code>{' '}
               for the whole resume, or loop over the individual sections.
@@ -187,7 +187,7 @@ export default function AdminTabs({
               Also a Liquid template — the assistant&rsquo;s voice comes from
               the System Prompt above; this just steers what the opening line
               says. Reference{' '}
-              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">
+              <code className="rounded bg-chip px-1 py-0.5 font-mono text-xs">
                 {'{{ name }}'}
               </code>{' '}
               and other variables as needed.
