@@ -168,26 +168,30 @@ export const CATEGORY_META: Record<
 > = {
   llm: {
     label: 'LLM',
-    pillClass: 'bg-purple-100 text-purple-700',
+    pillClass:
+      'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300',
   },
   search: {
     label: 'Search',
-    pillClass: 'bg-blue-100 text-blue-700',
+    pillClass:
+      'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
   },
   social: {
     label: 'Social',
-    pillClass: 'bg-sky-100 text-sky-700',
+    pillClass: 'bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300',
   },
   referral: {
     label: 'Referral',
-    pillClass: 'bg-amber-100 text-amber-700',
+    pillClass:
+      'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
   },
   internal: {
     label: 'Internal',
-    pillClass: 'bg-gray-100 text-gray-600',
+    pillClass: 'bg-chip text-body',
   },
   direct: {
     label: 'Direct',
-    pillClass: 'bg-green-100 text-green-700',
+    pillClass:
+      'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-300',
   },
 };

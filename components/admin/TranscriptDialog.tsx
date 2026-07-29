@@ -81,29 +81,29 @@ export default function TranscriptDialog({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="flex max-h-[80vh] max-w-xl flex-col gap-0 bg-white p-0">
-        <DialogHeader className="border-b border-gray-100 px-5 py-4">
-          <DialogTitle className="text-sm font-semibold text-gray-900">
+      <DialogContent className="flex max-h-[80vh] max-w-xl flex-col gap-0 bg-panel p-0">
+        <DialogHeader className="border-b border-hair px-5 py-4">
+          <DialogTitle className="text-sm font-semibold text-ink">
             Conversation
           </DialogTitle>
-          <DialogDescription className="text-[11px] text-gray-400">
+          <DialogDescription className="text-[11px] text-subtle">
             {context}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2.5 overflow-y-auto px-5 py-4">
           {state.status === 'loading' && (
-            <div className="flex justify-center py-8 text-gray-400">
+            <div className="flex justify-center py-8 text-subtle">
               <Spinner className="h-5 w-5" label="Loading transcript" />
             </div>
           )}
           {state.status === 'error' && (
-            <p className="py-8 text-center text-sm text-gray-500">
+            <p className="py-8 text-center text-sm text-subtle">
               Failed to load this conversation. Close and try again.
             </p>
           )}
           {state.status === 'gone' && (
-            <p className="py-8 text-center text-sm text-gray-500">
+            <p className="py-8 text-center text-sm text-subtle">
               This conversation was purged (transcripts are kept for 30 days).
             </p>
           )}
@@ -115,14 +115,14 @@ export default function TranscriptDialog({
                   key={m.id}
                   className={`max-w-[85%] rounded-lg px-3 py-2 ${
                     isVisitor
-                      ? 'self-end bg-gray-100'
-                      : 'self-start bg-blue-50'
+                      ? 'self-end bg-chip'
+                      : 'self-start bg-blue-50 dark:bg-blue-950/40'
                   }`}
                 >
-                  <div className="mb-0.5 text-[10px] uppercase tracking-wide text-gray-400">
+                  <div className="mb-0.5 text-[10px] uppercase tracking-wide text-subtle">
                     {isVisitor ? 'Visitor' : 'Agent'}
                   </div>
-                  <div className="whitespace-pre-wrap text-[13px] text-gray-900">
+                  <div className="whitespace-pre-wrap text-[13px] text-ink">
                     {m.content}
                   </div>
                 </div>

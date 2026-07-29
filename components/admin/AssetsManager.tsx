@@ -175,8 +175,8 @@ export default function AssetsManager({
     <section id="assets" className="mt-6">
       <div className="mb-3 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Assets</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-base font-semibold text-ink">Assets</h2>
+          <p className="text-xs text-subtle">
             Images in Vercel Blob storage. Upload here, then paste an
             asset&rsquo;s URL into an article&rsquo;s header image or Markdown
             body.
@@ -187,7 +187,7 @@ export default function AssetsManager({
             <button
               onClick={() => void load()}
               disabled={loading}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-lg border border-hair px-3 py-1.5 text-xs text-body hover:bg-surface disabled:opacity-50"
             >
               {loading ? 'Refreshing…' : 'Refresh'}
             </button>
@@ -195,7 +195,7 @@ export default function AssetsManager({
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading || notConfigured}
-            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-solid px-3 py-1.5 text-xs text-white hover:bg-brand-solid-hover disabled:opacity-50"
           >
             {uploading ? 'Uploading…' : 'Upload'}
           </button>
@@ -217,7 +217,9 @@ export default function AssetsManager({
       {message ? (
         <div
           className={`mb-2 text-[11px] ${
-            /fail|error/i.test(message) ? 'text-red-600' : 'text-green-600'
+            /fail|error/i.test(message)
+              ? 'text-red-600 dark:text-red-400'
+              : 'text-green-600 dark:text-green-400'
           }`}
         >
           {message}
@@ -225,33 +227,33 @@ export default function AssetsManager({
       ) : null}
 
       {notConfigured ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-xs text-gray-500">
+        <div className="rounded-lg border border-dashed border-rail p-8 text-center text-xs text-subtle">
           Asset storage isn&rsquo;t configured — link a Vercel Blob store so{' '}
-          <code className="rounded bg-gray-100 px-1">
+          <code className="rounded bg-chip px-1">
             BLOB_READ_WRITE_TOKEN
           </code>{' '}
           is set.
         </div>
       ) : error ? (
-        <div className="rounded-lg border border-dashed border-red-300 p-8 text-center text-xs text-red-600">
+        <div className="rounded-lg border border-dashed border-red-300 p-8 text-center text-xs text-red-600 dark:border-red-900 dark:text-red-400">
           {error}.{' '}
           <button onClick={() => void load()} className="underline">
             Retry
           </button>
         </div>
       ) : assets === null ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-xs text-gray-500">
+        <div className="rounded-lg border border-dashed border-rail p-8 text-center text-xs text-subtle">
           Loading assets…
         </div>
       ) : assets.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-xs text-gray-500">
+        <div className="rounded-lg border border-dashed border-rail p-8 text-center text-xs text-subtle">
           No assets yet — upload an image to get started.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <div className="overflow-x-auto rounded-lg border border-hair">
           <table className="w-full min-w-[640px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 text-[10px] uppercase tracking-wide text-gray-500">
+              <tr className="border-b border-hair bg-surface text-[10px] uppercase tracking-wide text-subtle">
                 <th className="px-3 py-2 font-medium">Preview</th>
                 <th className="px-3 py-2 font-medium">Name</th>
                 <th className="px-3 py-2 font-medium">Size</th>
@@ -267,7 +269,7 @@ export default function AssetsManager({
                 return (
                   <tr
                     key={asset.url}
-                    className="border-b border-gray-100 text-gray-900 last:border-0 hover:bg-gray-50"
+                    className="border-b border-hair text-ink last:border-0 hover:bg-surface"
                   >
                     <td className="px-3 py-2">
                       <a
@@ -280,7 +282,7 @@ export default function AssetsManager({
                         <img
                           src={asset.url}
                           alt={asset.pathname}
-                          className="h-10 w-10 rounded border border-gray-200 bg-gray-50 object-cover"
+                          className="h-10 w-10 rounded border border-hair bg-chip object-cover"
                           loading="lazy"
                         />
                       </a>
@@ -293,19 +295,19 @@ export default function AssetsManager({
                         {asset.pathname}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-gray-600">
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-body">
                       {formatBytes(asset.size)}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-gray-600">
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-body">
                       {formatDate(asset.uploadedAt)}
                     </td>
                     <td className="px-3 py-2">
                       {inUse ? (
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-950/40 dark:text-green-300">
                           In use
                         </span>
                       ) : (
-                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
+                        <span className="rounded-full bg-chip px-2 py-0.5 text-[10px] text-subtle">
                           Unused
                         </span>
                       )}
@@ -313,14 +315,14 @@ export default function AssetsManager({
                     <td className="whitespace-nowrap px-3 py-2 text-right">
                       <button
                         onClick={() => void handleCopy(asset.url)}
-                        className="rounded px-2 py-1 text-[11px] font-medium text-blue-600 hover:bg-blue-50"
+                        className="rounded px-2 py-1 text-[11px] font-medium text-brand hover:bg-blue-50 dark:hover:bg-blue-950/40"
                       >
                         {copied === asset.url ? 'Copied!' : 'Copy URL'}
                       </button>
                       <button
                         onClick={() => void handleDelete(asset)}
                         disabled={deleting}
-                        className="ml-1 rounded px-2 py-1 text-[11px] text-red-600 hover:bg-red-50 disabled:opacity-50"
+                        className="ml-1 rounded px-2 py-1 text-[11px] text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/40"
                       >
                         {deleting ? 'Deleting…' : 'Delete'}
                       </button>
