@@ -36,29 +36,11 @@ export default async function Home() {
         <Education data={content.education} />
         <Skills data={content.skills} />
         <Projects data={content.projects} />
-        <Contact data={content.contact} />
-        <footer className="px-4 py-8">
-          <div className="mx-auto flex max-w-3xl items-center justify-between text-sm text-subtle">
-            <p>
-              &copy; {new Date().getFullYear()} {content.header.name}
-            </p>
-            {isAdmin ? (
-              <a
-                href="/admin"
-                className="text-xs text-subtle transition-colors hover:text-ink"
-              >
-                Admin
-              </a>
-            ) : (
-              <a
-                href="/login"
-                className="text-xs text-subtle transition-colors hover:text-ink"
-              >
-                Login
-              </a>
-            )}
-          </div>
-        </footer>
+        <Contact
+          data={content.contact}
+          name={content.header.name}
+          isAdmin={isAdmin}
+        />
         <ChatButton personName={content.header.name} isAdmin={isAdmin} />
       </main>
     </ThemeProvider>
