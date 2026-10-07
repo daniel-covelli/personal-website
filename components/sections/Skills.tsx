@@ -12,23 +12,17 @@ export default function Skills({ data }: SkillsProps) {
     <section className="px-4 py-12">
       <div className="mx-auto max-w-3xl">
         <SectionHeading>Skills</SectionHeading>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid max-w-[64ch] gap-3.5">
           {data.categories.map((category) => (
-            <div key={category.id}>
-              <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-subtle">
+            <p
+              key={category.id}
+              className="text-[15px] leading-[1.75] text-body"
+            >
+              <span className="mr-1.5 font-semibold text-ink">
                 {category.name}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {category.items.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="rounded-full bg-pill px-3 py-1 text-sm text-pill-fg"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+              </span>
+              {category.items.join(', ')}
+            </p>
           ))}
         </div>
       </div>
